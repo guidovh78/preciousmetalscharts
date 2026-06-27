@@ -14,15 +14,17 @@
   cheap relative to gold. Historical range: under ~35 at silver peaks to above ~100 in
   market stress.
 - The site is independent: it sells no metals and holds no inventory.
+- Historical prices go back to the 1970s, built from the site's own price archive with deep
+  history from open World Bank commodity data (CC BY 4.0).
 
 ## Pages
 - [Charts (home)](https://preciousmetalscharts.com/): live spot prices, main chart, ratio,
   premiums, performance comparison, FAQ.
-- [Gold-to-silver ratio](https://preciousmetalscharts.com/ratio): the ratio with historical
-  context.
-- [Premiums](https://preciousmetalscharts.com/premiums): typical dealer premium over spot
-  by product.
-- [Price alerts](https://preciousmetalscharts.com/alerts): free email alerts at a target price.
+- [Gold-to-silver ratio](https://preciousmetalscharts.com/ratio): the live ratio plus its
+  full history back to the 1970s, with a plain-language guide to what it means.
+- [Where to buy gold & silver](https://preciousmetalscharts.com/buy): independent guide to
+  buying — physical coins and bars, vaulted (allocated) metal and savings plans — with
+  premiums, storage and how to compare providers.
 - [Best Gold IRA companies (comparison)](https://preciousmetalscharts.com/gold-ira):
   independent comparison of gold-IRA providers on fees, minimums, transparency and support,
   with a published scoring method and the honest downsides.

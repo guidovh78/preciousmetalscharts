@@ -14,6 +14,8 @@ on:
     paths:
       - "index.html"
       - "gold-ira.html"
+      - "ratio.html"
+      - "buy.html"
       - "robots.txt"
       - "llms.txt"
       - "sitemap.xml"
@@ -38,7 +40,7 @@ jobs:
           FTP_PASS: ${{ secrets.FTP_PASS }}
         run: |
           set -e
-          for f in index.html gold-ira.html robots.txt llms.txt sitemap.xml .htaccess; do
+          for f in index.html gold-ira.html ratio.html buy.html robots.txt llms.txt sitemap.xml .htaccess; do
             echo "Uploading $f -> public_html/$f"
             curl --fail --show-error --silent \
                  --ssl-reqd -k --ftp-pasv --disable-epsv \
