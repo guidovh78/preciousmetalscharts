@@ -426,8 +426,7 @@
         </div>
         <div class="bigprice"><span class="v mono" id="mainPrice">$4,035.02</span><span class="c mono up" id="mainChg">+0.82%</span></div>
         <div class="chart-host" id="chartHost"><div class="crosshair-label" id="chLabel"></div></div>
-        <button class="adj" id="adjBtn" aria-pressed="false"><span class="switch" aria-hidden="true"></span>Show in today's dollars (inflation-adjusted)</button>
-        <div class="story"><span class="pill">Why</span><p style="margin:0"><b id="storyLead">Gold is up today</b> <span id="storyBody">on a softer dollar and continued central-bank buying. Real yields ticked lower after the morning data, easing the cost of holding metal.</span></p></div>
+        <div class="story"><span class="pill">Context</span><p style="margin:0"><b id="storyLead">Today's move</b> <span id="storyBody">— spot prices move with the dollar, real interest rates and physical supply and demand. This is context, not a forecast.</span></p></div>
       </article>
 
       <article class="panel" id="ratio" aria-label="Gold to silver ratio">
@@ -448,19 +447,19 @@
 
   <!-- today / market pulse (variable reward) -->
   <section class="sec" id="today">
-    <div class="sec-head"><span class="sec-num">01</span><h2>Since your last visit</h2></div>
+    <div class="sec-head"><span class="sec-num">01</span><h2>Today's move</h2></div>
     <div class="pulse">
       <div class="pulse-left">
-        <div class="eb">Welcome back</div>
-        <div class="since">Yesterday → now</div>
+        <div class="eb">Market pulse</div>
+        <div class="since">Since today's open</div>
       </div>
       <div class="pulse-stats">
-        <div class="pstat"><div class="l">Gold</div><div class="v up">+1.2%</div></div>
-        <div class="pstat"><div class="l">Silver</div><div class="v down">−0.8%</div></div>
-        <div class="pstat"><div class="l">Ratio</div><div class="v">69.2 <span class="up" style="font-size:13px">+0.6</span></div></div>
-        <div class="pstat"><div class="l">Your stack</div><div class="v up" id="pulseStack">+$148</div></div>
+        <div class="pstat"><div class="l">Gold</div><div class="v mono" id="pulseGold">—</div></div>
+        <div class="pstat"><div class="l">Silver</div><div class="v mono" id="pulseSilver">—</div></div>
+        <div class="pstat"><div class="l">Platinum</div><div class="v mono" id="pulsePlat">—</div></div>
+        <div class="pstat"><div class="l">Palladium</div><div class="v mono" id="pulsePall">—</div></div>
       </div>
-      <div class="pulse-note"><b>The short version:</b> gold extended its run on a softer dollar while silver slipped, nudging the ratio higher — silver looks relatively cheaper than it did yesterday. <span style="color:var(--faint)">On the live site this reflects your actual last visit.</span></div>
+      <div class="pulse-note">Change since today's opening price, from live spot. Metals often move together; the gold-to-silver ratio above shows how they are priced relative to each other. <span style="color:var(--faint)">This is context, not a forecast.</span></div>
     </div>
   </section>
 
@@ -516,15 +515,15 @@
         <p class="mod-foot">Typical retail ranges; physical product always costs more than paper spot.</p>
       </article>
       <article class="panel" id="compare" aria-label="Performance comparison">
-        <div class="panel-title">Metal vs. everything else <span class="period-tag">Last 5 years</span></div>
-        <div class="panel-sub" style="font-family:var(--font-body)">Indexed to 100 — gold against the S&amp;P 500, Bitcoin and inflation over the last five years.</div>
+        <div class="panel-title">The four metals, compared <span class="period-tag">Last 5 years</span></div>
+        <div class="panel-sub" style="font-family:var(--font-body)">Indexed to 100 — how gold, silver, platinum and palladium have moved over the last five years, from our own price archive.</div>
         <div class="chart-host" id="compareHost" style="margin-top:14px"></div>
         <div class="compare-axis"><span>5 years ago</span><span>today</span></div>
         <div class="compare-legend">
           <span><i style="background:var(--gold)"></i>Gold</span>
-          <span><i style="background:var(--silver)"></i>S&amp;P 500</span>
-          <span><i style="background:var(--accent)"></i>Bitcoin</span>
-          <span><i style="background:var(--down)"></i>Inflation</span>
+          <span><i style="background:var(--silver)"></i>Silver</span>
+          <span><i style="background:var(--platinum)"></i>Platinum</span>
+          <span><i style="background:var(--palladium)"></i>Palladium</span>
         </div>
       </article>
     </div>
@@ -597,8 +596,8 @@
       <span class="wordmark"><span class="a">preciousmetals</span><span class="b">charts</span></span>
     </div>
     <div class="row">
-      <div class="legal"><b>Independent and not affiliated with any dealer or mint.</b> Educational information only — not investment advice. Prices shown are illustrative demo data referencing typical spot levels; verify before transacting.</div>
-      <span class="demoflag">Demo · illustrative data</span>
+      <div class="legal"><b>Independent and not affiliated with any dealer or mint.</b> Educational information only — not investment advice. Prices are live spot, ~10 minutes delayed — verify before transacting. The portfolio tracker is a private, browser-only preview.</div>
+      <span class="demoflag">Live spot · ~10 min delayed</span>
     </div>
     <div class="legal" style="margin-top:10px;font-size:12px;color:var(--faint)">Historical price data: <a href="https://www.worldbank.org/en/research/commodity-markets" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">World Bank Commodity Price Data (The Pink Sheet)</a>, used under CC&nbsp;BY&nbsp;4.0.</div>
   </div>
@@ -677,9 +676,10 @@
   }
 
   function renderRatio(){var r=METALS.gold.usd/METALS.silver.usd;document.getElementById("ratioVal").innerHTML=r.toFixed(1)+'<small> oz</small>';document.getElementById("ratioMarker").style.left=Math.max(0,Math.min(100,(r-30)/90*100))+"%";}
+  function renderPulse(){[["gold","pulseGold"],["silver","pulseSilver"],["platinum","pulsePlat"],["palladium","pulsePall"]].forEach(function(p){var el=document.getElementById(p[1]);if(!el)return;var c=METALS[p[0]].chg||0,up=c>=0;el.textContent=(up?"▲ +":"▼ ")+Math.abs(c).toFixed(2)+"%";el.className="v mono "+(up?"up":"down");});}
 
   /* ===== portfolio (investment hook) ===== */
-  var holdings=[{metal:"gold",oz:2,cost:3600},{metal:"silver",oz:50,cost:52}];
+  var holdings=[];
   function renderPortfolio(){
     var totVal=0,totCost=0,byMetal={};
     holdings.forEach(function(h){var v=h.oz*METALS[h.metal].usd;totVal+=v;totCost+=h.oz*(h.cost||0);byMetal[h.metal]=(byMetal[h.metal]||0)+v;});
@@ -705,7 +705,6 @@
     document.getElementById("msTitle").textContent=holdings.length?wfmt(totOz)+" tracked":"—";
     document.getElementById("msDesc").textContent=holdings.length?("Across "+Object.keys(byMetal).length+" metal"+(Object.keys(byMetal).length>1?"s":"")+" · next gold milestone at "+wfmt(5)):"Add a holding to start tracking.";
     document.getElementById("msBar").style.width=Math.min(100,goldOz/5*100)+"%";
-    document.getElementById("pulseStack").textContent="+"+curSym()+Math.round(state.currency==="eur"?148*FX:148);
   }
   document.getElementById("pfRows").addEventListener("click",function(e){var b=e.target.closest(".rm");if(!b)return;holdings.splice(+b.dataset.i,1);renderPortfolio();});
   document.getElementById("pfAdd").addEventListener("click",function(){
@@ -725,14 +724,18 @@
     document.getElementById("premiumRows").innerHTML=rows.map(function(r){return '<div class="prow"><span class="nm">'+r.nm+'</span><span class="pbar"><i style="width:'+Math.min(100,r.pct/20*100)+'%"></i></span><span class="pv">+'+r.pct.toFixed(1)+'% over spot</span></div>';}).join("");
   }
   function renderCompare(){
-    var host=document.getElementById("compareHost"),w=460,h=180,pad=10,n=60;
-    var defs=[{seed:101,end:182,col:"var(--gold)"},{seed:202,end:150,col:"var(--silver)"},{seed:303,end:320,col:"var(--accent)"},{seed:404,end:121,col:"var(--down)"}];
-    var grid="";for(var g=1;g<=2;g++){var gy=pad+g/3*(h-2*pad);grid+='<line x1="'+pad+'" x2="'+(w-pad)+'" y1="'+gy+'" y2="'+gy+'" stroke="var(--line)" stroke-width="1"/>';}
-    var sets=defs.map(function(d,i){var arr=series(d.seed,n,i===3?0.012:0.10,d.end);arr[0]=100;return{arr:arr,col:d.col};});
-    var all=sets.reduce(function(a,s){return a.concat(s.arr);},[]),min=Math.min.apply(null,all),max=Math.max.apply(null,all),rng=(max-min)||1;
-    var X=function(i){return pad+i/(n-1)*(w-2*pad);},Y=function(v){return h-pad-(v-min)/rng*(h-2*pad);},paths="";
-    sets.forEach(function(s){var d="M"+X(0)+" "+Y(s.arr[0]);for(var i=1;i<n;i++){var x0=X(i-1),y0=Y(s.arr[i-1]),x1=X(i),y1=Y(s.arr[i]),cx=(x0+x1)/2;d+=" C"+cx+" "+y0+" "+cx+" "+y1+" "+x1+" "+y1;}paths+='<path d="'+d+'" fill="none" stroke="'+s.col+'" stroke-width="2" stroke-linecap="round" opacity=".95"/>';});
-    host.innerHTML='<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" role="img" aria-label="Five-year comparison">'+grid+paths+'</svg>';
+    var host=document.getElementById("compareHost");if(!host)return;
+    var defs=[{m:"gold",col:"var(--gold)"},{m:"silver",col:"var(--silver)"},{m:"platinum",col:"var(--platinum)"},{m:"palladium",col:"var(--palladium)"}];
+    Promise.all(defs.map(function(d){return fetch("/history/"+d.m+"-5y.json",{cache:"force-cache"}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});})).then(function(res){
+      var w=460,h=180,pad=10,sets=[];
+      res.forEach(function(file,i){if(!file||!file.points||file.points.length<2)return;var base=file.points[0][1];if(!base)return;sets.push({arr:file.points.map(function(p){return p[1]/base*100;}),col:defs[i].col});});
+      if(!sets.length){host.innerHTML="";return;}
+      var all=sets.reduce(function(a,s){return a.concat(s.arr);},[]),min=Math.min.apply(null,all),max=Math.max.apply(null,all),rng=(max-min)||1;
+      var grid="";for(var g=1;g<=2;g++){var gy=pad+g/3*(h-2*pad);grid+='<line x1="'+pad+'" x2="'+(w-pad)+'" y1="'+gy+'" y2="'+gy+'" stroke="var(--line)" stroke-width="1"/>';}
+      var paths="";
+      sets.forEach(function(s){var n=s.arr.length,X=function(i){return pad+i/(n-1)*(w-2*pad);},Y=function(v){return h-pad-(v-min)/rng*(h-2*pad);};var d="M"+X(0).toFixed(1)+" "+Y(s.arr[0]).toFixed(1);for(var i=1;i<n;i++){var x0=X(i-1),y0=Y(s.arr[i-1]),x1=X(i),y1=Y(s.arr[i]),cx=(x0+x1)/2;d+=" C"+cx.toFixed(1)+" "+y0.toFixed(1)+" "+cx.toFixed(1)+" "+y1.toFixed(1)+" "+x1.toFixed(1)+" "+y1.toFixed(1);}paths+='<path d="'+d+'" fill="none" stroke="'+s.col+'" stroke-width="2" stroke-linecap="round" opacity=".95"/>';});
+      host.innerHTML='<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" role="img" aria-label="Five-year comparison of gold, silver, platinum and palladium, indexed to 100">'+grid+paths+'</svg>';
+    });
   }
 
   /* alerts */
@@ -745,7 +748,6 @@
 
   /* controls */
   document.getElementById("ranges").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;Array.prototype.forEach.call(this.querySelectorAll("button"),function(x){x.setAttribute("aria-pressed","false");});b.setAttribute("aria-pressed","true");state.range=b.dataset.r;loadChart();});
-  document.getElementById("adjBtn").addEventListener("click",function(){state.adjust=!state.adjust;this.setAttribute("aria-pressed",state.adjust?"true":"false");renderMain();});
   function setCurrency(c){state.currency=c;document.getElementById("cur-usd").setAttribute("aria-pressed",c==="usd"?"true":"false");document.getElementById("cur-eur").setAttribute("aria-pressed",c==="eur"?"true":"false");renderMetals();renderMain();renderPortfolio();syncAlert();}
   document.getElementById("cur-usd").addEventListener("click",function(){setCurrency("usd");});
   document.getElementById("cur-eur").addEventListener("click",function(){setCurrency("eur");});
@@ -768,7 +770,7 @@
   function applySnapshot(snap){
     if(!snap||!snap.metals)return;
     ORDER.forEach(function(k){var m=snap.metals[k];if(!m||m.price==null)return;METALS[k].usd=m.price;METALS[k].chg=(m.changePct==null?0:m.changePct);});
-    renderMetals();renderMain();renderRatio();renderPortfolio();fmtFresh(snap);
+    renderMetals();renderMain();renderRatio();renderPulse();renderPortfolio();fmtFresh(snap);
   }
   function loadPrices(){
     fetch("/prices.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(s){if(s)applySnapshot(s);}).catch(function(){});
@@ -776,7 +778,7 @@
   loadPrices();setInterval(loadPrices,60000);
 
   /* init */
-  renderMetals();loadChart();renderRatio();renderPortfolio();renderPremiums();renderCompare();syncAlert();
+  renderMetals();loadChart();renderRatio();renderPulse();renderPortfolio();renderPremiums();renderCompare();syncAlert();
 })();
 </script>
 <script>
