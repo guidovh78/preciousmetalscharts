@@ -49,10 +49,7 @@
   ]
 }
 </script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/site.css?v=2">
+<link rel="stylesheet" href="/assets/site.css?v=3">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -364,11 +361,21 @@
   function buildPath(values,w,h,pad){var min=Math.min.apply(null,values),max=Math.max.apply(null,values),rng=(max-min)||1,n=values.length;var X=function(i){return pad+i/(n-1)*(w-2*pad);};var Y=function(v){return h-pad-(v-min)/rng*(h-2*pad);};var d="M"+X(0).toFixed(1)+" "+Y(values[0]).toFixed(1);for(var i=1;i<n;i++){var x0=X(i-1),y0=Y(values[i-1]),x1=X(i),y1=Y(values[i]),cx=(x0+x1)/2;d+=" C"+cx.toFixed(1)+" "+y0.toFixed(1)+" "+cx.toFixed(1)+" "+y1.toFixed(1)+" "+x1.toFixed(1)+" "+y1.toFixed(1);}return{d:d,X:X,Y:Y};}
   function sparkSVG(values,up){var w=120,h=34,pad=3,p=buildPath(values,w,h,pad),col=up?"var(--up)":"var(--down)";var area=p.d+" L"+(w-pad)+" "+(h-pad)+" L"+pad+" "+(h-pad)+" Z";var gid="sg"+Math.random().toString(36).slice(2,7);return '<svg class="spark" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="'+gid+'" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="'+col+'" stop-opacity=".18"/><stop offset="1" stop-color="'+col+'" stop-opacity="0"/></linearGradient></defs><path d="'+area+'" fill="url(#'+gid+')"/><path d="'+p.d+'" fill="none" stroke="'+col+'" stroke-width="1.6" stroke-linecap="round"/></svg>';}
 
+  /* real card sparklines: last ~month of closes per metal, from our own archive */
+  var sparkData={};
+  function loadSparks(){
+    Promise.all(ORDER.map(function(k){return fetch("/history/"+k+"-1m.json",{cache:"force-cache"}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});})).then(function(res){
+      var any=false;res.forEach(function(f,i){if(f&&f.points&&f.points.length>1){sparkData[ORDER[i]]=f.points.map(function(p){return p[1];});any=true;}});
+      if(any)renderMetals();
+    });
+  }
   function renderMetals(){
     var host=document.getElementById("metals");host.innerHTML="";
-    ORDER.forEach(function(key){var m=METALS[key],up=m.chg>=0,s=series(m.seed,30,0.02,m.usd);
+    ORDER.forEach(function(key){var m=METALS[key],up=m.chg>=0;
+      var s=(sparkData[key]&&sparkData[key].length>1)?sparkData[key]:series(m.seed,30,0.02,m.usd);
+      var sup=s[s.length-1]>=s[0];
       var b=document.createElement("button");b.className="metal";b.setAttribute("aria-pressed",state.metal===key?"true":"false");b.style.setProperty("--mc",m.color);
-      b.innerHTML='<div class="metal-head"><span class="metal-name"><span class="dot"></span>'+m.name+'</span><span class="metal-sym">'+m.sym+'</span></div><div class="metal-price">'+cur(m.usd)+'</div><div class="metal-meta"><span class="chg '+(up?"up":"down")+'">'+(up?"▲ +":"▼ ")+m.chg.toFixed(2)+'%</span><span class="unit">per troy oz</span></div>'+sparkSVG(s,up);
+      b.innerHTML='<div class="metal-head"><span class="metal-name"><span class="dot"></span>'+m.name+'</span><span class="metal-sym">'+m.sym+'</span></div><div class="metal-price">'+cur(m.usd)+'</div><div class="metal-meta"><span class="chg '+(up?"up":"down")+'">'+(up?"▲ +":"▼ ")+m.chg.toFixed(2)+'%</span><span class="unit">per troy oz</span></div>'+sparkSVG(s,sup);
       b.addEventListener("click",function(){state.metal=key;renderMetals();loadChart();syncAlert();});host.appendChild(b);});
   }
 
@@ -514,7 +521,7 @@
   loadPrices();setInterval(loadPrices,60000);
 
   /* init */
-  renderMetals();loadChart();renderRatio();renderPulse();renderPortfolio();renderPremiums();renderCompare();syncAlert();
+  renderMetals();loadChart();renderRatio();renderPulse();renderPortfolio();renderPremiums();renderCompare();syncAlert();loadSparks();
 })();
 </script>
 <script src="/assets/site.js" defer></script>

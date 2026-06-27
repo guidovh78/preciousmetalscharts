@@ -51,4 +51,14 @@ jobs:
                  -T "$f" -u "$FTP_USER:$FTP_PASS" \
                  "ftp://$FTP_HOST/public_html/$f"
           done
+          for f in assets/fonts/*.woff2; do
+            [ -e "$f" ] || continue
+            echo "Uploading $f -> public_html/$f"
+            curl --fail --show-error --silent \
+                 --ssl-reqd -k --ftp-pasv --disable-epsv --ftp-create-dirs \
+                 --connect-timeout 20 --max-time 120 \
+                 --retry 4 --retry-delay 10 --retry-all-errors \
+                 -T "$f" -u "$FTP_USER:$FTP_PASS" \
+                 "ftp://$FTP_HOST/public_html/$f"
+          done
           echo "All site files uploaded."
