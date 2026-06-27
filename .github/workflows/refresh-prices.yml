@@ -47,22 +47,18 @@ jobs:
           git diff --staged --quiet || git commit -m "chore: refresh prices [skip ci]"
           git push || true
 
-      - name: Upload prices.json to Vimexx (FTPS)
+      - name: DIAG list FTP directory layout
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USER: ${{ secrets.FTP_USER }}
           FTP_PASS: ${{ secrets.FTP_PASS }}
         run: |
-          # --ssl-reqd keeps the transfer ENCRYPTED (FTPS). -k accepts Vimexx's
-          # self-signed FTPS cert. --ftp-pasv forces passive mode. Retries ride
-          # out transient firewall/network hiccups; each attempt is a fresh
-          # connection so a temporary block can clear between tries.
-          echo "Uploading public/prices.json to $FTP_HOST ..."
-          curl --fail --show-error --silent \
-               --ssl-reqd -k --ftp-pasv --disable-epsv \
-               --connect-timeout 20 --max-time 90 \
-               --retry 4 --retry-delay 10 --retry-all-errors \
-               -T public/prices.json \
-               -u "$FTP_USER:$FTP_PASS" \
-               "ftp://$FTP_HOST/prices.json"
-          echo "Upload OK."
+          # Temporary: discover where the FTP account lands and where public_html
+          # (with index.html) lives, so we can set the correct upload path once.
+          for d in "" "public_html/" "domains/" "domains/preciousmetalscharts.com/" "domains/preciousmetalscharts.com/public_html/"; do
+            echo "===================== ftp root + /$d ====================="
+            curl -s --ssl-reqd -k --ftp-pasv --disable-epsv \
+                 --connect-timeout 20 --max-time 60 \
+                 --retry 3 --retry-delay 8 --retry-all-errors \
+                 -u "$FTP_USER:$FTP_PASS" "ftp://$FTP_HOST/$d" || echo "(kon deze map niet lezen)"
+          done
