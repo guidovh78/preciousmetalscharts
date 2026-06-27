@@ -47,18 +47,23 @@ jobs:
           git diff --staged --quiet || git commit -m "chore: refresh prices [skip ci]"
           git push || true
 
-      - name: DIAG list FTP directory layout
+      - name: Upload prices.json to Vimexx (FTPS)
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USER: ${{ secrets.FTP_USER }}
           FTP_PASS: ${{ secrets.FTP_PASS }}
         run: |
-          # Temporary: discover where the FTP account lands and where public_html
-          # (with index.html) lives, so we can set the correct upload path once.
-          for d in "" "public_html/" "domains/" "domains/preciousmetalscharts.com/" "domains/preciousmetalscharts.com/public_html/"; do
-            echo "===================== ftp root + /$d ====================="
-            curl -s --ssl-reqd -k --ftp-pasv --disable-epsv \
-                 --connect-timeout 20 --max-time 60 \
-                 --retry 3 --retry-delay 8 --retry-all-errors \
-                 -u "$FTP_USER:$FTP_PASS" "ftp://$FTP_HOST/$d" || echo "(kon deze map niet lezen)"
-          done
+          # The FTP account lands in the domain dir; the web root is public_html/,
+          # so the live URL https://preciousmetalscharts.com/prices.json maps to
+          # public_html/prices.json. --ssl-reqd -k keeps the transfer encrypted
+          # while accepting Vimexx's self-signed FTPS cert; retries ride out
+          # transient firewall/network hiccups.
+          echo "Uploading public/prices.json -> public_html/prices.json on $FTP_HOST ..."
+          curl --fail --show-error --silent \
+               --ssl-reqd -k --ftp-pasv --disable-epsv \
+               --connect-timeout 20 --max-time 90 \
+               --retry 4 --retry-delay 10 --retry-all-errors \
+               -T public/prices.json \
+               -u "$FTP_USER:$FTP_PASS" \
+               "ftp://$FTP_HOST/public_html/prices.json"
+          echo "Upload OK."
