@@ -1,0 +1,34 @@
+{
+  "updatedAt": "2026-06-27T17:00:52.606Z",
+  "delayedMinutes": 10,
+  "base": "USD",
+  "unit": "troy_oz",
+  "source": "gold-api.com",
+  "sourcesTried": [
+    "gold-api"
+  ],
+  "metals": {
+    "gold": {
+      "price": 4090.600098,
+      "open": 4090.600098,
+      "changePct": 0
+    },
+    "silver": {
+      "price": 59.298,
+      "open": 59.298,
+      "changePct": 0
+    },
+    "platinum": {
+      "price": 1625,
+      "open": 1625,
+      "changePct": 0
+    },
+    "palladium": {
+      "price": 1228,
+      "open": 1228,
+      "changePct": 0
+    }
+  },
+  "attributions": [],
+  "stale": false
+}
