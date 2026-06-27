@@ -16,7 +16,11 @@ const METALS = ['gold', 'silver', 'platinum', 'palladium'];
 
 const today = () => new Date().toISOString().slice(0, 10);
 const yesterday = () => { const d = new Date(); d.setUTCDate(d.getUTCDate() - 1); return d.toISOString().slice(0, 10); };
-function inRange(metal, v) { const [lo, hi] = RANGES[metal]; return v != null && isFinite(v) && v >= lo && v <= hi; }
+// History reaches back decades, where prices were far below modern spot (gold was
+// $35/oz in 1960, silver < $1, platinum < $100). So history uses MUCH wider sanity
+// bounds than the live-spot RANGES (which stay tight to catch broken feeds).
+const HIST_RANGES = { gold: [20, 20000], silver: [0.3, 2000], platinum: [40, 12000], palladium: [20, 15000] };
+function inRange(metal, v) { const [lo, hi] = (HIST_RANGES[metal] || RANGES[metal]); return v != null && isFinite(v) && v >= lo && v <= hi; }
 
 // master = { metal, base, unit, points: [[ "YYYY-MM-DD", close ], ...] sorted asc }
 export function emptyMaster(metal) { return { metal, base: 'USD', unit: 'troy_oz', points: [] }; }
