@@ -1,0 +1,68 @@
+# Backfill history (ONE-TIME)
+# -----------------------------------------------------------------------------
+# Imports the seed CSVs (seed/<metal>.csv: date,close) into the owned archive
+# public/history/<metal>.json, derives the per-range chart files, commits them to
+# the repo (your data, versioned), and uploads the chart files to Vimexx so the
+# site can serve /history/<metal>-<range>.json. Run manually from the Actions tab.
+# After this, the daily updater keeps the archive current. Re-run with the same
+# seeds is safe (merge skips days already present); use OUT_DIR default ./public.
+# -----------------------------------------------------------------------------
+
+name: Backfill history (one-time)
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: history
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build archive from seed CSVs
+        env:
+          CSV_GOLD: seed/gold.csv
+          CSV_SILVER: seed/silver.csv
+          CSV_PLATINUM: seed/platinum.csv
+          CSV_PALLADIUM: seed/palladium.csv
+          OUT_DIR: "./public"
+          # NOTE: METALPRICEAPI_KEY deliberately NOT set — free tier can't do deep
+          # backfill (30-day cap); the CSV seed is the deep history. The daily
+          # updater uses the API for just the newest day.
+        run: node data-pipeline/node/backfill-history.mjs
+
+      - name: Commit archive to repo
+        run: |
+          git config user.name "history-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add public/history
+          git diff --staged --quiet || git commit -m "chore: backfill history archive [skip ci]"
+          git push || true
+
+      - name: Upload chart files to Vimexx (FTPS)
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+        run: |
+          set -e
+          shopt -s nullglob
+          for f in public/history/*-*.json; do
+            fn=$(basename "$f")
+            echo "Uploading $fn -> public_html/history/$fn"
+            curl --fail --show-error --silent --ssl-reqd -k --ftp-pasv --disable-epsv --ftp-create-dirs \
+                 --connect-timeout 20 --max-time 120 --retry 4 --retry-delay 10 --retry-all-errors \
+                 -T "$f" -u "$FTP_USER:$FTP_PASS" \
+                 "ftp://$FTP_HOST/public_html/history/$fn"
+          done
+          echo "All chart files uploaded."
