@@ -267,6 +267,16 @@
   }
   @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important;}}
   html{scroll-behavior:smooth;}
+  .navtoggle{display:none;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);width:36px;height:34px;border-radius:9px;place-items:center;}
+  .navtoggle svg{width:18px;height:18px;}
+  .mobilemenu{display:none;position:fixed;left:0;right:0;top:var(--hh);z-index:49;background:var(--surface);border-bottom:1px solid var(--line-strong);box-shadow:0 14px 26px -12px rgba(20,22,28,.3);padding:6px 0;}
+  .mobilemenu.open{display:block;}
+  .mobilemenu a{display:block;padding:13px 22px;text-decoration:none;color:var(--ink);font-size:15px;font-weight:500;border-bottom:1px solid var(--line);}
+  .mobilemenu a:last-child{border-bottom:0;}
+  .mobilemenu a.current{color:var(--accent);}
+  @media(max-width:880px){.navtoggle{display:grid;}}
+  @media(min-width:881px){.mobilemenu{display:none!important;}}
+  @media(max-width:560px){.controls .seg{display:none;} .wordmark{font-size:18px;}}
 </style>
 </head>
 <body>
@@ -487,6 +497,24 @@
   /* theme */
   var sun='<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',moon='<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>';
   document.getElementById("themeBtn").addEventListener("click",function(){var c=document.documentElement.getAttribute("data-theme"),n=c==="light"?"dark":"light";document.documentElement.setAttribute("data-theme",n);document.getElementById("themeIcon").innerHTML=n==="dark"?moon:sun;});
+})();
+</script>
+<script>
+(function(){
+  var bar=document.querySelector('.topbar-inner .controls'), src=document.querySelector('.sitenav');
+  if(!bar||!src) return;
+  var btn=document.createElement('button'); btn.className='navtoggle'; btn.type='button';
+  btn.setAttribute('aria-label','Open menu'); btn.setAttribute('aria-expanded','false'); btn.setAttribute('aria-controls','mobilemenu');
+  btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
+  bar.appendChild(btn);
+  var panel=document.createElement('nav'); panel.className='mobilemenu'; panel.id='mobilemenu'; panel.setAttribute('aria-label','Mobile navigation');
+  Array.prototype.forEach.call(src.querySelectorAll('a'),function(a){panel.appendChild(a.cloneNode(true));});
+  document.body.appendChild(panel);
+  function close(){panel.classList.remove('open');btn.setAttribute('aria-expanded','false');}
+  btn.addEventListener('click',function(e){e.stopPropagation();var o=panel.classList.toggle('open');btn.setAttribute('aria-expanded',o?'true':'false');});
+  panel.addEventListener('click',function(e){if(e.target.closest('a'))close();});
+  document.addEventListener('click',function(e){if(panel.classList.contains('open')&&!panel.contains(e.target)&&!btn.contains(e.target))close();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
 })();
 </script>
 </body>
