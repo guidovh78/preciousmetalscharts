@@ -481,7 +481,7 @@
           <input class="mono" id="pfCost" inputmode="decimal" placeholder="bought at" aria-label="Cost per oz">
           <button class="pf-add" id="pfAdd">Add</button>
         </div>
-        <div class="pf-privacy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Saved only in your browser — nothing is sent to a server. (In this demo it resets on reload.)</span></div>
+        <div class="pf-privacy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Saved only in your browser — nothing is sent to a server, and your holdings stay here between visits.</span></div>
       </div>
       <div class="pf-side">
         <div class="milestone">
@@ -679,7 +679,10 @@
   function renderPulse(){[["gold","pulseGold"],["silver","pulseSilver"],["platinum","pulsePlat"],["palladium","pulsePall"]].forEach(function(p){var el=document.getElementById(p[1]);if(!el)return;var c=METALS[p[0]].chg||0,up=c>=0;el.textContent=(up?"▲ +":"▼ ")+Math.abs(c).toFixed(2)+"%";el.className="v mono "+(up?"up":"down");});}
 
   /* ===== portfolio (investment hook) ===== */
-  var holdings=[];
+  var HKEY="pmc_holdings_v1";
+  function loadHoldings(){try{var a=JSON.parse(localStorage.getItem(HKEY));return Array.isArray(a)?a:[];}catch(e){return [];}}
+  function saveHoldings(){try{localStorage.setItem(HKEY,JSON.stringify(holdings));}catch(e){}}
+  var holdings=loadHoldings();
   function renderPortfolio(){
     var totVal=0,totCost=0,byMetal={};
     holdings.forEach(function(h){var v=h.oz*METALS[h.metal].usd;totVal+=v;totCost+=h.oz*(h.cost||0);byMetal[h.metal]=(byMetal[h.metal]||0)+v;});
@@ -706,13 +709,13 @@
     document.getElementById("msDesc").textContent=holdings.length?("Across "+Object.keys(byMetal).length+" metal"+(Object.keys(byMetal).length>1?"s":"")+" · next gold milestone at "+wfmt(5)):"Add a holding to start tracking.";
     document.getElementById("msBar").style.width=Math.min(100,goldOz/5*100)+"%";
   }
-  document.getElementById("pfRows").addEventListener("click",function(e){var b=e.target.closest(".rm");if(!b)return;holdings.splice(+b.dataset.i,1);renderPortfolio();});
+  document.getElementById("pfRows").addEventListener("click",function(e){var b=e.target.closest(".rm");if(!b)return;holdings.splice(+b.dataset.i,1);saveHoldings();renderPortfolio();});
   document.getElementById("pfAdd").addEventListener("click",function(){
     var metal=document.getElementById("pfMetal").value,amt=parseFloat(document.getElementById("pfOz").value),cost=parseFloat(document.getElementById("pfCost").value);
     if(!amt||amt<=0){document.getElementById("pfOz").focus();document.getElementById("pfOz").style.borderColor="var(--down)";return;}
     var oz=state.weight==="g"?amt/OZT_G:amt;                       // store internally in troy oz
     var costPerOz=isNaN(cost)?0:(state.weight==="g"?cost*OZT_G:cost);
-    holdings.push({metal:metal,oz:oz,cost:costPerOz});
+    holdings.push({metal:metal,oz:oz,cost:costPerOz});saveHoldings();
     document.getElementById("pfOz").value="";document.getElementById("pfCost").value="";document.getElementById("pfOz").style.borderColor="";renderPortfolio();
   });
   document.getElementById("pfOz").addEventListener("input",function(){this.style.borderColor="";});
