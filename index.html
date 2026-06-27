@@ -401,8 +401,8 @@
             <div class="panel-sub" id="mainSub">XAU · USD / troy oz · spot price</div>
           </div>
           <div class="ranges" role="group" aria-label="Time range" id="ranges">
-            <button data-r="24h">24H</button><button data-r="1w">1W</button><button data-r="1m">1M</button>
-            <button data-r="1y" aria-pressed="true">1Y</button><button data-r="5y">5Y</button><button data-r="max">MAX</button>
+            <button data-r="1w">1W</button><button data-r="1m">1M</button><button data-r="1y" aria-pressed="true">1Y</button>
+            <button data-r="5y">5Y</button><button data-r="10y">10Y</button><button data-r="max">MAX</button>
           </div>
         </div>
         <div class="bigprice"><span class="v mono" id="mainPrice">$4,035.02</span><span class="c mono up" id="mainChg">+0.82%</span></div>
@@ -606,28 +606,43 @@
     ORDER.forEach(function(key){var m=METALS[key],up=m.chg>=0,s=series(m.seed,30,0.02,m.usd);
       var b=document.createElement("button");b.className="metal";b.setAttribute("aria-pressed",state.metal===key?"true":"false");b.style.setProperty("--mc",m.color);
       b.innerHTML='<div class="metal-head"><span class="metal-name"><span class="dot"></span>'+m.name+'</span><span class="metal-sym">'+m.sym+'</span></div><div class="metal-price">'+cur(m.usd)+'</div><div class="metal-meta"><span class="chg '+(up?"up":"down")+'">'+(up?"▲ +":"▼ ")+m.chg.toFixed(2)+'%</span><span class="unit">per troy oz</span></div>'+sparkSVG(s,up);
-      b.addEventListener("click",function(){state.metal=key;renderMetals();renderMain();syncAlert();});host.appendChild(b);});
+      b.addEventListener("click",function(){state.metal=key;renderMetals();loadChart();syncAlert();});host.appendChild(b);});
   }
 
   function renderMain(){
-    var m=METALS[state.metal],n=RANGE_POINTS[state.range],vol=RANGE_VOL[state.range];
-    var data=series(m.seed,n,vol,m.usd);if(state.adjust)data=inflationAdjust(data);
+    var m=METALS[state.metal];
+    var dates=chartPoints.map(function(p){return p[0];});
+    var data=chartPoints.map(function(p){return p[1];});
+    if(state.adjust)data=inflationAdjust(data);
     document.getElementById("mainName").textContent=m.name;
     document.getElementById("mainDot").style.background=m.color;
     document.getElementById("mainSub").textContent=m.sym+" · "+(state.currency==="eur"?"EUR":"USD")+" / troy oz · spot price";
-    document.getElementById("mainPrice").textContent=cur(state.adjust?data[data.length-1]:m.usd);
+    document.getElementById("mainPrice").textContent=cur(state.adjust&&data.length?data[data.length-1]:m.usd);
     var up=m.chg>=0,chg=document.getElementById("mainChg");chg.textContent=(up?"+":"")+m.chg.toFixed(2)+"%";chg.className="c mono "+(up?"up":"down");chg.style.background=up?"var(--up-bg)":"var(--down-bg)";
     document.getElementById("storyLead").textContent=m.name+(up?" is up today":" is lower today");
     var host=document.getElementById("chartHost"),label=document.getElementById("chLabel");
+    if(data.length<2){ Array.prototype.slice.call(host.querySelectorAll("svg")).forEach(function(el){el.remove();}); return; }
     var w=820,h=300,pad=16,p=buildPath(data,w,h,pad),col=m.color;
     var area=p.d+" L"+(w-pad)+" "+(h-pad)+" L"+pad+" "+(h-pad)+" Z",gid="mg"+Math.random().toString(36).slice(2,7),grid="";
     for(var g=1;g<=3;g++){var gy=pad+g/4*(h-2*pad);grid+='<line x1="'+pad+'" x2="'+(w-pad)+'" y1="'+gy+'" y2="'+gy+'" stroke="var(--line)" stroke-width="1"/>';}
     var svg='<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" role="img" aria-label="'+m.name+' price"><defs><linearGradient id="'+gid+'" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="'+col+'" stop-opacity=".20"/><stop offset="1" stop-color="'+col+'" stop-opacity="0"/></linearGradient></defs>'+grid+'<path d="'+area+'" fill="url(#'+gid+')"/><path d="'+p.d+'" fill="none" stroke="'+col+'" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="'+p.X(data.length-1).toFixed(1)+'" cy="'+p.Y(data[data.length-1]).toFixed(1)+'" r="3.5" fill="'+col+'"/><line id="chLine" x1="0" x2="0" y1="'+pad+'" y2="'+(h-pad)+'" stroke="var(--line-strong)" stroke-width="1" opacity="0"/></svg>';
     Array.prototype.slice.call(host.querySelectorAll("svg")).forEach(function(el){el.remove();});host.insertAdjacentHTML("afterbegin",svg);
     var svgEl=host.querySelector("svg"),chLine=host.querySelector("#chLine");
-    function move(ev){var rect=svgEl.getBoundingClientRect(),cx=(ev.touches?ev.touches[0].clientX:ev.clientX),rel=Math.max(0,Math.min(1,(cx-rect.left)/rect.width)),idx=Math.round(rel*(data.length-1)),vx=p.X(idx),vy=p.Y(data[idx]);chLine.setAttribute("x1",vx);chLine.setAttribute("x2",vx);chLine.setAttribute("opacity","1");label.style.opacity="1";label.style.left=(vx/w*100)+"%";label.style.top=(vy/h*100)+"%";label.textContent=cur(data[idx]);}
+    function move(ev){var rect=svgEl.getBoundingClientRect(),cx=(ev.touches?ev.touches[0].clientX:ev.clientX),rel=Math.max(0,Math.min(1,(cx-rect.left)/rect.width)),idx=Math.round(rel*(data.length-1)),vx=p.X(idx),vy=p.Y(data[idx]);chLine.setAttribute("x1",vx);chLine.setAttribute("x2",vx);chLine.setAttribute("opacity","1");label.style.opacity="1";label.style.left=(vx/w*100)+"%";label.style.top=(vy/h*100)+"%";label.textContent=(dates[idx]?dates[idx]+" · ":"")+cur(data[idx]);}
     function leave(){chLine.setAttribute("opacity","0");label.style.opacity="0";}
     svgEl.addEventListener("mousemove",move);svgEl.addEventListener("touchmove",move,{passive:true});svgEl.addEventListener("mouseleave",leave);svgEl.addEventListener("touchend",leave);
+  }
+
+  /* ===== real price history (loads /history/<metal>-<range>.json, built by our own pipeline) ===== */
+  var chartPoints=[];
+  var HIST_RANGE={ "1w":"1w","1m":"1m","1y":"1y","5y":"5y","10y":"10y","max":"50y" };
+  var _chartReq=0;
+  function loadChart(){
+    var req=++_chartReq, metal=state.metal, hr=HIST_RANGE[state.range]||"1y";
+    fetch("/history/"+metal+"-"+hr+".json",{cache:"force-cache"})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(file){ if(req!==_chartReq)return; chartPoints=(file&&file.points)?file.points:[]; renderMain(); })
+      .catch(function(){ if(req===_chartReq){chartPoints=[];renderMain();} });
   }
 
   function renderRatio(){var r=METALS.gold.usd/METALS.silver.usd;document.getElementById("ratioVal").innerHTML=r.toFixed(1)+'<small> oz</small>';document.getElementById("ratioMarker").style.left=Math.max(0,Math.min(100,(r-30)/90*100))+"%";}
@@ -695,7 +710,7 @@
   document.getElementById("embedBtn").addEventListener("click",function(){document.getElementById("embedBox").classList.toggle("show");});
 
   /* controls */
-  document.getElementById("ranges").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;Array.prototype.forEach.call(this.querySelectorAll("button"),function(x){x.setAttribute("aria-pressed","false");});b.setAttribute("aria-pressed","true");state.range=b.dataset.r;renderMain();});
+  document.getElementById("ranges").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;Array.prototype.forEach.call(this.querySelectorAll("button"),function(x){x.setAttribute("aria-pressed","false");});b.setAttribute("aria-pressed","true");state.range=b.dataset.r;loadChart();});
   document.getElementById("adjBtn").addEventListener("click",function(){state.adjust=!state.adjust;this.setAttribute("aria-pressed",state.adjust?"true":"false");renderMain();});
   function setCurrency(c){state.currency=c;document.getElementById("cur-usd").setAttribute("aria-pressed",c==="usd"?"true":"false");document.getElementById("cur-eur").setAttribute("aria-pressed",c==="eur"?"true":"false");renderMetals();renderMain();renderPortfolio();syncAlert();}
   document.getElementById("cur-usd").addEventListener("click",function(){setCurrency("usd");});
@@ -727,7 +742,7 @@
   loadPrices();setInterval(loadPrices,60000);
 
   /* init */
-  renderMetals();renderMain();renderRatio();renderPortfolio();renderPremiums();renderCompare();syncAlert();
+  renderMetals();loadChart();renderRatio();renderPortfolio();renderPremiums();renderCompare();syncAlert();
 })();
 </script>
 </body>
