@@ -369,7 +369,7 @@
     <a href="#faq">FAQ</a>
     <a href="#alerts">Alerts</a>
     <span class="grow"></span>
-    <span class="freshness"><span class="livedot"></span>updated <span id="freshSecs">2</span>s ago · LBMA/COMEX</span>
+    <span class="freshness"><span class="livedot"></span><span id="freshLabel">spot · ~10 min delayed</span></span>
   </div>
 </nav>
 
@@ -380,7 +380,7 @@
     <div class="trustline">
       <span class="ttag">Independent</span>
       <span>Not a dealer — we sell no metals</span><span class="sep"></span>
-      <span>Spot data referencing LBMA &amp; COMEX</span><span class="sep"></span>
+      <span>Spot data · ~10 min delayed</span><span class="sep"></span>
       <span>Free, no account needed</span>
     </div>
     <h1 class="lede">The spot price, plus the <em>context</em> dealers leave out.</h1>
@@ -398,7 +398,7 @@
         <div class="panel-head">
           <div>
             <div class="panel-title"><span class="dot" id="mainDot"></span><span id="mainName">Gold</span></div>
-            <div class="panel-sub" id="mainSub">XAU · USD / troy oz · LBMA-referenced</div>
+            <div class="panel-sub" id="mainSub">XAU · USD / troy oz · spot price</div>
           </div>
           <div class="ranges" role="group" aria-label="Time range" id="ranges">
             <button data-r="24h">24H</button><button data-r="1w">1W</button><button data-r="1m">1M</button>
@@ -614,7 +614,7 @@
     var data=series(m.seed,n,vol,m.usd);if(state.adjust)data=inflationAdjust(data);
     document.getElementById("mainName").textContent=m.name;
     document.getElementById("mainDot").style.background=m.color;
-    document.getElementById("mainSub").textContent=m.sym+" · "+(state.currency==="eur"?"EUR":"USD")+" / troy oz · LBMA-referenced";
+    document.getElementById("mainSub").textContent=m.sym+" · "+(state.currency==="eur"?"EUR":"USD")+" / troy oz · spot price";
     document.getElementById("mainPrice").textContent=cur(state.adjust?data[data.length-1]:m.usd);
     var up=m.chg>=0,chg=document.getElementById("mainChg");chg.textContent=(up?"+":"")+m.chg.toFixed(2)+"%";chg.className="c mono "+(up?"up":"down");chg.style.background=up?"var(--up-bg)":"var(--down-bg)";
     document.getElementById("storyLead").textContent=m.name+(up?" is up today":" is lower today");
@@ -709,8 +709,22 @@
   var io=new IntersectionObserver(function(entries){entries.forEach(function(en){if(en.isIntersecting){links.forEach(function(a){a.classList.remove("active");});if(map[en.target.id])map[en.target.id].classList.add("active");}});},{rootMargin:"-45% 0px -50% 0px"});
   ["live","today","ratio","portfolio","premiums","compare","faq","alerts"].forEach(function(id){var el=document.getElementById(id);if(el)io.observe(el);});
 
-  /* live freshness ticker */
-  var secs=2;setInterval(function(){secs++;if(secs>59)secs=1;var el=document.getElementById("freshSecs");if(el)el.textContent=secs;},1000);
+  /* ===== live spot from our own cache (/prices.json) — refreshed server-side every ~10 min ===== */
+  function fmtFresh(snap){
+    var d=new Date(snap.updatedAt);
+    var hhmm=isNaN(d.getTime())?"":d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+    var lbl=(hhmm?("as of "+hhmm+" · "):"")+"~"+(snap.delayedMinutes||10)+" min delayed"+(snap.stale?" · last good data":"");
+    var el=document.getElementById("freshLabel");if(el)el.textContent=lbl;
+  }
+  function applySnapshot(snap){
+    if(!snap||!snap.metals)return;
+    ORDER.forEach(function(k){var m=snap.metals[k];if(!m||m.price==null)return;METALS[k].usd=m.price;METALS[k].chg=(m.changePct==null?0:m.changePct);});
+    renderMetals();renderMain();renderRatio();renderPortfolio();fmtFresh(snap);
+  }
+  function loadPrices(){
+    fetch("/prices.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(s){if(s)applySnapshot(s);}).catch(function(){});
+  }
+  loadPrices();setInterval(loadPrices,60000);
 
   /* init */
   renderMetals();renderMain();renderRatio();renderPortfolio();renderPremiums();renderCompare();syncAlert();
