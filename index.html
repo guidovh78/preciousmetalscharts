@@ -83,7 +83,7 @@
   html{scroll-behavior:smooth;}
 
   /* header */
-  .topbar{position:sticky;top:0;z-index:50;height:var(--hh);background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:saturate(140%) blur(10px);border-bottom:1px solid var(--line);}
+  .topbar{position:sticky;top:0;z-index:50;height:var(--hh);background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:saturate(140%) blur(10px);border-bottom:1px solid var(--line);}
   .topbar-inner{display:flex;align-items:center;gap:18px;height:var(--hh);}
   .logo{display:flex;align-items:center;gap:11px;text-decoration:none;}
   .logo-mark{width:33px;height:33px;flex:none;}
@@ -103,7 +103,8 @@
   @media(max-width:880px){.sitenav{display:none;}}
 
   /* section nav */
-  .secnav{position:sticky;top:var(--hh);z-index:45;height:var(--nh);background:var(--surface);border-bottom:1px solid var(--line);}
+  .secnav{position:sticky;top:var(--hh);z-index:45;height:var(--nh);background:var(--surface);border-bottom:1px solid var(--line-strong);box-shadow:0 8px 18px -12px rgba(20,22,28,.22);}
+  [data-theme="dark"] .secnav{box-shadow:0 8px 18px -10px rgba(0,0,0,.5);}
   .secnav-inner{display:flex;align-items:center;gap:3px;height:var(--nh);overflow-x:auto;scrollbar-width:none;}
   .secnav-inner::-webkit-scrollbar{display:none;}
   .secnav a{text-decoration:none;color:var(--muted);font-size:12.5px;font-weight:600;padding:7px 11px;border-radius:8px;white-space:nowrap;position:relative;transition:color .2s;}
@@ -126,9 +127,15 @@
   .sub{color:var(--muted);font-size:14.5px;max-width:58ch;margin-bottom:18px;}
 
   .metals{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
-  .metal{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 15px 10px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:border-color .2s,transform .15s;}
-  .metal:hover{border-color:var(--line-strong);transform:translateY(-1px);}
-  .metal[aria-pressed="true"]{border-color:var(--accent);}
+  .metals-hint{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);margin:0 0 9px;}
+  .metals-hint b{color:var(--ink);font-weight:600;}
+  .metals-hint .tap{font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent-soft);background:var(--accent-soft);padding:2px 6px;border-radius:5px;}
+  .metal{cursor:pointer;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 15px 10px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:border-color .2s,transform .15s,box-shadow .2s;}
+  .metal:hover{border-color:var(--line-strong);transform:translateY(-2px);box-shadow:0 6px 18px rgba(20,22,28,.10);}
+  .metal:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .metal[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent),var(--shadow);}
+  .period-tag{font-family:var(--font-mono);font-size:10.5px;font-weight:600;color:var(--accent);border:1px solid var(--accent-soft);background:var(--accent-soft);padding:2px 7px;border-radius:6px;margin-left:8px;vertical-align:middle;white-space:nowrap;}
+  .compare-axis{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10.5px;color:var(--faint);margin-top:6px;padding:0 2px;}
   .metal::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--mc,var(--gold));}
   .metal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;}
   .metal-name{display:flex;align-items:center;gap:7px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;}
@@ -340,9 +347,7 @@
     </a>
     <nav class="sitenav" aria-label="Primary">
       <a href="/" class="current" aria-current="page">Charts</a>
-      <a href="/ratio">Ratio</a>
-      <a href="/premiums">Premiums</a>
-      <a href="/alerts">Alerts</a>
+      <a href="/#ratio">Ratio</a>
       <a href="gold-ira.html">Gold&nbsp;IRA</a>
     </nav>
     <div class="spacer"></div>
@@ -386,6 +391,7 @@
     <h1 class="lede">The spot price, plus the <em>context</em> dealers leave out.</h1>
     <p class="sub">Live gold, silver, platinum and palladium — with the gold-to-silver ratio, your own stack, dealer premiums and alerts in one calm place.</p>
 
+    <div class="metals-hint"><span class="tap">Tap</span> <span><b>Select a metal</b> to load its chart below ↓</span></div>
     <div class="metals" id="metals" aria-label="Live metal prices">
       <button class="metal" aria-pressed="true" style="--mc:var(--gold)"><div class="metal-head"><span class="metal-name"><span class="dot"></span>Gold</span><span class="metal-sym">XAU</span></div><div class="metal-price">$4,035.02</div><div class="metal-meta"><span class="chg up">▲ +0.82%</span><span class="unit">per troy oz</span></div></button>
       <button class="metal" aria-pressed="false" style="--mc:var(--silver)"><div class="metal-head"><span class="metal-name"><span class="dot"></span>Silver</span><span class="metal-sym">XAG</span></div><div class="metal-price">$58.32</div><div class="metal-meta"><span class="chg down">▼ -1.18%</span><span class="unit">per troy oz</span></div></button>
@@ -453,6 +459,7 @@
       <div class="pf-main">
         <div class="pf-summary"><span class="tot mono" id="pfTotal">$0</span><span class="pl mono up" id="pfPL">+$0 (0.0%)</span></div>
         <div class="pf-cap" id="pfCap">Current value at live spot · cost basis optional</div>
+        <div style="display:flex;align-items:center;gap:10px;margin:12px 0 2px"><span style="font-size:12px;color:var(--muted)">Weight unit</span><span class="seg" id="weightSeg" role="group" aria-label="Weight unit"><button data-w="oz" aria-pressed="true">oz</button><button data-w="g">grams</button></span></div>
         <div class="alloc" id="pfAlloc"></div>
         <div class="alloc-legend" id="pfLegend"></div>
         <div class="pf-rows" id="pfRows"></div>
@@ -473,9 +480,8 @@
         </div>
         <div class="alert-mini">
           <h4>Alert me at a price</h4>
-          <div class="row"><input id="miniEmail" type="email" placeholder="you@email.com" aria-label="Email"><button class="go" id="miniGo">Notify</button></div>
-          <p class="note">One email when your target hits. No spam.</p>
-          <p class="ok" id="miniOk">✓ You're set — we'll watch the market.</p>
+          <p class="note">Get one email the moment a metal hits your target.</p>
+          <a class="go" href="#alerts" style="text-decoration:none;display:block;text-align:center">Set a price alert →</a>
         </div>
       </div>
     </div>
@@ -497,9 +503,10 @@
         <p class="mod-foot">Typical retail ranges; physical product always costs more than paper spot.</p>
       </article>
       <article class="panel" id="compare" aria-label="Performance comparison">
-        <div class="panel-title">Metal vs. everything else</div>
-        <div class="panel-sub" style="font-family:var(--font-body)">Indexed to 100 — gold against the S&amp;P 500, Bitcoin and inflation over five years.</div>
+        <div class="panel-title">Metal vs. everything else <span class="period-tag">Last 5 years</span></div>
+        <div class="panel-sub" style="font-family:var(--font-body)">Indexed to 100 — gold against the S&amp;P 500, Bitcoin and inflation over the last five years.</div>
         <div class="chart-host" id="compareHost" style="margin-top:14px"></div>
+        <div class="compare-axis"><span>5 years ago</span><span>today</span></div>
         <div class="compare-legend">
           <span><i style="background:var(--gold)"></i>Gold</span>
           <span><i style="background:var(--silver)"></i>S&amp;P 500</span>
@@ -530,6 +537,14 @@
       <article class="qa-card">
         <h3>Do precious-metal prices change on weekends?</h3>
         <p>Precious-metal spot prices update during global market hours, roughly Sunday evening through Friday afternoon (US Eastern time), and hold steady when those markets are closed. Dealers may still quote and take orders over the weekend, but the underlying spot reference does not move until trading reopens.</p>
+      </article>
+      <article class="qa-card">
+        <h3>What is a troy ounce in grams?</h3>
+        <p>A troy ounce is the standard unit for pricing precious metals and equals 31.1035 grams — heavier than the everyday (avoirdupois) ounce of 28.35 grams. Gold, silver, platinum and palladium are all quoted per troy ounce, so the price per gram is simply the troy-ounce price divided by 31.1035.</p>
+      </article>
+      <article class="qa-card">
+        <h3>What makes gold, silver and platinum prices move?</h3>
+        <p>Precious-metal prices move with the US dollar, real interest rates, inflation expectations and central-bank buying. Gold is driven mainly by monetary factors and safe-haven demand, while silver, platinum and palladium also respond to industrial demand — solar, electronics and autocatalysts — which tends to make them more volatile than gold.</p>
       </article>
     </div>
     <p class="faq-meta">Reviewed by the preciousmetalscharts desk · Last updated 26 June 2026</p>
@@ -582,7 +597,9 @@
   function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 
   var FX=0.92;
-  var state={metal:"gold",range:"1y",adjust:false,currency:"usd"};
+  var state={metal:"gold",range:"1y",adjust:false,currency:"usd",weight:"oz"};
+  var OZT_G=31.1034768;
+  function wfmt(oz){ if(state.weight==="g"){var g=oz*OZT_G; return (g>=100?Math.round(g).toLocaleString("en-US"):g.toFixed(1))+" g";} return (Number.isInteger(oz)?oz:Number(oz).toFixed(2))+" oz"; }
   var METALS={
     gold:{name:"Gold",sym:"XAU",usd:4035.02,chg:+0.82,color:"var(--gold)",seed:11},
     silver:{name:"Silver",sym:"XAG",usd:58.32,chg:-1.18,color:"var(--silver)",seed:23},
@@ -664,7 +681,7 @@
     var rows=document.getElementById("pfRows");rows.innerHTML=holdings.map(function(h,i){
       var v=h.oz*METALS[h.metal].usd,c=h.oz*(h.cost||0),rpl=v-c,rup=rpl>=0;
       return '<div class="pf-row"><span class="nm"><span class="dot" style="background:'+METALS[h.metal].color+'"></span>'+METALS[h.metal].name+'</span>'
-        +'<span class="amt">'+h.oz+' oz'+(h.cost?' @ '+cur0(h.cost):'')+'</span>'
+        +'<span class="amt">'+wfmt(h.oz)+(h.cost?' @ '+cur(state.weight==="g"?h.cost/OZT_G:h.cost)+'/'+state.weight:'')+'</span>'
         +'<span class="val">'+cur0(v)+'</span>'
         +'<span class="rpl '+(h.cost?(rup?"up":"down"):"")+'">'+(h.cost?((rup?"+":"−")+curSym()+Math.abs(Math.round(state.currency==="eur"?rpl*FX:rpl)).toLocaleString("en-US")):'—')+'</span>'
         +'<button class="rm" data-i="'+i+'" aria-label="Remove">×</button></div>';
@@ -672,19 +689,23 @@
     // milestone
     var totOz=holdings.reduce(function(a,h){return a+h.oz;},0);
     var goldOz=holdings.filter(function(h){return h.metal==="gold";}).reduce(function(a,h){return a+h.oz;},0);
-    document.getElementById("msTitle").textContent=holdings.length?totOz.toFixed(0)+" oz tracked":"—";
-    document.getElementById("msDesc").textContent=holdings.length?("Across "+Object.keys(byMetal).length+" metal"+(Object.keys(byMetal).length>1?"s":"")+" · next gold milestone at 5 oz"):"Add a holding to start tracking.";
+    document.getElementById("msTitle").textContent=holdings.length?wfmt(totOz)+" tracked":"—";
+    document.getElementById("msDesc").textContent=holdings.length?("Across "+Object.keys(byMetal).length+" metal"+(Object.keys(byMetal).length>1?"s":"")+" · next gold milestone at "+wfmt(5)):"Add a holding to start tracking.";
     document.getElementById("msBar").style.width=Math.min(100,goldOz/5*100)+"%";
     document.getElementById("pulseStack").textContent="+"+curSym()+Math.round(state.currency==="eur"?148*FX:148);
   }
   document.getElementById("pfRows").addEventListener("click",function(e){var b=e.target.closest(".rm");if(!b)return;holdings.splice(+b.dataset.i,1);renderPortfolio();});
   document.getElementById("pfAdd").addEventListener("click",function(){
-    var metal=document.getElementById("pfMetal").value,oz=parseFloat(document.getElementById("pfOz").value),cost=parseFloat(document.getElementById("pfCost").value);
-    if(!oz||oz<=0){document.getElementById("pfOz").focus();document.getElementById("pfOz").style.borderColor="var(--down)";return;}
-    holdings.push({metal:metal,oz:oz,cost:isNaN(cost)?0:cost});
+    var metal=document.getElementById("pfMetal").value,amt=parseFloat(document.getElementById("pfOz").value),cost=parseFloat(document.getElementById("pfCost").value);
+    if(!amt||amt<=0){document.getElementById("pfOz").focus();document.getElementById("pfOz").style.borderColor="var(--down)";return;}
+    var oz=state.weight==="g"?amt/OZT_G:amt;                       // store internally in troy oz
+    var costPerOz=isNaN(cost)?0:(state.weight==="g"?cost*OZT_G:cost);
+    holdings.push({metal:metal,oz:oz,cost:costPerOz});
     document.getElementById("pfOz").value="";document.getElementById("pfCost").value="";document.getElementById("pfOz").style.borderColor="";renderPortfolio();
   });
   document.getElementById("pfOz").addEventListener("input",function(){this.style.borderColor="";});
+  function setWeight(wt){state.weight=wt;var seg=document.getElementById("weightSeg");Array.prototype.forEach.call(seg.querySelectorAll("button"),function(b){b.setAttribute("aria-pressed",b.dataset.w===wt?"true":"false");});document.getElementById("pfOz").placeholder=(wt==="g"?"grams":"oz");document.getElementById("pfCost").placeholder=(wt==="g"?"bought at /g":"bought at");renderPortfolio();}
+  document.getElementById("weightSeg").addEventListener("click",function(e){var b=e.target.closest("button");if(b)setWeight(b.dataset.w);});
 
   function renderPremiums(){
     var rows=[{nm:"Gold coin (1 oz)",pct:5},{nm:"Gold bar (1 oz)",pct:3.5},{nm:"Silver coin (1 oz)",pct:18},{nm:"Silver bar (1 oz)",pct:11}];
@@ -705,7 +726,6 @@
   function syncAlert(){document.getElementById("alertSummary").textContent=METALS[state.metal].name;document.getElementById("targetPre").textContent=curSym();}
   function wireAlert(btnId,emailId,okId){document.getElementById(btnId).addEventListener("click",function(){var em=document.getElementById(emailId);var ok=document.getElementById(okId);if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim())){ok.classList.add("show");em.value="";}else{em.focus();em.style.borderColor="var(--down)";}});document.getElementById(emailId).addEventListener("input",function(){this.style.borderColor="";});}
   wireAlert("alertBtn","emailInput","alertOk");
-  wireAlert("miniGo","miniEmail","miniOk");
 
   /* embed toggle */
   document.getElementById("embedBtn").addEventListener("click",function(){document.getElementById("embedBox").classList.toggle("show");});
