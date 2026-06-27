@@ -11,7 +11,12 @@
 name: Backfill history (one-time)
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Rebuild the archive from the seed CSVs (overwrites masters)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -39,7 +44,7 @@ jobs:
           # NOTE: METALPRICEAPI_KEY deliberately NOT set — free tier can't do deep
           # backfill (30-day cap); the CSV seed is the deep history. The daily
           # updater uses the API for just the newest day.
-        run: node data-pipeline/node/backfill-history.mjs
+        run: node data-pipeline/node/backfill-history.mjs ${{ inputs.force && '--force' || '' }}
 
       - name: Commit archive to repo
         run: |
