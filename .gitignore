@@ -1,0 +1,8 @@
+# macOS rommel
+.DS_Store
+
+# Lokale tooling / preview-instellingen
+.claude/
+
+# Node
+node_modules/

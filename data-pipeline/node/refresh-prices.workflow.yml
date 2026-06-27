@@ -1,0 +1,47 @@
+# refresh-prices.workflow.yml
+# Put this at .github/workflows/refresh-prices.yml in your repo.
+# Runs every 10 minutes, refreshes public/prices.json, and commits it.
+# (GitHub cron can be delayed a few minutes under load — fine for a price cache.)
+
+name: Refresh metal prices
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}   # allows a manual run from the Actions tab
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-prices
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Refresh prices
+        env:
+          # Keyless sources (gold-api.com) need nothing here.
+          METALS_DEV_KEY: ${{ secrets.METALS_DEV_KEY }}
+          METALPRICEAPI_KEY: ${{ secrets.METALPRICEAPI_KEY }}
+          GOLDPRICEZ_KEY: ${{ secrets.GOLDPRICEZ_KEY }}
+          APIVERVE_KEY: ${{ secrets.APIVERVE_KEY }}
+          CROSS_CHECK: "false"
+          OUT_DIR: "./public"
+        run: node data-pipeline/node/refresh-prices.mjs
+
+      - name: Commit if changed
+        run: |
+          git config user.name "prices-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add public/prices.json public/baseline.json || true
+          git diff --staged --quiet || git commit -m "chore: refresh prices [skip ci]"
+          git push || true

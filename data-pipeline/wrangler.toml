@@ -1,0 +1,26 @@
+name = "pmc-prices"
+main = "worker.mjs"
+compatibility_date = "2026-01-01"
+
+# Refresh every 10 minutes
+[triggers]
+crons = ["*/10 * * * *"]
+
+# KV namespace that stores the snapshot + baseline.
+# Create it once:  npx wrangler kv namespace create PRICES
+# then paste the returned id below.
+[[kv_namespaces]]
+binding = "PRICES"
+id = "PASTE_YOUR_KV_NAMESPACE_ID"
+
+# Non-secret config
+[vars]
+CROSS_CHECK = "false"        # set "true" to require 2-source consensus (uses 1 extra call/cycle)
+MAX_DEVIATION_PCT = "3"
+
+# Secrets — DO NOT put keys here. Set them with wrangler:
+#   npx wrangler secret put METALS_DEV_KEY
+#   npx wrangler secret put METALPRICEAPI_KEY
+#   npx wrangler secret put GOLDPRICEZ_KEY
+#   npx wrangler secret put APIVERVE_KEY
+# (Keyless sources like gold-api.com need no secret.)

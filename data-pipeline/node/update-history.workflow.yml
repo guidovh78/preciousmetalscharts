@@ -1,0 +1,42 @@
+# update-history.workflow.yml
+# Put at .github/workflows/update-history.yml
+# Runs once a day, appends new daily closes, regenerates timeframe files.
+# (The big one-time backfill you run manually/locally — see README.)
+
+name: Update price history
+
+on:
+  schedule:
+    - cron: "20 6 * * *"      # daily, 06:20 UTC (after the prior day has settled)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-history
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Append new history
+        env:
+          METALPRICEAPI_KEY: ${{ secrets.METALPRICEAPI_KEY }}
+          METALS_API_KEY: ${{ secrets.METALS_API_KEY }}
+          OUT_DIR: "./public"
+        run: node data-pipeline/node/update-history.mjs
+
+      - name: Commit if changed
+        run: |
+          git config user.name "history-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add public/history/*.json || true
+          git diff --staged --quiet || git commit -m "chore: update price history [skip ci]"
+          git push || true

@@ -1,0 +1,38 @@
+# preciousmetalscharts
+
+> Independent live price charts for precious metals (gold, silver, platinum, palladium),
+> with the gold-to-silver ratio, dealer premiums, an inflation-adjusted view, a private
+> portfolio tracker and free price alerts. Independent and not affiliated with any dealer
+> or mint. Educational information only — not investment advice.
+
+## Key facts
+- Metals covered: gold (XAU), silver (XAG), platinum (XPT), palladium (XPD).
+- Data is referenced to global spot markets (COMEX futures and the London/LBMA market).
+- Spot price = the reference price for one troy ounce; physical coins and bars cost more
+  because dealers add a premium over spot.
+- Gold-to-silver ratio = gold price ÷ silver price; a high ratio is read as silver being
+  cheap relative to gold. Historical range: under ~35 at silver peaks to above ~100 in
+  market stress.
+- The site is independent: it sells no metals and holds no inventory.
+
+## Pages
+- [Charts (home)](https://preciousmetalscharts.com/): live spot prices, main chart, ratio,
+  premiums, performance comparison, FAQ.
+- [Gold-to-silver ratio](https://preciousmetalscharts.com/ratio): the ratio with historical
+  context.
+- [Premiums](https://preciousmetalscharts.com/premiums): typical dealer premium over spot
+  by product.
+- [Price alerts](https://preciousmetalscharts.com/alerts): free email alerts at a target price.
+- [Best Gold IRA companies (comparison)](https://preciousmetalscharts.com/gold-ira):
+  independent comparison of gold-IRA providers on fees, minimums, transparency and support,
+  with a published scoring method and the honest downsides.
+
+## Definitions worth quoting
+- Gold IRA: a self-directed IRA holding IRS-approved physical precious metals; same tax
+  treatment as a traditional or Roth IRA, with metal as the underlying asset.
+- Home-storage gold IRA: not permitted — the IRS requires an approved depository.
+
+## Contact / authority
+- Publisher: preciousmetalscharts
+- Editorial policy: scores follow fixed weights set before any commission terms are considered.
+- Disclosure: some outbound links are affiliate links; they never influence scoring.
