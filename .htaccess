@@ -1,0 +1,16 @@
+# preciousmetalscharts — Apache config for Vimexx (public_html)
+# -----------------------------------------------------------------------------
+# Goal: make the clean, extensionless URLs used in the canonical tags + sitemap
+# (e.g. /gold-ira) resolve to the real .html files, without touching real assets
+# like /prices.json, /robots.txt, /sitemap.xml (those are served as-is).
+# -----------------------------------------------------------------------------
+
+Options -MultiViews
+RewriteEngine On
+
+# If the requested path is NOT an existing file or directory, but the same name
+# with a .html extension IS a real file, serve that file. So /gold-ira -> gold-ira.html.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/$1.html -f
+RewriteRule ^(.+?)/?$ $1.html [L]
