@@ -48,8 +48,13 @@ jobs:
           # plain "prices.json" target writes to the web root. If the first run
           # 404s at https://preciousmetalscharts.com/prices.json, switch the
           # target to the full path: domains/preciousmetalscharts.com/public_html/prices.json
+          # --ssl-reqd keeps the transfer ENCRYPTED (FTPS). -k (insecure) skips
+          # CA verification because Vimexx shared hosting presents a self-signed /
+          # untrusted FTPS cert ("unable to get local issuer certificate"). The
+          # password is still sent over TLS, just to a server whose cert we trust
+          # by convention (your own host).
           echo "Uploading public/prices.json to $FTP_HOST ..."
-          curl --fail --show-error --silent --ssl-reqd \
+          curl --fail --show-error --silent --ssl-reqd -k \
                --connect-timeout 30 --max-time 120 \
                -T public/prices.json \
                -u "$FTP_USER:$FTP_PASS" \
