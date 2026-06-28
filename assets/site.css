@@ -116,6 +116,10 @@
   .bigprice .c{font-family:var(--font-mono);font-weight:600;font-size:14px;padding:3px 8px;border-radius:7px;}
   .chart-host{position:relative;margin-top:6px;}
   .chart-host svg{width:100%;height:auto;display:block;}
+  /* Reserve chart height before the JS-built SVG loads (prevents layout shift / CLS).
+     Both ids render an 820x300 viewBox; #compareHost on the homepage is 460x180. */
+  #chartHost{aspect-ratio:820/300;}
+  #compareHost{aspect-ratio:460/180;}
   .crosshair-label{position:absolute;pointer-events:none;transform:translate(-50%,-130%);background:var(--ink);color:var(--bg);font-family:var(--font-mono);font-size:11px;padding:3px 7px;border-radius:6px;white-space:nowrap;opacity:0;transition:opacity .12s;}
   .story{display:flex;gap:10px;align-items:flex-start;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:13.5px;}
   .story b{color:var(--ink);font-weight:600;}
