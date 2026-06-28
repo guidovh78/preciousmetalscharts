@@ -93,18 +93,25 @@
   var root = document.querySelector('[data-metal]');
   if (!root) return;
   var metal = root.getAttribute('data-metal'), OZT_G = 31.1034768;
-  var money = function (n) { return n == null ? '—' : '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+  var cur = 'usd', rate = 1, SYM = { usd: '$', eur: '€' }, lastM = null;
+  function money(n) { if (n == null) return '—'; var v = cur === 'eur' ? n * rate : n; return SYM[cur] + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   var set = function (k, v) { document.querySelectorAll('[data-mp="' + k + '"]').forEach(function (e) { e.textContent = v; }); };
-
+  function render() {
+    if (!lastM) return; var p = lastM.price;
+    set('price', money(p)); set('oz', money(p)); set('g', money(p / OZT_G)); set('kg', money(p / OZT_G * 1000));
+    set('ccy', cur.toUpperCase());
+    var chg = document.querySelector('[data-mp="change"]');
+    if (chg) { var up = (lastM.changePct || 0) >= 0; chg.textContent = (up ? '▲ +' : '▼ ') + Math.abs(lastM.changePct || 0).toFixed(2) + '%'; chg.className = 'c mono ' + (up ? 'up' : 'down'); }
+  }
   function paint(snap) {
     var m = snap.metals && snap.metals[metal]; if (!m || m.price == null) return;
-    var p = m.price;
-    set('price', money(p)); set('oz', money(p)); set('g', money(p / OZT_G)); set('kg', money(p / OZT_G * 1000));
-    var chg = document.querySelector('[data-mp="change"]');
-    if (chg) { var up = (m.changePct || 0) >= 0; chg.textContent = (up ? '▲ +' : '▼ ') + Math.abs(m.changePct || 0).toFixed(2) + '%'; chg.className = 'c mono ' + (up ? 'up' : 'down'); }
+    lastM = m; if (snap.fx && snap.fx.eur > 0) rate = snap.fx.eur;
+    render();
     var t = new Date(snap.updatedAt), hhmm = isNaN(t.getTime()) ? '' : t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     set('fresh', (hhmm ? ('as of ' + hhmm + ' · ') : '') + '~' + (snap.delayedMinutes || 10) + ' min delayed');
   }
+  var curSeg = document.getElementById('curSeg');
+  if (curSeg) curSeg.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; cur = b.getAttribute('data-cur'); Array.prototype.forEach.call(this.querySelectorAll('button'), function (x) { x.setAttribute('aria-pressed', x.getAttribute('data-cur') === cur ? 'true' : 'false'); }); render(); });
   function loadPrice() { fetch('/prices.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (s) { if (s) paint(s); }).catch(function () {}); }
   loadPrice(); setInterval(loadPrice, 60000);
 

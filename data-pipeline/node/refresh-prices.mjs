@@ -36,9 +36,16 @@ const result = await buildSnapshot(env, prev, baseline, {
 await mkdir(OUT_DIR, { recursive: true });
 
 if (result.ok) {
+  // Live USD->EUR rate (ECB-style, free, no key). Non-fatal: prices still update if it fails;
+  // the client falls back to the last known rate.
+  try {
+    const fx = await fetch('https://open.er-api.com/v6/latest/USD', { signal: AbortSignal.timeout(8000) }).then((r) => r.json());
+    const eur = fx && fx.rates && Number(fx.rates.EUR);
+    if (eur && eur > 0.5 && eur < 1.5) result.snapshot.fx = { base: 'USD', eur: Number(eur.toFixed(5)) };
+  } catch (e) { console.warn(`FX fetch failed — ${e.message} (snapshot keeps USD only)`); }
   await writeFile(SNAP, JSON.stringify(result.snapshot, null, 2));
   await writeFile(BASE, JSON.stringify(result.baseline, null, 2));
-  console.log(`OK  ${result.snapshot.source}  gold=${result.snapshot.metals.gold.price}`);
+  console.log(`OK  ${result.snapshot.source}  gold=${result.snapshot.metals.gold.price}  eur=${result.snapshot.fx ? result.snapshot.fx.eur : 'n/a'}`);
 } else if (prev) {
   const stale = { ...prev, stale: true, lastCheckFailedAt: new Date().toISOString() };
   await writeFile(SNAP, JSON.stringify(stale, null, 2));

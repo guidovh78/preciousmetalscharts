@@ -513,6 +513,7 @@
   }
   function applySnapshot(snap){
     if(!snap||!snap.metals)return;
+    if(snap.fx&&snap.fx.eur>0)FX=snap.fx.eur;
     ORDER.forEach(function(k){var m=snap.metals[k];if(!m||m.price==null)return;METALS[k].usd=m.price;METALS[k].chg=(m.changePct==null?0:m.changePct);});
     renderMetals();renderMain();renderRatio();renderPulse();renderPortfolio();fmtFresh(snap);
   }
@@ -525,6 +526,6 @@
   renderMetals();loadChart();renderRatio();renderPulse();renderPortfolio();renderPremiums();renderCompare();syncAlert();loadSparks();
 })();
 </script>
-<script src="/assets/site.js?v=6" defer></script>
+<script src="/assets/site.js?v=7" defer></script>
 </body>
 </html>
