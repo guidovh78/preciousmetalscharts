@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="preciousmetalscharts live">
+  <rect width="512" height="512" rx="112" fill="#14161B"/>
+  <path d="M120 339 L211 241 L279 294 L392 151" fill="none" stroke="#D4A24E" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="352" y="111" width="78" height="78" rx="20" fill="#D4A24E"/>
+  <line x1="120" y1="398" x2="392" y2="398" stroke="#5E646C" stroke-width="20" stroke-linecap="round"/>
+</svg>

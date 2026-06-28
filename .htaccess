@@ -26,6 +26,8 @@ RewriteRule ^(.+?)/?$ $1.html [L]
   </FilesMatch>
   <FilesMatch "\.json$">
     Header set Cache-Control "public, max-age=3600"
+    # Allow the live. subdomain (and embedders, with attribution) to read our price/history JSON.
+    Header set Access-Control-Allow-Origin "*"
   </FilesMatch>
   <FilesMatch "\.(css|js)$">
     Header set Cache-Control "public, max-age=3600"

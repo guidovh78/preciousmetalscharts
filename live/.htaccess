@@ -1,0 +1,16 @@
+# live. subdomain (document root = this folder). Small, static, fast.
+AddType application/manifest+json .webmanifest
+AddType image/svg+xml .svg
+
+<IfModule mod_headers.c>
+  # Service worker must revalidate so updates ship promptly.
+  <Files "sw.js">
+    Header set Cache-Control "no-cache"
+  </Files>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "public, max-age=600"
+  </FilesMatch>
+  <FilesMatch "\.(svg|webmanifest)$">
+    Header set Cache-Control "public, max-age=86400"
+  </FilesMatch>
+</IfModule>
