@@ -116,7 +116,7 @@
     <a href="#premiums">Premiums</a>
     <a href="#compare">Compare</a>
     <a href="#faq">FAQ</a>
-    <a href="#alerts">Alerts</a>
+    <a href="#alerts">Newsletter</a>
     <span class="grow"></span>
     <span class="freshness"><span class="livedot"></span><span id="freshLabel">spot · ~10 min delayed</span></span>
   </div>
@@ -296,21 +296,16 @@
 
   <!-- alerts (trigger) -->
   <section class="sec" id="alerts">
-    <div class="sec-head"><span class="sec-num">05</span><h2>Alerts &amp; weekly read</h2></div>
+    <div class="sec-head"><span class="sec-num">05</span><h2>The metals newsletter</h2></div>
     <div class="alert" style="margin-top:0">
       <div>
-        <h3>Get a price alert</h3>
-        <p>One email the moment your target hits — for any of the four metals. The list also gets a short weekly read on what moved and why.</p>
-        <p class="alert-note">No spam. Unsubscribe in one click. We never share your address.</p>
-        <p class="alert-ok" id="alertOk">✓ You're set. We'll watch the market and email you at your target.</p>
+        <h3>A recap, not a sales pitch</h3>
+        <p>Pick your metals and a rhythm — daily, weekly or monthly — and get a short, data-driven recap: what moved since the last edition, the gold-to-silver ratio, and where things stand. Built from our own price archive.</p>
+        <p class="alert-note">Double opt-in · one-click unsubscribe · we never share your address · no advice.</p>
       </div>
       <div>
-        <div class="alert-form">
-          <div class="field"><span class="pre" id="targetPre">$</span><input class="target" id="targetInput" inputmode="decimal" value="4,200" aria-label="Target price"></div>
-          <div class="field"><input type="email" id="emailInput" placeholder="you@email.com" aria-label="Email address"></div>
-          <button class="btn-primary" id="alertBtn">Notify me</button>
-        </div>
-        <p class="alert-note" style="margin-top:10px">Alert when <b id="alertSummary">Gold</b> crosses your target.</p>
+        <a class="btn-primary" href="/newsletter" style="display:inline-block;text-decoration:none;">Subscribe to the newsletter →</a>
+        <p class="alert-note" style="margin-top:10px">Free. Gold, silver, platinum, palladium — or any mix.</p>
       </div>
     </div>
   </section>
@@ -484,8 +479,8 @@
   }
 
   /* alerts */
-  function syncAlert(){document.getElementById("alertSummary").textContent=METALS[state.metal].name;document.getElementById("targetPre").textContent=curSym();}
-  function wireAlert(btnId,emailId,okId){document.getElementById(btnId).addEventListener("click",function(){var em=document.getElementById(emailId);var ok=document.getElementById(okId);if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim())){ok.classList.add("show");em.value="";}else{em.focus();em.style.borderColor="var(--down)";}});document.getElementById(emailId).addEventListener("input",function(){this.style.borderColor="";});}
+  function syncAlert(){var a=document.getElementById("alertSummary");if(a)a.textContent=METALS[state.metal].name;var t=document.getElementById("targetPre");if(t)t.textContent=curSym();}
+  function wireAlert(btnId,emailId,okId){var b=document.getElementById(btnId);if(!b)return;b.addEventListener("click",function(){var em=document.getElementById(emailId);var ok=document.getElementById(okId);if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim())){ok.classList.add("show");em.value="";}else{em.focus();em.style.borderColor="var(--down)";}});document.getElementById(emailId).addEventListener("input",function(){this.style.borderColor="";});}
   wireAlert("alertBtn","emailInput","alertOk");
 
   /* embed toggle */
