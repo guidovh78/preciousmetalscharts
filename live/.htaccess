@@ -13,4 +13,7 @@ AddType image/svg+xml .svg
   <FilesMatch "\.(svg|webmanifest)$">
     Header set Cache-Control "public, max-age=86400"
   </FilesMatch>
+  <FilesMatch "\.png$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
 </IfModule>
