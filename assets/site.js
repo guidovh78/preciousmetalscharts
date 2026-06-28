@@ -42,3 +42,36 @@
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
 })();
+
+// region tailoring — coarse EU/US/other from the browser timezone (no IP, no cookie).
+(function () {
+  if (!document.querySelector('[data-region-group],[data-region-only],#regionSeg')) return;
+  var KEY = 'pmc_region';
+  function detect() {
+    try { var s = localStorage.getItem(KEY); if (s) return s; } catch (e) {}
+    var tz = ''; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
+    if (/^Europe\//.test(tz)) return 'eu';
+    if (/^America\//.test(tz)) return 'us';
+    return 'intl';
+  }
+  function apply(r) {
+    document.querySelectorAll('[data-region-group]').forEach(function (g) {
+      g.classList.toggle('region-on', g.getAttribute('data-region-group').split(',').indexOf(r) >= 0);
+    });
+    document.querySelectorAll('[data-region-only]').forEach(function (el) {
+      el.classList.toggle('region-on', el.getAttribute('data-region-only').split(',').indexOf(r) >= 0);
+    });
+    var seg = document.getElementById('regionSeg');
+    if (seg) Array.prototype.forEach.call(seg.querySelectorAll('[data-region]'), function (b) {
+      b.setAttribute('aria-pressed', b.getAttribute('data-region') === r ? 'true' : 'false');
+    });
+  }
+  apply(detect());
+  var seg = document.getElementById('regionSeg');
+  if (seg) seg.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-region]'); if (!b) return;
+    var r = b.getAttribute('data-region');
+    try { localStorage.setItem(KEY, r); } catch (e) {}
+    apply(r);
+  });
+})();

@@ -34,7 +34,7 @@
   ]
 }
 </script>
-<link rel="stylesheet" href="/assets/site.css?v=3">
+<link rel="stylesheet" href="/assets/site.css?v=4">
 <style>
   .lede{font-size:clamp(24px,3.6vw,34px);max-width:22ch;}
   .sub{max-width:66ch;}
@@ -125,8 +125,33 @@
     <div class="sec-head" style="margin-top:18px"><span class="sec-num">01</span><h2>Providers worth comparing</h2><span class="demoflag" style="margin-left:auto">Illustrative — verify before publishing</span></div>
     <p class="sec-sub">Figures below are <b>illustrative placeholders</b> while we confirm each provider's current terms. Affiliate links are added once partner accounts are live.</p>
 
-    <div class="cmp">
+    <div class="region-bar">
+      <span>Showing options for</span>
+      <span class="seg" id="regionSeg" role="group" aria-label="Your region">
+        <button type="button" data-region="eu" aria-pressed="true">🇪🇺 Europe</button>
+        <button type="button" data-region="us" aria-pressed="false">🇺🇸 US</button>
+        <button type="button" data-region="intl" aria-pressed="false">🌍 Other</button>
+      </span>
+      <span style="color:var(--faint)">auto-detected from your timezone · change it anytime</span>
+    </div>
+
+    <!-- EUROPE -->
+    <div class="cmp region-on" data-region-group="eu">
       <article class="pick best">
+        <span class="role">Best for Europe · Dutch</span>
+        <span class="nm">GoldRepublic</span>
+        <span class="type">Amsterdam-based — allocated gold, silver, platinum &amp; palladium in vaults</span>
+        <dl>
+          <dt>Buy margin</dt><dd>low *</dd>
+          <dt>Storage</dt><dd>yearly fee *</dd>
+          <dt>Based in</dt><dd>🇳🇱 NL</dd>
+          <dt>Ships / serves</dt><dd>🇪🇺 EU</dd>
+        </dl>
+        <p class="desc">A Dutch precious-metals platform: buy allocated metal stored in professional vaults and sell back easily. The closest fit if you're in the Netherlands or the EU.</p>
+        <a class="cta" href="#" rel="sponsored nofollow" data-aff="goldrepublic">Visit GoldRepublic →</a>
+        <span class="pending">Affiliate link pending</span>
+      </article>
+      <article class="pick">
         <span class="role">Best for vaulted / allocated</span>
         <span class="nm">BullionVault</span>
         <span class="type">Allocated gold, silver, platinum, palladium in professional vaults</span>
@@ -134,40 +159,115 @@
           <dt>Buy margin</dt><dd>~0.5% *</dd>
           <dt>Storage</dt><dd>~0.12%/yr *</dd>
           <dt>Min. order</dt><dd>low *</dd>
-          <dt>Pays out to</dt><dd>EU / NL ✓</dd>
+          <dt>Ships / serves</dt><dd>🌍 global</dd>
         </dl>
         <p class="desc">Buy and sell metal at a small margin over spot, stored and insured in your choice of vault. Cheaper to trade than coins; you don't hold the metal in hand.</p>
         <a class="cta" href="#" rel="sponsored nofollow" data-aff="bullionvault">Visit BullionVault →</a>
         <span class="pending">Affiliate link pending</span>
       </article>
-
       <article class="pick">
-        <span class="role">Best for physical + storage (EU)</span>
+        <span class="role">Best for physical + storage</span>
         <span class="nm">GoldBroker</span>
         <span class="type">Physical bars &amp; coins, plus segregated storage</span>
         <dl>
           <dt>Premium</dt><dd>varies *</dd>
           <dt>Storage</dt><dd>~0.15%/yr *</dd>
           <dt>Min. order</dt><dd>mid *</dd>
-          <dt>Pays out to</dt><dd>EU / NL ✓</dd>
+          <dt>Ships / serves</dt><dd>🇪🇺 EU + intl</dd>
         </dl>
         <p class="desc">European provider focused on outright-owned physical metal with optional vaulted storage. Useful when you want real bars but not in a drawer at home.</p>
-        <a class="cta" href="#" rel="sponsored nofollow" data-aff="goldbroker">Visit GoldBroker →</a>
+        <a class="cta ghost" href="#" rel="sponsored nofollow" data-aff="goldbroker">Visit GoldBroker →</a>
         <span class="pending">Affiliate link pending</span>
       </article>
+    </div>
 
+    <!-- UNITED STATES -->
+    <div class="cmp" data-region-group="us">
+      <article class="pick best">
+        <span class="role">Best for retirement (US)</span>
+        <span class="nm">Gold IRA</span>
+        <span class="type">Tax-advantaged physical metals in a self-directed retirement account</span>
+        <dl>
+          <dt>Type</dt><dd>retirement</dd>
+          <dt>Tax</dt><dd>IRA rules</dd>
+          <dt>Audience</dt><dd>🇺🇸 US</dd>
+          <dt>Our guide</dt><dd>full ✓</dd>
+        </dl>
+        <p class="desc">In the US and investing for retirement? A gold IRA holds IRS-approved metal with the same tax treatment as a traditional IRA. We compare the main providers without the hype.</p>
+        <a class="cta" href="/gold-ira">Compare Gold IRAs →</a>
+      </article>
       <article class="pick">
-        <span class="role">Best for coins &amp; bars</span>
-        <span class="nm">Bullion dealer</span>
-        <span class="type">Mainstream online coin &amp; bar dealer (e.g. via Awin network)</span>
+        <span class="role">Best for coins &amp; bars (US)</span>
+        <span class="nm">US bullion dealer</span>
+        <span class="type">Mainstream US coin &amp; bar dealer (e.g. via the Awin network)</span>
         <dl>
           <dt>Gold coin premium</dt><dd>~3–5% *</dd>
           <dt>Silver coin premium</dt><dd>~12–18% *</dd>
-          <dt>Shipping</dt><dd>varies *</dd>
-          <dt>Pays out to</dt><dd>EU / NL ✓</dd>
+          <dt>Shipping</dt><dd>US *</dd>
+          <dt>Ships / serves</dt><dd>🇺🇸 US</dd>
         </dl>
-        <p class="desc">Classic "metal in hand" route: widest product choice, but the highest premiums — especially on small silver coins — plus shipping and your own storage.</p>
-        <a class="cta ghost" href="#" rel="sponsored nofollow" data-aff="coin-dealer">Compare dealers →</a>
+        <p class="desc">Classic "metal in hand" route with the widest product choice, but the highest premiums — especially on small silver coins — plus shipping and your own storage.</p>
+        <a class="cta ghost" href="#" rel="sponsored nofollow" data-aff="us-dealer">Compare US dealers →</a>
+        <span class="pending">Affiliate link pending</span>
+      </article>
+      <article class="pick">
+        <span class="role">Best for low cost (US)</span>
+        <span class="nm">Vaulted gold</span>
+        <span class="type">Allocated metal stored in US (or global) vaults</span>
+        <dl>
+          <dt>Buy margin</dt><dd>~0.5% *</dd>
+          <dt>Storage</dt><dd>low yearly *</dd>
+          <dt>Min. order</dt><dd>low *</dd>
+          <dt>Ships / serves</dt><dd>🌍 global</dd>
+        </dl>
+        <p class="desc">If you'd rather not store coins yourself, allocated vaulted gold is the cheapest way to hold real metal and sell it back instantly.</p>
+        <a class="cta" href="#" rel="sponsored nofollow" data-aff="bullionvault">Visit BullionVault →</a>
+        <span class="pending">Affiliate link pending</span>
+      </article>
+    </div>
+
+    <!-- REST OF WORLD -->
+    <div class="cmp" data-region-group="intl">
+      <article class="pick best">
+        <span class="role">Best worldwide</span>
+        <span class="nm">BullionVault</span>
+        <span class="type">Allocated gold, silver, platinum, palladium in global vaults</span>
+        <dl>
+          <dt>Buy margin</dt><dd>~0.5% *</dd>
+          <dt>Storage</dt><dd>~0.12%/yr *</dd>
+          <dt>Min. order</dt><dd>low *</dd>
+          <dt>Ships / serves</dt><dd>🌍 global</dd>
+        </dl>
+        <p class="desc">Available in most countries: buy and sell allocated metal at a small margin over spot, stored and insured in your choice of vault.</p>
+        <a class="cta" href="#" rel="sponsored nofollow" data-aff="bullionvault">Visit BullionVault →</a>
+        <span class="pending">Affiliate link pending</span>
+      </article>
+      <article class="pick">
+        <span class="role">Best for physical worldwide</span>
+        <span class="nm">BullionStar</span>
+        <span class="type">Physical bullion with vaulting in Singapore, New Zealand &amp; the US</span>
+        <dl>
+          <dt>Premium</dt><dd>varies *</dd>
+          <dt>Storage</dt><dd>optional *</dd>
+          <dt>Vaults</dt><dd>SG · NZ · US</dd>
+          <dt>Ships / serves</dt><dd>🌍 global</dd>
+        </dl>
+        <p class="desc">Singapore-based dealer with international shipping and storage — a solid option outside Europe and the US.</p>
+        <a class="cta ghost" href="#" rel="sponsored nofollow" data-aff="bullionstar">Visit BullionStar →</a>
+        <span class="pending">Affiliate link pending</span>
+      </article>
+      <article class="pick">
+        <span class="role">Best for physical + storage</span>
+        <span class="nm">GoldBroker</span>
+        <span class="type">Physical bars &amp; coins, plus segregated storage</span>
+        <dl>
+          <dt>Premium</dt><dd>varies *</dd>
+          <dt>Storage</dt><dd>~0.15%/yr *</dd>
+          <dt>Min. order</dt><dd>mid *</dd>
+          <dt>Ships / serves</dt><dd>🌍 intl</dd>
+        </dl>
+        <p class="desc">Outright-owned physical metal with optional vaulted storage and international delivery.</p>
+        <a class="cta ghost" href="#" rel="sponsored nofollow" data-aff="goldbroker">Visit GoldBroker →</a>
         <span class="pending">Affiliate link pending</span>
       </article>
     </div>
@@ -259,6 +359,6 @@
   document.getElementById("cur-eur").addEventListener("click",function(){setCur("eur");});
 })();
 </script>
-<script src="/assets/site.js" defer></script>
+<script src="/assets/site.js?v=4" defer></script>
 </body>
 </html>
