@@ -1,0 +1,81 @@
+# Send the metals newsletter
+# -----------------------------------------------------------------------------
+# Runs daily. The script decides who is due (daily=every day, weekly=Mondays,
+# monthly=the 1st), builds one edition per (frequency, metals) combo, and sends
+# to confirmed subscribers via the Brevo transactional API. Subscribers live in
+# public_html/data/subscribers.json on Vimexx (FTP-synced here). Does nothing if
+# BREVO_API_KEY is unset or there are no due subscribers, so it is safe to enable
+# before everything is configured.
+#
+# Requires repo secrets: FTP_HOST, FTP_USER, FTP_PASS (already set for deploy) and
+# BREVO_API_KEY (add this one). Manual run supports a dry_run input (build, no send).
+# -----------------------------------------------------------------------------
+
+name: Send newsletter
+
+on:
+  schedule:
+    - cron: "0 7 * * *"   # 07:00 UTC daily; the script gates weekly/monthly itself
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (build + log only, send nothing)"
+        type: choice
+        options: ["false", "true"]
+        default: "true"
+
+concurrency:
+  group: send-newsletter
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Download price + history data
+        run: |
+          mkdir -p nl-data/history
+          curl -fsS -o nl-data/prices.json "https://preciousmetalscharts.com/prices.json"
+          for m in gold silver platinum palladium; do
+            curl -fsS -o "nl-data/history/$m-1y.json"  "https://preciousmetalscharts.com/history/$m-1y.json"  || true
+            curl -fsS -o "nl-data/history/$m-50y.json" "https://preciousmetalscharts.com/history/$m-50y.json" || true
+          done
+
+      - name: Download subscribers (FTPS)
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+        run: |
+          curl --ssl-reqd -k --ftp-pasv --disable-epsv \
+               --connect-timeout 20 --max-time 60 --retry 3 --retry-delay 8 --retry-all-errors \
+               -u "$FTP_USER:$FTP_PASS" \
+               "ftp://$FTP_HOST/public_html/data/subscribers.json" -o subscribers.json || echo "[]" > subscribers.json
+          node -e "try{JSON.parse(require('fs').readFileSync('subscribers.json','utf8'))}catch(e){require('fs').writeFileSync('subscribers.json','[]')}"
+
+      - name: Send due editions
+        env:
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          SENDER_EMAIL: "newsletter@preciousmetalscharts.com"
+          SENDER_NAME: "preciousmetalscharts"
+          DATA_DIR: "./nl-data"
+          SUBS_FILE: "./subscribers.json"
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: node data-pipeline/node/send-newsletter.mjs
+
+      - name: Upload updated subscribers (FTPS)
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+        run: |
+          curl --fail --ssl-reqd -k --ftp-pasv --disable-epsv --ftp-create-dirs \
+               --connect-timeout 20 --max-time 60 --retry 3 --retry-delay 8 --retry-all-errors \
+               -T subscribers.json -u "$FTP_USER:$FTP_PASS" \
+               "ftp://$FTP_HOST/public_html/data/subscribers.json"
