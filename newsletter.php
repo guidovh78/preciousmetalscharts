@@ -115,6 +115,21 @@ function page(string $title, string $bodyHtml): void {
     exit;
 }
 
+// ---- GET ?selftest=1 : configuration diagnostic (reveals NO secret) -------------------
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['selftest'])) {
+    jsonOut([
+        'ok'               => !empty(cfg('brevo_key')),
+        'configFileExists' => file_exists($CONFIG),
+        'configPath'       => $CONFIG,
+        'hasBrevoKey'      => !empty(cfg('brevo_key')),
+        'senderEmail'      => cfg('sender_email'),
+        'senderName'       => cfg('sender_name'),
+        'dataDirExists'    => is_dir($DATA_DIR),
+        'dataDirWritable'  => is_writable($DATA_DIR),
+        'php'              => PHP_VERSION,
+    ]);
+}
+
 // ---- GET: confirm / unsubscribe -------------------------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $confirm = $_GET['confirm'] ?? '';
