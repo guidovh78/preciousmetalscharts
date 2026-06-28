@@ -1,38 +1,53 @@
 # preciousmetalscharts
 
 > Independent live price charts for precious metals (gold, silver, platinum, palladium),
-> with the gold-to-silver ratio, dealer premiums, an inflation-adjusted view, a private
-> portfolio tracker and free price alerts. Independent and not affiliated with any dealer
-> or mint. Educational information only — not investment advice.
+> with the gold-to-silver ratio, a dealer-premium calculator, a private portfolio tracker
+> and free price alerts. Independent and not affiliated with any dealer or mint.
+> Educational information only — not investment advice.
 
 ## Key facts
 - Metals covered: gold (XAU), silver (XAG), platinum (XPT), palladium (XPD).
 - Data is referenced to global spot markets (COMEX futures and the London/LBMA market).
 - Spot price = the reference price for one troy ounce; physical coins and bars cost more
   because dealers add a premium over spot.
+- Premium over spot = your price minus the spot value of the metal, shown in money and as a
+  percentage. Premiums are larger on small coins than large bars, and larger on silver than gold.
 - Gold-to-silver ratio = gold price ÷ silver price; a high ratio is read as silver being
   cheap relative to gold. Historical range: under ~35 at silver peaks to above ~100 in
   market stress.
 - The site is independent: it sells no metals and holds no inventory.
-- Historical prices go back to the 1970s, built from the site's own price archive with deep
-  history from open World Bank commodity data (CC BY 4.0).
+- Historical prices go back to the 1970s (palladium to 1998), built from the site's own price
+  archive with deep history from open World Bank commodity data (Pink Sheet, CC BY 4.0). Each
+  metal page exposes its series as a schema.org Dataset.
 
 ## Pages
 - [Charts (home)](https://preciousmetalscharts.com/): live spot prices, main chart, ratio,
   premiums, performance comparison, FAQ.
+- Live metal price pages — live price, exact per-ounce/gram/kilo conversions, a 50-year history
+  chart and a "what moves the price" explainer for each metal:
+  [Gold](https://preciousmetalscharts.com/gold-price),
+  [Silver](https://preciousmetalscharts.com/silver-price),
+  [Platinum](https://preciousmetalscharts.com/platinum-price),
+  [Palladium](https://preciousmetalscharts.com/palladium-price). Prices show in USD or EUR.
+- [Premium calculator](https://preciousmetalscharts.com/premium-calculator): enter the metal,
+  weight and price you are paying (USD or EUR) to see the premium over the live spot price, in
+  money and percent, against the range buyers commonly see for that metal.
 - [Gold-to-silver ratio](https://preciousmetalscharts.com/ratio): the live ratio plus its
   full history back to the 1970s, with a plain-language guide to what it means.
 - [Where to buy gold & silver](https://preciousmetalscharts.com/buy): independent guide to
   buying — physical coins and bars, vaulted (allocated) metal and savings plans — with
   premiums, storage and how to compare providers.
-- [Best Gold IRA companies (comparison)](https://preciousmetalscharts.com/gold-ira):
-  independent comparison of gold-IRA providers on fees, minimums, transparency and support,
-  with a published scoring method and the honest downsides.
+- Trust & policy: [About](https://preciousmetalscharts.com/about),
+  [Methodology](https://preciousmetalscharts.com/methodology),
+  [Disclaimer](https://preciousmetalscharts.com/disclaimer),
+  [Affiliate disclosure](https://preciousmetalscharts.com/affiliate-disclosure).
 
 ## Definitions worth quoting
-- Gold IRA: a self-directed IRA holding IRS-approved physical precious metals; same tax
-  treatment as a traditional or Roth IRA, with metal as the underlying asset.
-- Home-storage gold IRA: not permitted — the IRS requires an approved depository.
+- Spot price: the current reference price for immediate settlement of one troy ounce of
+  unfabricated metal, set continuously by global trading (COMEX, London/LBMA).
+- Premium: the markup over spot a dealer charges for a physical coin or bar, covering minting,
+  fabrication, distribution and margin.
+- Troy ounce: the standard unit for precious metals; one troy ounce = 31.1035 grams.
 
 ## Contact / authority
 - Publisher: preciousmetalscharts
