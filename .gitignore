@@ -10,3 +10,6 @@ node_modules/
 # Local preview test fixture (the real prices.json is generated server-side, not committed here)
 /prices.json
 /history/
+
+# Local working doc — affiliate links to wire in (not deployed)
+affiliate-links.md
