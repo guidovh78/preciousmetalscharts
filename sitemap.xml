@@ -44,6 +44,30 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://preciousmetalscharts.com/calculators</loc>
+    <lastmod>2026-06-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://preciousmetalscharts.com/dca-calculator</loc>
+    <lastmod>2026-06-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://preciousmetalscharts.com/purchasing-power-calculator</loc>
+    <lastmod>2026-06-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://preciousmetalscharts.com/ratio-strategy-calculator</loc>
+    <lastmod>2026-06-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://preciousmetalscharts.com/methodology</loc>
     <lastmod>2026-06-28</lastmod>
     <changefreq>monthly</changefreq>

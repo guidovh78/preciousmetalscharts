@@ -29,9 +29,18 @@
   [Silver](https://preciousmetalscharts.com/silver-price),
   [Platinum](https://preciousmetalscharts.com/platinum-price),
   [Palladium](https://preciousmetalscharts.com/palladium-price). Prices show in USD or EUR.
-- [Premium calculator](https://preciousmetalscharts.com/premium-calculator): enter the metal,
-  weight and price you are paying (USD or EUR) to see the premium over the live spot price, in
-  money and percent, against the range buyers commonly see for that metal.
+- [Calculators](https://preciousmetalscharts.com/calculators): a hub of free gold/silver tools,
+  several powered by the 50-year price archive (rare among bullion sites):
+  - [Premium over spot](https://preciousmetalscharts.com/premium-calculator): metal + weight +
+    price paid (USD/EUR) → premium in money and percent vs the live spot price.
+  - [DCA backtest](https://preciousmetalscharts.com/dca-calculator): what investing a fixed
+    amount every month into a metal since the 1970s would be worth today (buys at spot;
+    excludes premiums/fees/taxes; historical illustration, not a prediction).
+  - [Gold vs cash purchasing power](https://preciousmetalscharts.com/purchasing-power-calculator):
+    how much gold-buying power cash has lost since a chosen year, and what holding gold would have done.
+  - [Gold-to-silver ratio strategy](https://preciousmetalscharts.com/ratio-strategy-calculator):
+    backtests switching between gold and silver at ratio extremes, with a cost-per-switch setting
+    that shows how dealer spreads erode the apparent edge. Educational, not advice.
 - [Gold-to-silver ratio](https://preciousmetalscharts.com/ratio): the live ratio plus its
   full history back to the 1970s, with a plain-language guide to what it means.
 - [Where to buy gold & silver](https://preciousmetalscharts.com/buy): independent guide to
