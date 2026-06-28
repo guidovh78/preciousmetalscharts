@@ -87,3 +87,45 @@
   var brand = foot.querySelector('.brandline');
   if (brand && brand.nextSibling) foot.insertBefore(nav, brand.nextSibling); else foot.appendChild(nav);
 })();
+
+// per-metal price page (gold-price, silver-price, ...) — live price, unit conversions, history chart.
+(function () {
+  var root = document.querySelector('[data-metal]');
+  if (!root) return;
+  var metal = root.getAttribute('data-metal'), OZT_G = 31.1034768;
+  var money = function (n) { return n == null ? '—' : '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+  var set = function (k, v) { document.querySelectorAll('[data-mp="' + k + '"]').forEach(function (e) { e.textContent = v; }); };
+
+  function paint(snap) {
+    var m = snap.metals && snap.metals[metal]; if (!m || m.price == null) return;
+    var p = m.price;
+    set('price', money(p)); set('oz', money(p)); set('g', money(p / OZT_G)); set('kg', money(p / OZT_G * 1000));
+    var chg = document.querySelector('[data-mp="change"]');
+    if (chg) { var up = (m.changePct || 0) >= 0; chg.textContent = (up ? '▲ +' : '▼ ') + Math.abs(m.changePct || 0).toFixed(2) + '%'; chg.className = 'c mono ' + (up ? 'up' : 'down'); }
+    var t = new Date(snap.updatedAt), hhmm = isNaN(t.getTime()) ? '' : t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    set('fresh', (hhmm ? ('as of ' + hhmm + ' · ') : '') + '~' + (snap.delayedMinutes || 10) + ' min delayed');
+  }
+  function loadPrice() { fetch('/prices.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (s) { if (s) paint(s); }).catch(function () {}); }
+  loadPrice(); setInterval(loadPrice, 60000);
+
+  var host = document.getElementById('chartHost'); if (!host) return;
+  var label = document.getElementById('chLabel'), HR = { '1m': '1m', '1y': '1y', '5y': '5y', '10y': '10y', 'max': '50y' }, range = '1y';
+  function buildPath(v, w, h, pad) { var mn = Math.min.apply(null, v), mx = Math.max.apply(null, v), rg = (mx - mn) || 1, n = v.length, X = function (i) { return pad + i / (n - 1) * (w - 2 * pad); }, Y = function (x) { return h - pad - (x - mn) / rg * (h - 2 * pad); }, d = 'M' + X(0).toFixed(1) + ' ' + Y(v[0]).toFixed(1); for (var i = 1; i < n; i++) { var x0 = X(i - 1), y0 = Y(v[i - 1]), x1 = X(i), y1 = Y(v[i]), cx = (x0 + x1) / 2; d += ' C' + cx.toFixed(1) + ' ' + y0.toFixed(1) + ' ' + cx.toFixed(1) + ' ' + y1.toFixed(1) + ' ' + x1.toFixed(1) + ' ' + y1.toFixed(1); } return { d: d, X: X, Y: Y }; }
+  function draw(pts) {
+    Array.prototype.slice.call(host.querySelectorAll('svg')).forEach(function (e) { e.remove(); });
+    if (!pts || pts.length < 2) return;
+    var dates = pts.map(function (p) { return p[0]; }), data = pts.map(function (p) { return p[1]; });
+    var w = 820, h = 300, pad = 18, p = buildPath(data, w, h, pad), col = 'var(--' + metal + ')', gid = 'mp' + Math.random().toString(36).slice(2, 7), grid = '';
+    for (var g = 1; g <= 3; g++) { var gy = pad + g / 4 * (h - 2 * pad); grid += '<line x1="' + pad + '" x2="' + (w - pad) + '" y1="' + gy + '" y2="' + gy + '" stroke="var(--line)" stroke-width="1"/>'; }
+    var area = p.d + ' L' + (w - pad) + ' ' + (h - pad) + ' L' + pad + ' ' + (h - pad) + ' Z';
+    host.insertAdjacentHTML('afterbegin', '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" role="img" aria-label="' + metal + ' price history"><defs><linearGradient id="' + gid + '" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="' + col + '" stop-opacity=".18"/><stop offset="1" stop-color="' + col + '" stop-opacity="0"/></linearGradient></defs>' + grid + '<path d="' + area + '" fill="url(#' + gid + ')"/><path d="' + p.d + '" fill="none" stroke="' + col + '" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="' + p.X(data.length - 1).toFixed(1) + '" cy="' + p.Y(data[data.length - 1]).toFixed(1) + '" r="3.5" fill="' + col + '"/><line id="chLine" x1="0" x2="0" y1="' + pad + '" y2="' + (h - pad) + '" stroke="var(--line-strong)" stroke-width="1" opacity="0"/></svg>');
+    var svg = host.querySelector('svg'), chLine = host.querySelector('#chLine');
+    function mv(ev) { var rect = svg.getBoundingClientRect(), cx = (ev.touches ? ev.touches[0].clientX : ev.clientX), rel = Math.max(0, Math.min(1, (cx - rect.left) / rect.width)), idx = Math.round(rel * (data.length - 1)), vx = p.X(idx), vy = p.Y(data[idx]); chLine.setAttribute('x1', vx); chLine.setAttribute('x2', vx); chLine.setAttribute('opacity', '1'); if (label) { label.style.opacity = '1'; label.style.left = (vx / w * 100) + '%'; label.style.top = (vy / h * 100) + '%'; label.textContent = dates[idx] + ' · ' + money(data[idx]); } }
+    function lv() { chLine.setAttribute('opacity', '0'); if (label) label.style.opacity = '0'; }
+    svg.addEventListener('mousemove', mv); svg.addEventListener('touchmove', mv, { passive: true }); svg.addEventListener('mouseleave', lv); svg.addEventListener('touchend', lv);
+  }
+  function loadChart() { var hr = HR[range] || '1y'; fetch('/history/' + metal + '-' + hr + '.json', { cache: 'force-cache' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (f) { if (f && f.points) draw(f.points); }).catch(function () {}); }
+  var ranges = document.getElementById('ranges');
+  if (ranges) ranges.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; Array.prototype.forEach.call(this.querySelectorAll('button'), function (x) { x.setAttribute('aria-pressed', 'false'); }); b.setAttribute('aria-pressed', 'true'); range = b.dataset.r; loadChart(); });
+  loadChart();
+})();
