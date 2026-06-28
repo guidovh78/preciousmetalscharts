@@ -75,3 +75,15 @@
     apply(r);
   });
 })();
+
+// footer trust links — kept consistent across all pages (injected if not already present).
+(function () {
+  var foot = document.querySelector('footer .foot');
+  if (!foot || foot.querySelector('.foot-links')) return;
+  var nav = document.createElement('nav');
+  nav.className = 'foot-links';
+  nav.setAttribute('aria-label', 'Site information');
+  nav.innerHTML = '<a href="/about">About</a><a href="/methodology">Methodology</a><a href="/disclaimer">Disclaimer</a><a href="/affiliate-disclosure">Affiliate disclosure</a>';
+  var brand = foot.querySelector('.brandline');
+  if (brand && brand.nextSibling) foot.insertBefore(nav, brand.nextSibling); else foot.appendChild(nav);
+})();

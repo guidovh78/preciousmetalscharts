@@ -16,6 +16,10 @@ on:
       - "gold-ira.html"
       - "ratio.html"
       - "buy.html"
+      - "methodology.html"
+      - "about.html"
+      - "disclaimer.html"
+      - "affiliate-disclosure.html"
       - "assets/site.css"
       - "assets/site.js"
       - "robots.txt"
@@ -42,7 +46,7 @@ jobs:
           FTP_PASS: ${{ secrets.FTP_PASS }}
         run: |
           set -e
-          for f in index.html gold-ira.html ratio.html buy.html assets/site.css assets/site.js robots.txt llms.txt sitemap.xml .htaccess; do
+          for f in index.html gold-ira.html ratio.html buy.html methodology.html about.html disclaimer.html affiliate-disclosure.html assets/site.css assets/site.js robots.txt llms.txt sitemap.xml .htaccess; do
             echo "Uploading $f -> public_html/$f"
             curl --fail --show-error --silent \
                  --ssl-reqd -k --ftp-pasv --disable-epsv --ftp-create-dirs \

@@ -282,3 +282,19 @@
 .region-banner{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;background:var(--surface-2);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:11px 15px;font-size:13px;color:var(--muted);margin:14px 0 0;}
 .region-banner a{color:var(--accent);font-weight:600;text-decoration:none;white-space:nowrap;}
 .region-banner b{color:var(--ink);}
+
+/* ===== content / trust pages ===== */
+.doc{max-width:74ch;padding:30px 0 8px;}
+.doc h1{font-family:var(--font-display);font-weight:700;font-size:clamp(26px,3.6vw,36px);letter-spacing:-.02em;line-height:1.1;margin:0 0 6px;}
+.doc .updated{font-family:var(--font-mono);font-size:12px;color:var(--faint);margin:0 0 22px;}
+.doc h2{font-family:var(--font-display);font-weight:600;font-size:19px;letter-spacing:-.01em;margin:30px 0 8px;}
+.doc p,.doc li{color:var(--muted);font-size:15px;line-height:1.7;}
+.doc p.lead{font-size:17px;color:var(--ink);margin:0 0 18px;}
+.doc strong,.doc b{color:var(--ink);font-weight:600;}
+.doc a{color:var(--accent);}
+.doc ul{padding-left:20px;margin:8px 0;}
+.doc li{margin:4px 0;}
+.doc code{font-family:var(--font-mono);font-size:.92em;background:var(--surface-2);border:1px solid var(--line);border-radius:5px;padding:1px 5px;}
+.foot-links{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;margin:2px 0 2px;}
+.foot-links a{color:var(--muted);text-decoration:none;}
+.foot-links a:hover{color:var(--ink);}
