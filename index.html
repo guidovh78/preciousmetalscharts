@@ -88,24 +88,9 @@
   .ratio-spark-head{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:7px;}
   .ratio-spark-cap{text-transform:none;letter-spacing:0;font-family:var(--font-mono);font-size:11.5px;color:var(--faint);margin-left:8px;}
   .ratio-spark{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden;min-height:90px;}
-  /* CSS phone mockup inside the 'Live prices, like an app' tool card */
-  .phone-wrap{display:flex;justify-content:center;margin:10px 0 16px;}
-  .phone{width:152px;background:#15171c;border-radius:24px;padding:8px;box-shadow:0 10px 24px rgba(0,0,0,.20);position:relative;}
-  .phone-notch{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:44px;height:6px;border-radius:99px;background:#000;z-index:2;}
-  .phone-screen{background:#fff;border-radius:16px;padding:13px 11px 9px;}
-  .ps-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
-  .ps-logo{font-size:8px;font-weight:700;color:#17191E;letter-spacing:-.02em;}
-  .ps-logo b{color:#9A7322;}
-  .ps-live{display:inline-flex;align-items:center;gap:3px;font-size:6px;font-weight:700;color:#9A7322;border:1px solid #E7DBBE;border-radius:4px;padding:1px 4px;}
-  .ps-live .ps-dot{width:4px;height:4px;border-radius:50%;background:#1A7F5A;}
-  .ps-row{display:flex;align-items:center;gap:6px;padding:6px 0;border-top:1px solid #f0f0ec;}
-  .ps-row:first-child{border-top:0;}
-  .ps-chip{width:17px;height:17px;border-radius:5px;color:#1d1f24;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;}
-  .ps-nm{font-size:8.5px;color:#17191E;flex:1;}
-  .ps-px{font-size:9px;font-weight:600;font-family:var(--font-mono);color:#17191E;}
-  .ps-ch{font-size:7.5px;font-weight:600;min-width:26px;text-align:right;}
-  .ps-ch.up{color:#1A7F5A;} .ps-ch.down{color:#C2453A;}
-  .ps-foot{margin-top:8px;text-align:center;font-size:5.5px;color:#9AA0A6;letter-spacing:.02em;}
+  /* phone render inside the 'Live prices, like an app' tool card */
+  .phone-wrap{display:flex;justify-content:center;margin:6px 0 14px;}
+  .phone-img{display:block;width:auto;max-width:100%;max-height:248px;}
 </style>
 <script type="application/ld+json">
 {
@@ -366,20 +351,8 @@
         <span class="tag"><span class="livedot"></span>On your phone</span>
         <h3>Live prices, like an app</h3>
         <p>An always-on page with all four metals in 10 currencies and per gram, ounce or kilo — auto-refreshing, with charts. Add it to your home screen and it opens like an app.</p>
-        <div class="phone-wrap" aria-hidden="true">
-          <div class="phone">
-            <span class="phone-notch"></span>
-            <div class="phone-screen">
-              <div class="ps-head"><span class="ps-logo">preciousmetals<b>charts</b></span><span class="ps-live"><span class="ps-dot"></span>LIVE</span></div>
-              <div class="ps-rows">
-                <div class="ps-row"><span class="ps-chip" style="background:var(--gold)">Au</span><span class="ps-nm">Gold</span><span class="ps-px">$4,090</span><span class="ps-ch up">+0.8%</span></div>
-                <div class="ps-row"><span class="ps-chip" style="background:var(--silver)">Ag</span><span class="ps-nm">Silver</span><span class="ps-px">$59.30</span><span class="ps-ch down">−1.1%</span></div>
-                <div class="ps-row"><span class="ps-chip" style="background:var(--platinum)">Pt</span><span class="ps-nm">Platinum</span><span class="ps-px">$1,625</span><span class="ps-ch down">−0.4%</span></div>
-                <div class="ps-row"><span class="ps-chip" style="background:var(--palladium)">Pd</span><span class="ps-nm">Palladium</span><span class="ps-px">$1,228</span><span class="ps-ch up">+0.3%</span></div>
-              </div>
-              <div class="ps-foot">live.preciousmetalscharts.com</div>
-            </div>
-          </div>
+        <div class="phone-wrap">
+          <img class="phone-img" src="/assets/live_app_mobilephone.png" alt="The live prices app on a phone — gold, silver, platinum and palladium with charts" loading="lazy" width="1122" height="1402">
         </div>
         <div class="cta"><a class="btn-primary" href="https://live.preciousmetalscharts.com/">Open live prices →</a><span class="hint">Tap <b>Share</b> → <b>Add to Home Screen</b></span></div>
       </article>
