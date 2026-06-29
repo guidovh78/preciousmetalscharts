@@ -74,6 +74,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://preciousmetalscharts.com/market-recap</loc>
+    <lastmod>2026-06-29</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://preciousmetalscharts.com/methodology</loc>
     <lastmod>2026-06-28</lastmod>
     <changefreq>monthly</changefreq>

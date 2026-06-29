@@ -1,0 +1,56 @@
+# Build + publish the daily Metals market recap page
+# -----------------------------------------------------------------------------
+# Generates a server-rendered /market-recap page from our own price snapshot +
+# history archive and uploads it to Vimexx. Fresh, factual, citeable content with
+# zero manual work. Only displays our own data (no third-party redistribution).
+# Requires repo secrets: FTP_HOST, FTP_USER, FTP_PASS (already set for deploy).
+# -----------------------------------------------------------------------------
+
+name: Build market recap
+
+on:
+  schedule:
+    - cron: "30 21 * * *"   # daily ~21:30 UTC (after the US session)
+  workflow_dispatch: {}
+
+concurrency:
+  group: market-recap
+  cancel-in-progress: false
+
+jobs:
+  recap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Download price + history data
+        run: |
+          mkdir -p data/history
+          curl -fsS -o data/prices.json "https://preciousmetalscharts.com/prices.json"
+          for m in gold silver platinum palladium; do
+            curl -fsS -o "data/history/$m-1y.json"  "https://preciousmetalscharts.com/history/$m-1y.json"  || true
+            curl -fsS -o "data/history/$m-50y.json" "https://preciousmetalscharts.com/history/$m-50y.json" || true
+          done
+
+      - name: Build the recap page
+        env:
+          DATA_DIR: "./data"
+          OUT: "market-recap.html"
+          PERIOD: "weekly"
+        run: node data-pipeline/node/build-market-recap.mjs
+
+      - name: Upload market-recap.html to Vimexx (FTPS)
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+        run: |
+          curl --fail --show-error --silent \
+               --ssl-reqd -k --ftp-pasv --disable-epsv --ftp-create-dirs \
+               --connect-timeout 20 --max-time 90 --retry 4 --retry-delay 10 --retry-all-errors \
+               -T market-recap.html -u "$FTP_USER:$FTP_PASS" \
+               "ftp://$FTP_HOST/public_html/market-recap.html"
+          echo "market-recap.html uploaded."

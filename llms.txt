@@ -41,6 +41,7 @@
   - [Gold-to-silver ratio strategy](https://preciousmetalscharts.com/ratio-strategy-calculator):
     backtests switching between gold and silver at ratio extremes, with a cost-per-switch setting
     that shows how dealer spreads erode the apparent edge. Educational, not advice.
+- [Market recap](https://preciousmetalscharts.com/market-recap): an auto-generated, factual weekly recap of how the metals moved, the gold-to-silver ratio and where prices stand. Updated daily.
 - [Gold-to-silver ratio](https://preciousmetalscharts.com/ratio): the live ratio plus its
   full history back to the 1970s, with a plain-language guide to what it means.
 - [Where to buy gold & silver](https://preciousmetalscharts.com/buy): independent guide to
