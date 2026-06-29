@@ -8,6 +8,17 @@
 Options -MultiViews
 RewriteEngine On
 
+# -----------------------------------------------------------------------------
+# Canonical origin: force HTTPS + non-www so every page has ONE address.
+# www.* and http://* issue a single 301 to https://preciousmetalscharts.com/...
+# (matches the canonical tags + sitemap). Does not affect the live.* subdomain
+# (its host isn't "www", and it keeps its own https).
+# -----------------------------------------------------------------------------
+RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
 # If the requested path is NOT an existing file or directory, but the same name
 # with a .html extension IS a real file, serve that file. So /gold-ira -> gold-ira.html.
 RewriteCond %{REQUEST_FILENAME} !-f
