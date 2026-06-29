@@ -215,12 +215,18 @@
   id('themeBtn').addEventListener('click',function(){var n=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('pmc_live_theme',n);}catch(e){}setIcon();});
   setIcon();
 
-  function setFresh(){var when=snap?new Date(snap.updatedAt):null,hhmm=when&&!isNaN(when.getTime())?when.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';id('fresh').textContent=(hhmm?('updated '+hhmm+' · '):'')+'~'+((snap&&snap.delayedMinutes)||10)+' min delayed · auto-refresh 60s'+(snap&&snap.stale?' · last refresh failed':'');}
-  function loadPrices(){fetch(API+'/prices.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(s){if(!s)return;snap=s;if(s.fx&&s.fx.rates)rates=s.fx.rates;else if(s.fx&&s.fx.eur){rates={USD:1,EUR:s.fx.eur};}if(!rates.USD)rates.USD=1;
+  var fetchFail=false;
+  function setFresh(){var when=snap?new Date(snap.updatedAt):null,hhmm=when&&!isNaN(when.getTime())?when.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';id('fresh').textContent=(hhmm?('updated '+hhmm+' · '):'')+'~'+((snap&&snap.delayedMinutes)||10)+' min delayed'+(fetchFail?' · refresh failed — tap to retry':' · tap to refresh');}
+  function loadPrices(){fetch(API+'/prices.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(s){if(!s){fetchFail=true;setFresh();return;}fetchFail=false;snap=s;if(s.fx&&s.fx.rates)rates=s.fx.rates;else if(s.fx&&s.fx.eur){rates={USD:1,EUR:s.fx.eur};}if(!rates.USD)rates.USD=1;
     // keep currency valid
     if(!rates[cur]){cur='USD';id('curSel').value='USD';}
-    renderAll();setFresh();}).catch(function(){});}
+    renderAll();setFresh();}).catch(function(){fetchFail=true;setFresh();});}
   loadPrices();setInterval(loadPrices,60000);
+  // Standalone home-screen apps have no pull-to-refresh — refresh on every reopen/refocus, and let the status line be tapped to force it.
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)loadPrices();});
+  window.addEventListener('pageshow',function(){loadPrices();});
+  window.addEventListener('focus',function(){loadPrices();});
+  (function(){var fr=id('fresh');if(fr){fr.style.cursor='pointer';fr.setAttribute('role','button');fr.setAttribute('tabindex','0');fr.setAttribute('aria-label','Refresh prices');fr.addEventListener('click',function(){loadPrices();});}})();
   // No service worker — always fetch fresh. Actively remove any old one left on the device.
   if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.update();r.unregister();});}).catch(function(){});if(window.caches&&caches.keys){caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k);});}).catch(function(){});}}
 })();
