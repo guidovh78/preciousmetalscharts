@@ -88,9 +88,14 @@
   .ratio-spark-head{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:7px;}
   .ratio-spark-cap{text-transform:none;letter-spacing:0;font-family:var(--font-mono);font-size:11.5px;color:var(--faint);margin-left:8px;}
   .ratio-spark{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden;min-height:90px;}
-  /* phone render inside the 'Live prices, like an app' tool card */
+  /* phone render inside the 'Live prices, like an app' tool card — text beside image */
   .phone-wrap{display:flex;justify-content:center;margin:6px 0 14px;}
   .phone-img{display:block;width:auto;max-width:100%;max-height:288px;}
+  .toolcard-app{flex-direction:row;align-items:center;gap:18px;}
+  .toolcard-app .tc-text{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .toolcard-app .phone-wrap{flex:none;margin:0;}
+  .toolcard-app .phone-img{max-height:230px;}
+  @media(max-width:420px){.toolcard-app{gap:13px;}.toolcard-app .phone-img{max-height:194px;}}
 </style>
 <script type="application/ld+json">
 {
@@ -347,17 +352,19 @@
     <div class="sec-head"><span class="sec-num">06</span><h2>Take it with you</h2></div>
     <p class="sec-sub">Two free ways to keep these prices close — on your phone, or on your own website.</p>
     <div class="tools">
-      <article class="toolcard">
-        <span class="tag"><span class="livedot"></span>On your phone</span>
-        <h3>Live prices, like an app</h3>
-        <p>An always-on page with all four metals in 10 currencies and per gram, ounce or kilo — auto-refreshing, with charts. Add it to your home screen and it opens like an app.</p>
+      <article class="toolcard toolcard-app">
+        <div class="tc-text">
+          <span class="tag"><span class="livedot"></span>On your phone</span>
+          <h3>Live prices, like an app</h3>
+          <p>An always-on page with all four metals in 10 currencies and per gram, ounce or kilo — auto-refreshing, with charts. Add it to your home screen and it opens like an app.</p>
+          <div class="cta"><a class="btn-primary" href="https://live.preciousmetalscharts.com/">Open live prices →</a><span class="hint">Tap <b>Share</b> → <b>Add to Home Screen</b></span></div>
+        </div>
         <div class="phone-wrap">
           <picture>
             <source srcset="/assets/live_app_phone_transparent.webp" type="image/webp">
             <img class="phone-img" src="/assets/live_app_mobilephone_transparent.png" alt="The live prices app on a phone — gold, silver, platinum and palladium with charts" loading="lazy" width="639" height="1344">
           </picture>
         </div>
-        <div class="cta"><a class="btn-primary" href="https://live.preciousmetalscharts.com/">Open live prices →</a><span class="hint">Tap <b>Share</b> → <b>Add to Home Screen</b></span></div>
       </article>
       <article class="toolcard">
         <span class="tag"><span class="livedot"></span>On your website</span>
