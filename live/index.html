@@ -39,8 +39,9 @@
   .seg button{border:0;background:transparent;color:var(--muted);font-size:12.5px;font-weight:600;padding:7px 12px;border-radius:7px;line-height:1;cursor:pointer;font-family:var(--sans);}
   .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 1px rgba(0,0,0,.06);}
   .rows{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
-  .row{display:grid;grid-template-columns:1fr auto auto 18px;align-items:center;gap:12px;width:100%;text-align:left;background:transparent;border:0;border-bottom:1px solid var(--line);padding:15px 16px;cursor:pointer;font:inherit;color:inherit;}
-  .row:last-of-type{border-bottom:0;}
+  .row{display:grid;grid-template-columns:1fr auto auto 18px;align-items:center;gap:12px;width:100%;text-align:left;background:transparent;border:0;padding:15px 16px;cursor:pointer;font:inherit;color:inherit;}
+  .row-wrap{border-bottom:1px solid var(--line-strong);}
+  .row-wrap:last-child{border-bottom:0;}
   .row:hover{background:var(--surface-2);}
   .row.open{background:var(--surface-2);}
   .rname{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:500;}
@@ -48,11 +49,10 @@
   .rname .sym{font-family:var(--mono);font-size:11px;color:var(--faint);}
   .rprice{font-family:var(--mono);font-size:16px;font-weight:600;letter-spacing:-.01em;white-space:nowrap;}
   .rchg{font-family:var(--mono);font-size:13px;font-weight:600;white-space:nowrap;text-align:right;min-width:82px;}
-  .rchg.up{color:var(--up);} .rchg.down{color:var(--down);}
+  .rchg.up{color:var(--up);} .rchg.down{color:var(--down);} .rchg.flat{color:var(--muted);}
   .chev{color:var(--faint);transition:transform .15s;}
   .row.open .chev{transform:rotate(180deg);}
-  .panel{display:none;border-bottom:1px solid var(--line);padding:4px 16px 18px;background:var(--surface-2);}
-  .row-wrap:last-child .panel{border-bottom:0;}
+  .panel{display:none;padding:4px 16px 18px;background:var(--surface-2);}
   .panel.show{display:block;}
   .pmeta{display:flex;flex-wrap:wrap;gap:6px 18px;font-family:var(--mono);font-size:12px;color:var(--muted);margin:6px 0 10px;}
   .pmeta b{color:var(--ink);font-weight:600;}
@@ -147,7 +147,7 @@
     var d=snap&&snap.metals&&snap.metals[m.k]; if(!d||d.price==null)return;
     var chg=d.changePct==null?0:d.changePct;
     wrap.querySelector('[data-f="price"]').textContent=fmt(conv(d.price));
-    var c=wrap.querySelector('[data-f="chg"]');c.textContent=pctTxt(chg);c.className='rchg '+(chg>=0?'up':'down');
+    var c=wrap.querySelector('[data-f="chg"]');var flat=Math.abs(chg)<0.005;c.textContent=flat?'0.00%':pctTxt(chg);c.className='rchg '+(flat?'flat':(chg>=0?'up':'down'));
   }
   function renderAll(){METALS.forEach(renderRow);
     var g=snap&&snap.metals&&snap.metals.gold;
@@ -216,7 +216,7 @@
   setIcon();
 
   function setFresh(){var when=snap?new Date(snap.updatedAt):null,hhmm=when&&!isNaN(when.getTime())?when.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';id('fresh').textContent=(hhmm?('updated '+hhmm+' · '):'')+'~'+((snap&&snap.delayedMinutes)||10)+' min delayed · auto-refresh 60s'+(snap&&snap.stale?' · last refresh failed':'');}
-  function loadPrices(){fetch(API+'/prices.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(s){if(!s)return;snap=s;if(s.fx&&s.fx.rates)rates=s.fx.rates;else if(s.fx&&s.fx.eur){rates={USD:1,EUR:s.fx.eur};}if(!rates.USD)rates.USD=1;
+  function loadPrices(){fetch(API+'/prices.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(s){if(!s)return;snap=s;if(s.fx&&s.fx.rates)rates=s.fx.rates;else if(s.fx&&s.fx.eur){rates={USD:1,EUR:s.fx.eur};}if(!rates.USD)rates.USD=1;
     // keep currency valid
     if(!rates[cur]){cur='USD';id('curSel').value='USD';}
     renderAll();setFresh();}).catch(function(){});}
