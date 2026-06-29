@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Live Gold, Silver, Platinum &amp; Palladium Prices | preciousmetalscharts</title>
-<meta name="description" content="Live spot prices for gold, silver, platinum and palladium, with the gold-to-silver ratio, dealer premiums and free price alerts. Independent — not a dealer.">
+<meta name="description" content="Live spot prices for gold, silver, platinum and palladium, with the gold-to-silver ratio, dealer premiums and 50 years of price history. Independent — not a dealer.">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <link rel="canonical" href="https://preciousmetalscharts.com/">
 <meta name="author" content="preciousmetalscharts">
@@ -12,7 +12,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="preciousmetalscharts">
 <meta property="og:title" content="Live Gold, Silver, Platinum & Palladium Prices | preciousmetalscharts">
-<meta property="og:description" content="Live spot prices with the gold-to-silver ratio, dealer premiums and free alerts. Independent — not a dealer.">
+<meta property="og:description" content="Live spot prices with the gold-to-silver ratio, dealer premiums and 50 years of price history. Independent — not a dealer.">
 <meta property="og:url" content="https://preciousmetalscharts.com/">
 <meta property="og:image" content="https://preciousmetalscharts.com/og-cover.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -64,6 +64,9 @@
   .toolcard .cta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:auto;}
   .toolcard .cta a.btn-primary{text-decoration:none;}
   .toolcard .hint{font-size:12px;color:var(--muted);}
+  /* stacking milestone integrated as a calm band inside the holdings card (not a separate item) */
+  .milestone.inset{background:none;border:0;box-shadow:none;border-radius:0;border-top:1px solid var(--line);padding:14px 0 2px;margin:14px 0 4px;}
+  .milestone.inset .big{font-size:16px;}
 </style>
 <script type="application/ld+json">
 {
@@ -148,7 +151,7 @@
       <span>Free, no account needed</span>
     </div>
     <h1 class="lede">The spot price, plus the <em>context</em> dealers leave out.</h1>
-    <p class="sub">Live gold, silver, platinum and palladium — with the gold-to-silver ratio, your own holdings, dealer premiums and alerts in one calm place.</p>
+    <p class="sub">Live gold, silver, platinum and palladium — with the gold-to-silver ratio, your own holdings, dealer premiums and a free newsletter in one calm place.</p>
 
     <div class="metals-hint"><span class="tap">Tap</span> <span><b>Select a metal</b> to load its chart below ↓</span></div>
     <div class="metals" id="metals" aria-label="Live metal prices">
@@ -212,14 +215,20 @@
   <section class="sec" id="portfolio">
     <div class="sec-head"><span class="sec-num">03</span><h2>Track your gold &amp; silver holdings</h2></div>
     <p class="sec-sub">See what you hold and watch it move with the market. The more you add, the more this becomes your home base — and it stays private.</p>
-    <div class="pf">
-      <div class="pf-main">
+    <div class="pf" style="grid-template-columns:1fr">
+      <div class="pf-main" style="max-width:760px">
         <div class="pf-summary"><span class="tot mono" id="pfTotal">$0</span><span class="pl mono up" id="pfPL">+$0 (0.0%)</span></div>
         <div class="pf-cap" id="pfCap">Current value at live spot · cost basis optional</div>
         <div style="display:flex;align-items:center;gap:10px;margin:12px 0 2px"><span style="font-size:12px;color:var(--muted)">Weight unit</span><span class="seg" id="weightSeg" role="group" aria-label="Weight unit"><button data-w="oz" aria-pressed="true">oz</button><button data-w="g">grams</button></span></div>
         <div class="alloc" id="pfAlloc"></div>
         <div class="alloc-legend" id="pfLegend"></div>
         <div class="pf-rows" id="pfRows"></div>
+        <div class="milestone inset">
+          <div class="eb">Stacking milestone</div>
+          <div class="big" id="msTitle">—</div>
+          <div class="d" id="msDesc">Add a holding to start tracking.</div>
+          <div class="barwrap"><i id="msBar" style="width:0%"></i></div>
+        </div>
         <div class="pf-form">
           <select id="pfMetal" aria-label="Metal"><option value="gold">Gold</option><option value="silver">Silver</option><option value="platinum">Platinum</option><option value="palladium">Palladium</option></select>
           <input class="mono" id="pfOz" inputmode="decimal" placeholder="oz" aria-label="Ounces">
@@ -227,19 +236,6 @@
           <button class="pf-add" id="pfAdd">Add</button>
         </div>
         <div class="pf-privacy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Saved only in your browser — nothing is sent to a server, and your holdings stay here between visits.</span></div>
-      </div>
-      <div class="pf-side">
-        <div class="milestone">
-          <div class="eb">Stacking milestone</div>
-          <div class="big" id="msTitle">—</div>
-          <div class="d" id="msDesc">Add a holding to start tracking.</div>
-          <div class="barwrap"><i id="msBar" style="width:0%"></i></div>
-        </div>
-        <div class="alert-mini">
-          <h4>Alert me at a price</h4>
-          <p class="note">Get one email the moment a metal hits your target.</p>
-          <a class="go" href="#alerts" style="text-decoration:none;display:block;text-align:center">Set a price alert →</a>
-        </div>
       </div>
     </div>
   </section>
@@ -547,7 +543,7 @@
   /* scroll-spy */
   var links=Array.prototype.slice.call(document.querySelectorAll("#secnav a"));var map={};links.forEach(function(a){map[a.getAttribute("href").slice(1)]=a;});
   var io=new IntersectionObserver(function(entries){entries.forEach(function(en){if(en.isIntersecting){links.forEach(function(a){a.classList.remove("active");});if(map[en.target.id])map[en.target.id].classList.add("active");}});},{rootMargin:"-45% 0px -50% 0px"});
-  ["live","today","ratio","portfolio","premiums","compare","faq","alerts"].forEach(function(id){var el=document.getElementById(id);if(el)io.observe(el);});
+  ["live","today","ratio","portfolio","premiums","explore","tools","faq","alerts"].forEach(function(id){var el=document.getElementById(id);if(el)io.observe(el);});
 
   /* ===== live spot from our own cache (/prices.json) — refreshed server-side every ~10 min ===== */
   function fmtFresh(snap){
