@@ -98,11 +98,12 @@ const head = (m, year, s, descr, faq, dataset) => {
 <link rel="canonical" href="${url}">
 <meta name="author" content="preciousmetalscharts">
 <meta property="og:type" content="article"><meta property="og:site_name" content="preciousmetalscharts">
-<meta property="og:title" content="${Name} price in ${year}"><meta property="og:description" content="${esc(descr)}"><meta property="og:url" content="${url}">
+<meta property="og:title" content="${Name} price in ${year}"><meta property="og:description" content="${esc(descr)}"><meta property="og:url" content="${url}"><meta property="og:image" content="https://preciousmetalscharts.com/og-cover.png">
 <meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"${SITE}/#org","name":"preciousmetalscharts","url":"${SITE}/","logo":"${SITE}/logo.png"},{"@type":"WebSite","@id":"${SITE}/#website","url":"${SITE}/","name":"preciousmetalscharts","publisher":{"@id":"${SITE}/#org"},"inLanguage":"en"},{"@type":"WebPage","@id":"${url}#webpage","url":"${url}","name":"${Name} price in ${year}","isPartOf":{"@id":"${SITE}/#website"},"dateModified":"${todayISO}","about":"${m} price ${year}"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"${SITE}/"},{"@type":"ListItem","position":2,"name":"${Name} price","item":"${SITE}/${m}-price"},{"@type":"ListItem","position":3,"name":"${year}","item":"${url}"}]}]}</script>
 <script type="application/ld+json">${faq}</script>
 <script type="application/ld+json">${dataset}</script>
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="/assets/site.css?v=10">
 <style>.yr-table{width:100%;border-collapse:collapse;margin:6px 0 4px;font-size:14.5px;}.yr-table th,.yr-table td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);}.yr-table td.n,.yr-table th.n{text-align:right;font-family:var(--font-mono);}.yr-table tr:last-child td{border-bottom:0;}.answer{font-size:16px;line-height:1.65;background:var(--surface-2);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--radius-sm);padding:13px 16px;margin:4px 0 14px;}.yr-prevnext{display:flex;justify-content:space-between;gap:10px;margin:8px 0;}.yr-prevnext a{font-family:var(--font-mono);font-size:13px;color:var(--accent);text-decoration:none;}</style>
 </head>

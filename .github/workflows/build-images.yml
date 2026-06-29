@@ -1,0 +1,45 @@
+# Rasterise brand SVGs → favicon set + OG cover, and upload to Vimexx root.
+# Run manually after changing assets/brand/*.svg. Requires FTP_* secrets.
+name: Build brand images
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths: ['assets/brand/*.svg', '.github/workflows/build-images.yml']
+
+jobs:
+  images:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install rasterisers
+        run: sudo apt-get update && sudo apt-get install -y librsvg2-bin imagemagick
+
+      - name: Rasterise
+        run: |
+          mkdir -p out
+          # favicons from favicon.svg
+          for s in 16 32 48 180 192 512; do rsvg-convert -w $s -h $s assets/brand/favicon.svg -o out/favicon-$s.png; done
+          cp out/favicon-180.png out/apple-touch-icon.png
+          cp out/favicon-192.png out/icon-192.png
+          cp out/favicon-512.png out/icon-512.png
+          convert out/favicon-16.png out/favicon-32.png out/favicon-48.png out/favicon.ico
+          cp assets/brand/favicon.svg out/favicon.svg
+          # social cover from og-cover.svg
+          rsvg-convert -w 1200 -h 630 assets/brand/og-cover.svg -o out/og-cover.png
+          ls -la out/
+
+      - name: Upload to Vimexx (FTPS)
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+        run: |
+          up(){ curl --fail --show-error --silent --ssl-reqd -k --ftp-pasv --disable-epsv --ftp-create-dirs \
+                --connect-timeout 20 --max-time 90 --retry 4 --retry-delay 6 --retry-all-errors \
+                -T "$1" -u "$FTP_USER:$FTP_PASS" "ftp://$FTP_HOST/public_html/$2"; }
+          for f in favicon.ico favicon.svg favicon-32.png apple-touch-icon.png icon-192.png icon-512.png og-cover.png; do
+            up "out/$f" "$f"
+          done
+          echo "Brand images uploaded."

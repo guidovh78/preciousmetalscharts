@@ -99,10 +99,11 @@ function renderCoin(c) {
 <link rel="canonical" href="${url}">
 <meta name="author" content="preciousmetalscharts">
 <meta property="og:type" content="website"><meta property="og:site_name" content="preciousmetalscharts">
-<meta property="og:title" content="${c.name} price &amp; melt value"><meta property="og:description" content="${esc(descr)}"><meta property="og:url" content="${url}">
+<meta property="og:title" content="${c.name} price &amp; melt value"><meta property="og:description" content="${esc(descr)}"><meta property="og:url" content="${url}"><meta property="og:image" content="https://preciousmetalscharts.com/og-cover.png">
 <meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"${SITE}/#org","name":"preciousmetalscharts","url":"${SITE}/","logo":"${SITE}/logo.png"},{"@type":"WebSite","@id":"${SITE}/#website","url":"${SITE}/","name":"preciousmetalscharts","publisher":{"@id":"${SITE}/#org"},"inLanguage":"en"},{"@type":"WebPage","@id":"${url}#webpage","url":"${url}","name":"${c.name} price & melt value","isPartOf":{"@id":"${SITE}/#website"},"dateModified":"${todayISO}","about":"${c.name}"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"${SITE}/"},{"@type":"ListItem","position":2,"name":"Coin prices","item":"${SITE}/coin-prices"},{"@type":"ListItem","position":3,"name":"${c.name}","item":"${url}"}]}]}</script>
 <script type="application/ld+json">${JSON.stringify(faqObj)}</script>
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="/assets/site.css?v=10">
 <style>.coin-melt{display:flex;align-items:baseline;gap:10px;margin:8px 0 2px;}.coin-melt .v{font-family:var(--font-mono);font-size:30px;font-weight:600;}.coin-melt .lab{font-size:12px;color:var(--muted);}.spec-table{width:100%;border-collapse:collapse;margin:6px 0;font-size:14.5px;}.spec-table th,.spec-table td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);}.spec-table th{color:var(--muted);font-weight:500;width:46%;}.spec-table td{font-family:var(--font-mono);}.spec-table tr:last-child td,.spec-table tr:last-child th{border-bottom:0;}.answer{font-size:16px;line-height:1.65;background:var(--surface-2);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--radius-sm);padding:13px 16px;margin:4px 0 14px;}</style>
 </head>
@@ -162,7 +163,7 @@ function renderHub() {
 <link rel="canonical" href="${url}">
 <meta name="author" content="preciousmetalscharts">
 <meta property="og:type" content="website"><meta property="og:site_name" content="preciousmetalscharts">
-<meta property="og:title" content="Bullion coin prices &amp; melt values"><meta property="og:description" content="${esc(descr)}"><meta property="og:url" content="${url}">
+<meta property="og:title" content="Bullion coin prices &amp; melt values"><meta property="og:description" content="${esc(descr)}"><meta property="og:url" content="${url}"><meta property="og:image" content="https://preciousmetalscharts.com/og-cover.png">
 <meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"${SITE}/#org","name":"preciousmetalscharts","url":"${SITE}/","logo":"${SITE}/logo.png"},{"@type":"WebSite","@id":"${SITE}/#website","url":"${SITE}/","name":"preciousmetalscharts","publisher":{"@id":"${SITE}/#org"},"inLanguage":"en"},{"@type":"CollectionPage","@id":"${url}#webpage","url":"${url}","name":"Bullion coin prices & melt values","isPartOf":{"@id":"${SITE}/#website"},"dateModified":"${todayISO}"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"${SITE}/"},{"@type":"ListItem","position":2,"name":"Coin prices","item":"${url}"}]}]}</script>
 <script type="application/ld+json">${JSON.stringify(faqObj)}</script>

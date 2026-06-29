@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" font-family="Arial, Helvetica, sans-serif">
+  <rect width="1200" height="630" fill="#F4F4F1"/>
+  <rect x="0" y="0" width="1200" height="8" fill="#9A7322"/>
+
+  <!-- logo mark -->
+  <g transform="translate(80,70)">
+    <rect x="0" y="0" width="72" height="72" rx="18" fill="#FFFFFF" stroke="#D6D7D2" stroke-width="2"/>
+    <path d="M16 50 L31 35 L41 43 L57 22" fill="none" stroke="#9A7322" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="51" y="16" width="11" height="11" rx="2.6" fill="#9A7322"/>
+  </g>
+  <text x="172" y="118" font-size="40" font-weight="700" letter-spacing="-0.5">
+    <tspan fill="#17191E">preciousmetals</tspan><tspan fill="#9A7322">charts</tspan>
+  </text>
+
+  <!-- headline -->
+  <text x="80" y="290" font-size="62" font-weight="800" fill="#17191E" letter-spacing="-1.5">Live &amp; historical</text>
+  <text x="80" y="362" font-size="62" font-weight="800" fill="#17191E" letter-spacing="-1.5">precious-metals charts</text>
+
+  <!-- subline -->
+  <text x="80" y="430" font-size="27" fill="#6B7177">Independent — not a dealer. Gold, silver, platinum &amp; palladium,</text>
+  <text x="80" y="466" font-size="27" fill="#6B7177">with the gold-to-silver ratio and 50 years of history.</text>
+
+  <!-- metal legend -->
+  <g transform="translate(80,540)" font-size="24" font-weight="600">
+    <circle cx="9" cy="-8" r="9" fill="#C19A2E"/><text x="28" y="0" fill="#17191E">Gold</text>
+    <circle cx="139" cy="-8" r="9" fill="#8C9298"/><text x="158" y="0" fill="#17191E">Silver</text>
+    <circle cx="283" cy="-8" r="9" fill="#9FB1BB"/><text x="302" y="0" fill="#17191E">Platinum</text>
+    <circle cx="467" cy="-8" r="9" fill="#B8997A"/><text x="486" y="0" fill="#17191E">Palladium</text>
+  </g>
+
+  <text x="1120" y="548" font-size="24" font-weight="700" fill="#9A7322" text-anchor="end">preciousmetalscharts.com</text>
+</svg>
