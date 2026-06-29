@@ -221,7 +221,8 @@
     if(!rates[cur]){cur='USD';id('curSel').value='USD';}
     renderAll();setFresh();}).catch(function(){});}
   loadPrices();setInterval(loadPrices,60000);
-  if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){});});}
+  // No service worker — always fetch fresh. Actively remove any old one left on the device.
+  if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.update();r.unregister();});}).catch(function(){});if(window.caches&&caches.keys){caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k);});}).catch(function(){});}}
 })();
 </script>
 </body>
