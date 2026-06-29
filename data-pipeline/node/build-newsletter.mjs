@@ -163,12 +163,11 @@ export async function buildEdition({ dataDir, period = 'weekly', metals } = {}) 
   const zoomHTML = (period === 'monthly') ? `<div style="padding:4px 20px 12px;">${label('Zoom out')}<table style="width:100%;border-collapse:collapse;">${zoomRows}</table></div>` : '';
 
   const mLatest = (s) => (s && s.length) ? s[s.length - 1][1] : null;
-  const mWeekAgo = (s) => atOrBefore(s, isoDaysAgo(7));
   let macroHTML = '';
   if (period === 'monthly') {
     const bits = [];
     const dxy = mLatest(macro.dxy);
-    if (dxy != null) { const ch = pct(dxy, mWeekAgo(macro.dxy)); bits.push(`<tr><td style="padding:6px 0;font-size:13px;color:#2A2D33;">US dollar index (broad)</td><td style="text-align:right;${mono}">${dxy.toFixed(1)}${ch != null ? ` <span style="color:${col(ch)};font-size:12px;">${fmtPct(ch)}</span>` : ''}</td></tr>`); }
+    if (dxy != null) { const ch = pct(dxy, atOrBefore(macro.dxy, isoDaysAgo(periodDays))); bits.push(`<tr><td style="padding:6px 0;font-size:13px;color:#2A2D33;">US dollar index (broad)</td><td style="text-align:right;${mono}">${dxy.toFixed(1)}${ch != null ? ` <span style="color:${col(ch)};font-size:12px;">${fmtPct(ch)} mo</span>` : ''}</td></tr>`); }
     const real = mLatest(macro.real10);
     if (real != null) bits.push(`<tr><td style="padding:6px 0;font-size:13px;color:#2A2D33;">10-yr real yield</td><td style="text-align:right;${mono}">${real.toFixed(2)}%</td></tr>`);
     if (macro.cpi && macro.cpi.length) { const cy = pct(mLatest(macro.cpi), atOrBefore(macro.cpi, isoDaysAgo(365))); if (cy != null) bits.push(`<tr><td style="padding:6px 0;font-size:13px;color:#2A2D33;">Inflation (CPI, YoY)</td><td style="text-align:right;${mono}">${cy.toFixed(1)}%</td></tr>`); }
