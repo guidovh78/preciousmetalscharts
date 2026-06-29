@@ -266,7 +266,7 @@
   .mobilemenu a.current{color:var(--accent);}
   @media(max-width:880px){.navtoggle{display:grid;}}
   @media(min-width:881px){.mobilemenu{display:none!important;}}
-  @media(max-width:560px){.controls .seg{display:none;} .wordmark{font-size:18px;}}
+  @media(max-width:560px){.controls .seg{display:none;} .controls .livelink{display:none;} .wordmark{font-size:18px;}}
 
   @media(max-width:920px){
     .grid{grid-template-columns:1fr;} .metals{grid-template-columns:repeat(2,1fr);}

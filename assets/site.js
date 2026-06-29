@@ -25,6 +25,14 @@
   Array.prototype.forEach.call(src.querySelectorAll('a'), function (a) {
     panel.appendChild(a.cloneNode(true));
   });
+  // The "Live" pill is hidden on small screens to keep room for the menu button,
+  // so surface the live page inside the mobile menu too.
+  if (!panel.querySelector('a[href*="live.preciousmetalscharts.com"]')) {
+    var liveItem = document.createElement('a');
+    liveItem.href = 'https://live.preciousmetalscharts.com/';
+    liveItem.textContent = 'Live prices';
+    panel.appendChild(liveItem);
+  }
   document.body.appendChild(panel);
 
   function close() {
