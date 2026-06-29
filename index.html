@@ -64,6 +64,17 @@
   .liveapp .cta a.btn-primary{text-decoration:none;}
   .liveapp .hint{font-size:12.5px;color:var(--muted);}
   @media(max-width:560px){.liveapp{flex-direction:column;align-items:flex-start;}}
+  .widgetbanner{display:flex;gap:24px;align-items:center;background:var(--accent-soft);border:1px solid var(--accent);border-radius:var(--radius);padding:22px 24px;margin:8px 0;}
+  .widgetbanner .wb-txt{flex:1;min-width:0;}
+  .widgetbanner .tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:600;}
+  .widgetbanner h2{margin:7px 0 6px;font-size:21px;letter-spacing:-.01em;}
+  .widgetbanner p{margin:0 0 14px;font-size:14px;line-height:1.55;color:var(--muted);max-width:46ch;}
+  .widgetbanner .cta{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .widgetbanner .cta a.btn-primary{text-decoration:none;}
+  .widgetbanner .hint{font-size:12.5px;color:var(--muted);}
+  .widgetbanner .wb-prev{flex:none;width:300px;}
+  .widgetbanner .wb-prev iframe{display:block;width:100%;height:212px;border:0;border-radius:11px;box-shadow:0 4px 14px rgba(0,0,0,.12);background:#fff;}
+  @media(max-width:680px){.widgetbanner{flex-direction:column;align-items:stretch;}.widgetbanner .wb-prev{width:100%;}}
 </style>
 <script type="application/ld+json">
 {
@@ -324,9 +335,20 @@
       <div class="panel-title" style="margin-bottom:2px">Bullion coins <span style="font-weight:400;color:var(--muted);font-size:13px">— live melt value &amp; specs</span></div>
       <div class="related"><a href="/coin-prices">All coin prices</a><a href="/american-gold-eagle-price">Gold Eagle</a><a href="/krugerrand-price">Krugerrand</a><a href="/american-silver-eagle-price">Silver Eagle</a><a href="/gold-sovereign-price">Sovereign</a></div>
     </div>
-    <div style="margin-top:16px">
-      <div class="panel-title" style="margin-bottom:2px">For your website <span style="font-weight:400;color:var(--muted);font-size:13px">— free, no account</span></div>
-      <div class="related"><a href="/embed">Embed our live price widget</a></div>
+  </section>
+
+  <!-- widget banner: highlight the embeddable widget → /embed -->
+  <section class="sec" style="padding-top:6px">
+    <div class="widgetbanner">
+      <div class="wb-txt">
+        <span class="tag"><span class="livedot"></span>Free widget</span>
+        <h2>Put live metal prices on your website</h2>
+        <p>Add gold, silver, platinum and palladium spot prices to any site or blog — free, no account, and it updates itself. Pick your metals, theme and currency, then copy one line of code.</p>
+        <div class="cta"><a class="btn-primary" href="/embed">Get the free widget →</a><span class="hint">Works on WordPress, Webflow, Ghost &amp; more</span></div>
+      </div>
+      <div class="wb-prev" aria-hidden="true">
+        <iframe src="/widget/?metals=gold,silver,platinum&amp;theme=light" title="Live metal prices widget preview" loading="lazy" tabindex="-1"></iframe>
+      </div>
     </div>
   </section>
 
