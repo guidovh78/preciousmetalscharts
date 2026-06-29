@@ -67,6 +67,21 @@
   /* stacking milestone integrated as a calm band inside the holdings card (not a separate item) */
   .milestone.inset{background:none;border:0;box-shadow:none;border-radius:0;border-top:1px solid var(--line);padding:14px 0 2px;margin:14px 0 4px;}
   .milestone.inset .big{font-size:16px;}
+  /* holdings: value + milestone side by side at the top (fills the width); details full-width below */
+  .pf-top{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:center;}
+  .milestone.inset.pf-ms{border-top:0;border-left:1px solid var(--line);border-radius:0;padding:2px 0 2px 26px;margin:0;}
+  @media(max-width:680px){.pf-top{grid-template-columns:1fr;gap:0;}.milestone.inset.pf-ms{border-left:0;border-top:1px solid var(--line);padding:14px 0 2px;margin-top:14px;}}
+  /* explore: three tidy category cards instead of stacked pill rows */
+  .explore-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  @media(max-width:760px){.explore-grid{grid-template-columns:1fr;}}
+  .ex-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;}
+  .ex-card h3{font-family:var(--font-display);font-weight:600;font-size:15px;letter-spacing:-.01em;margin:0 0 2px;}
+  .ex-card .ex-sub{font-size:12.5px;color:var(--muted);margin:0 0 6px;}
+  .ex-links{list-style:none;margin:0;padding:0;}
+  .ex-links a{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line);color:var(--ink);text-decoration:none;font-size:14px;}
+  .ex-links li:first-child a{border-top:0;}
+  .ex-links a::after{content:"→";color:var(--faint);font-size:13px;}
+  .ex-links a:hover{color:var(--accent);} .ex-links a:hover::after{color:var(--accent);}
 </style>
 <script type="application/ld+json">
 {
@@ -215,28 +230,30 @@
   <section class="sec" id="portfolio">
     <div class="sec-head"><span class="sec-num">03</span><h2>Track your gold &amp; silver holdings</h2></div>
     <p class="sec-sub">See what you hold and watch it move with the market. The more you add, the more this becomes your home base — and it stays private.</p>
-    <div class="pf" style="grid-template-columns:1fr">
-      <div class="pf-main" style="max-width:760px">
-        <div class="pf-summary"><span class="tot mono" id="pfTotal">$0</span><span class="pl mono up" id="pfPL">+$0 (0.0%)</span></div>
-        <div class="pf-cap" id="pfCap">Current value at live spot · cost basis optional</div>
-        <div style="display:flex;align-items:center;gap:10px;margin:12px 0 2px"><span style="font-size:12px;color:var(--muted)">Weight unit</span><span class="seg" id="weightSeg" role="group" aria-label="Weight unit"><button data-w="oz" aria-pressed="true">oz</button><button data-w="g">grams</button></span></div>
-        <div class="alloc" id="pfAlloc"></div>
-        <div class="alloc-legend" id="pfLegend"></div>
-        <div class="pf-rows" id="pfRows"></div>
-        <div class="milestone inset">
+    <div class="pf-main">
+      <div class="pf-top">
+        <div class="pf-headline">
+          <div class="pf-summary"><span class="tot mono" id="pfTotal">$0</span><span class="pl mono up" id="pfPL">+$0 (0.0%)</span></div>
+          <div class="pf-cap" id="pfCap" style="margin-bottom:0">Current value at live spot · cost basis optional</div>
+        </div>
+        <div class="milestone inset pf-ms">
           <div class="eb">Stacking milestone</div>
           <div class="big" id="msTitle">—</div>
           <div class="d" id="msDesc">Add a holding to start tracking.</div>
           <div class="barwrap"><i id="msBar" style="width:0%"></i></div>
         </div>
-        <div class="pf-form">
-          <select id="pfMetal" aria-label="Metal"><option value="gold">Gold</option><option value="silver">Silver</option><option value="platinum">Platinum</option><option value="palladium">Palladium</option></select>
-          <input class="mono" id="pfOz" inputmode="decimal" placeholder="oz" aria-label="Ounces">
-          <input class="mono" id="pfCost" inputmode="decimal" placeholder="bought at" aria-label="Cost per oz">
-          <button class="pf-add" id="pfAdd">Add</button>
-        </div>
-        <div class="pf-privacy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Saved only in your browser — nothing is sent to a server, and your holdings stay here between visits.</span></div>
       </div>
+      <div style="display:flex;align-items:center;gap:10px;margin:18px 0 8px"><span style="font-size:12px;color:var(--muted)">Weight unit</span><span class="seg" id="weightSeg" role="group" aria-label="Weight unit"><button data-w="oz" aria-pressed="true">oz</button><button data-w="g">grams</button></span></div>
+      <div class="alloc" id="pfAlloc"></div>
+      <div class="alloc-legend" id="pfLegend"></div>
+      <div class="pf-rows" id="pfRows"></div>
+      <div class="pf-form">
+        <select id="pfMetal" aria-label="Metal"><option value="gold">Gold</option><option value="silver">Silver</option><option value="platinum">Platinum</option><option value="palladium">Palladium</option></select>
+        <input class="mono" id="pfOz" inputmode="decimal" placeholder="oz" aria-label="Ounces">
+        <input class="mono" id="pfCost" inputmode="decimal" placeholder="bought at" aria-label="Cost per oz">
+        <button class="pf-add" id="pfAdd">Add</button>
+      </div>
+      <div class="pf-privacy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Saved only in your browser — nothing is sent to a server, and your holdings stay here between visits.</span></div>
     </div>
   </section>
 
@@ -274,17 +291,38 @@
   <section class="sec" id="explore">
     <div class="sec-head"><span class="sec-num">05</span><h2>Explore prices, history &amp; coins</h2></div>
     <p class="sec-sub">Live prices for each metal, every year of price history since 1976, and the live melt value of popular bullion coins — all from our own archive.</p>
-    <div style="margin-top:6px">
-      <div class="panel-title" style="margin-bottom:2px">Live metal prices</div>
-      <div class="related"><a href="/gold-price">Gold price</a><a href="/silver-price">Silver price</a><a href="/platinum-price">Platinum price</a><a href="/palladium-price">Palladium price</a></div>
-    </div>
-    <div style="margin-top:16px">
-      <div class="panel-title" style="margin-bottom:2px">Price history by year <span style="font-weight:400;color:var(--muted);font-size:13px">— yearly high, low &amp; average since 1976</span></div>
-      <div class="related"><a href="/gold-price-history">Gold price history</a><a href="/silver-price-history">Silver price history</a><a href="/gold-price-2008">Gold in 2008</a><a href="/gold-price-2020">Gold in 2020</a></div>
-    </div>
-    <div style="margin-top:16px">
-      <div class="panel-title" style="margin-bottom:2px">Bullion coins <span style="font-weight:400;color:var(--muted);font-size:13px">— live melt value &amp; specs</span></div>
-      <div class="related"><a href="/coin-prices">All coin prices</a><a href="/american-gold-eagle-price">Gold Eagle</a><a href="/krugerrand-price">Krugerrand</a><a href="/american-silver-eagle-price">Silver Eagle</a><a href="/gold-sovereign-price">Sovereign</a></div>
+    <div class="explore-grid">
+      <article class="ex-card">
+        <h3>Live metal prices</h3>
+        <p class="ex-sub">Spot price, ~10 min delayed.</p>
+        <ul class="ex-links">
+          <li><a href="/gold-price">Gold price</a></li>
+          <li><a href="/silver-price">Silver price</a></li>
+          <li><a href="/platinum-price">Platinum price</a></li>
+          <li><a href="/palladium-price">Palladium price</a></li>
+        </ul>
+      </article>
+      <article class="ex-card">
+        <h3>Price history by year</h3>
+        <p class="ex-sub">Yearly high, low &amp; average since 1976.</p>
+        <ul class="ex-links">
+          <li><a href="/gold-price-history">Gold price history</a></li>
+          <li><a href="/silver-price-history">Silver price history</a></li>
+          <li><a href="/gold-price-2008">Gold in 2008</a></li>
+          <li><a href="/gold-price-2020">Gold in 2020</a></li>
+        </ul>
+      </article>
+      <article class="ex-card">
+        <h3>Bullion coins</h3>
+        <p class="ex-sub">Live melt value &amp; specifications.</p>
+        <ul class="ex-links">
+          <li><a href="/coin-prices">All coin prices</a></li>
+          <li><a href="/american-gold-eagle-price">Gold Eagle</a></li>
+          <li><a href="/krugerrand-price">Krugerrand</a></li>
+          <li><a href="/american-silver-eagle-price">Silver Eagle</a></li>
+          <li><a href="/gold-sovereign-price">Gold Sovereign</a></li>
+        </ul>
+      </article>
     </div>
   </section>
 
