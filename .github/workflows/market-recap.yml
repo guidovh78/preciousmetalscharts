@@ -29,10 +29,14 @@ jobs:
       - name: Download price + history data
         run: |
           mkdir -p data/history
-          curl -fsS -o data/prices.json "https://preciousmetalscharts.com/prices.json"
+          UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36"
+          get() { curl -fsS -A "$UA" --retry 4 --retry-delay 3 --retry-all-errors -o "$1" "$2"; }
+          get data/prices.json "https://preciousmetalscharts.com/prices.json"
           for m in gold silver platinum palladium; do
-            curl -fsS -o "data/history/$m-1y.json"  "https://preciousmetalscharts.com/history/$m-1y.json"  || true
-            curl -fsS -o "data/history/$m-50y.json" "https://preciousmetalscharts.com/history/$m-50y.json" || true
+            get "data/history/$m-1y.json"  "https://preciousmetalscharts.com/history/$m-1y.json"  || true
+            sleep 1
+            get "data/history/$m-50y.json" "https://preciousmetalscharts.com/history/$m-50y.json" || true
+            sleep 1
           done
 
       - name: Download macro data (FRED, public domain)
