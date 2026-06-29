@@ -96,6 +96,19 @@
   .toolcard-app .phone-wrap{flex:none;margin:0;}
   .toolcard-app .phone-img{max-height:230px;}
   @media(max-width:420px){.toolcard-app{gap:13px;}.toolcard-app .phone-img{max-height:194px;}}
+  /* newsletter signup — the single accent CTA highlight */
+  .newsletter{display:flex;gap:20px;align-items:flex-start;background:var(--accent-soft);border:1px solid var(--accent);border-radius:var(--radius);padding:22px 24px;}
+  .nl-icon{flex:none;width:54px;height:54px;border-radius:15px;background:var(--surface);border:1px solid var(--line);color:var(--accent);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.06);}
+  .nl-icon svg{width:27px;height:27px;}
+  .nl-body{flex:1;min-width:0;}
+  .nl-body h3{margin:1px 0 6px;font-size:19px;letter-spacing:-.01em;}
+  .nl-body > p{margin:0 0 13px;font-size:14px;line-height:1.6;color:var(--ink);max-width:64ch;}
+  .nl-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:15px;}
+  .nl-chips span{font-size:12px;font-weight:600;color:var(--accent);background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:5px 12px;}
+  .nl-cta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .nl-cta a.btn-primary{text-decoration:none;}
+  .nl-note{font-size:12px;color:var(--muted);}
+  @media(max-width:560px){.newsletter{flex-direction:column;gap:14px;padding:20px;}}
 </style>
 <script type="application/ld+json">
 {
@@ -161,9 +174,9 @@
     <a href="#ratio">Ratio</a>
     <a href="#portfolio">Holdings</a>
     <a href="#premiums">Premiums</a>
+    <a href="#alerts">Newsletter</a>
     <a href="#explore">History &amp; coins</a>
     <a href="#faq">FAQ</a>
-    <a href="#alerts">Newsletter</a>
     <span class="grow"></span>
     <span class="freshness"><span class="livedot"></span><span id="freshLabel">spot · ~10 min delayed</span></span>
   </div>
@@ -308,9 +321,23 @@
     </div>
   </section>
 
+  <!-- newsletter (signup CTA) -->
+  <section class="sec" id="alerts">
+    <div class="sec-head"><span class="sec-num">05</span><h2>The metals newsletter</h2></div>
+    <div class="newsletter">
+      <div class="nl-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3 7.5l9 6 9-6"/></svg></div>
+      <div class="nl-body">
+        <h3>A recap, not a sales pitch</h3>
+        <p>Pick your metals and a rhythm — daily, weekly or monthly — and get a short, data-driven recap: what moved since the last edition, the gold-to-silver ratio, and where things stand. Built from our own price archive.</p>
+        <div class="nl-chips"><span>Daily · weekly · monthly</span><span>Your metals, your mix</span><span>Factual — no advice</span></div>
+        <div class="nl-cta"><a class="btn-primary" href="/newsletter">Subscribe — it's free →</a><span class="nl-note">Double opt-in · one-click unsubscribe · we never share your address.</span></div>
+      </div>
+    </div>
+  </section>
+
   <!-- explore: internal-linking hub to the long-tail pages -->
   <section class="sec" id="explore">
-    <div class="sec-head"><span class="sec-num">05</span><h2>Explore prices, history &amp; coins</h2></div>
+    <div class="sec-head"><span class="sec-num">06</span><h2>Explore prices, history &amp; coins</h2></div>
     <p class="sec-sub">Live prices for each metal, every year of price history since 1976, and the live melt value of popular bullion coins — all from our own archive.</p>
     <div class="explore-grid">
       <article class="ex-card">
@@ -349,7 +376,7 @@
 
   <!-- tools: take it with you (live app + embeddable widget, one calm block) -->
   <section class="sec" id="tools">
-    <div class="sec-head"><span class="sec-num">06</span><h2>Take it with you</h2></div>
+    <div class="sec-head"><span class="sec-num">07</span><h2>Take it with you</h2></div>
     <p class="sec-sub">Two free ways to keep these prices close — on your phone, or on your own website.</p>
     <div class="tools">
       <article class="toolcard toolcard-app">
@@ -378,7 +405,7 @@
 
   <!-- faq (GEO answer blocks) -->
   <section class="sec" id="faq">
-    <div class="sec-head"><span class="sec-num">07</span><h2>Common questions about precious-metals prices</h2></div>
+    <div class="sec-head"><span class="sec-num">08</span><h2>Common questions about precious-metals prices</h2></div>
     <p class="sec-sub">Short, self-contained answers to the basics most people search for.</p>
     <div class="faq-grid">
       <article class="qa-card">
@@ -407,22 +434,6 @@
       </article>
     </div>
     <p class="faq-meta">Reviewed by the preciousmetalscharts desk · Last updated 26 June 2026</p>
-  </section>
-
-  <!-- alerts (trigger) -->
-  <section class="sec" id="alerts">
-    <div class="sec-head"><span class="sec-num">08</span><h2>The metals newsletter</h2></div>
-    <div class="alert" style="margin-top:0">
-      <div>
-        <h3>A recap, not a sales pitch</h3>
-        <p>Pick your metals and a rhythm — daily, weekly or monthly — and get a short, data-driven recap: what moved since the last edition, the gold-to-silver ratio, and where things stand. Built from our own price archive.</p>
-        <p class="alert-note">Double opt-in · one-click unsubscribe · we never share your address · no advice.</p>
-      </div>
-      <div>
-        <a class="btn-primary" href="/newsletter" style="display:inline-block;text-decoration:none;">Subscribe to the newsletter →</a>
-        <p class="alert-note" style="margin-top:10px">Free. Gold, silver, platinum, palladium — or any mix.</p>
-      </div>
-    </div>
   </section>
 
 </main>
