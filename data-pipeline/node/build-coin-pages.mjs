@@ -67,13 +67,14 @@ function meltOf(c) { const px = snap.metals[c.metal]?.price; return px != null ?
 
 function renderCoin(c) {
   const M = METAL[c.metal], Mn = M.name.toLowerCase();
+  const art = /^[aeiou]/i.test(c.name) ? 'An' : 'A', arl = art.toLowerCase();
   const spot = snap.metals[c.metal]?.price ?? null;
   const melt = meltOf(c);
   const url = `${SITE}/${c.slug}`;
   const contentTxt = c.content === 1 ? `1 troy ounce of ${Mn}` : `${c.content} troy oz of ${Mn}`;
-  const descr = `A ${c.name} contains ${contentTxt} (fineness ${c.fineness}). At the current ${Mn} price its metal is worth about ${fmt2(melt)} — its live melt value. Dealers charge a premium over this. Specs, melt value and how premiums work.`;
+  const descr = `${art} ${c.name} contains ${contentTxt} (fineness ${c.fineness}). At the current ${Mn} price its metal is worth about ${fmt2(melt)} — its live melt value. Dealers charge a premium over this. Specs, melt value and how premiums work.`;
 
-  const answer = `A ${c.name} contains <strong>${contentTxt}</strong> (fineness ${c.fineness}, gross weight ${c.gross}). At the current ${Mn} spot price of about <span data-spotref="${c.metal}">${fmt2(spot)}</span> per troy ounce, the metal in one coin is worth about <strong><span data-melt="${c.metal}" data-content="${c.content}">${fmt2(melt)}</span></strong> — its <em>melt value</em>. A dealer's selling price is this melt value <strong>plus a premium</strong> for minting, distribution and margin.`;
+  const answer = `${art} ${c.name} contains <strong>${contentTxt}</strong> (fineness ${c.fineness}, gross weight ${c.gross}). At the current ${Mn} spot price of about <span data-spotref="${c.metal}">${fmt2(spot)}</span> per troy ounce, the metal in one coin is worth about <strong><span data-melt="${c.metal}" data-content="${c.content}">${fmt2(melt)}</span></strong> — its <em>melt value</em>. A dealer's selling price is this melt value <strong>plus a premium</strong> for minting, distribution and margin.`;
 
   const specRows = [
     ['Metal', M.name], ['Fine metal content', `${c.content} troy oz`], ['Fineness', c.fineness], ['Gross weight', c.gross],
@@ -81,7 +82,7 @@ function renderCoin(c) {
   ].map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join('');
 
   const faqObj = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [
-    { '@type': 'Question', name: `How much ${Mn} is in a ${c.name}?`, acceptedAnswer: { '@type': 'Answer', text: `A ${c.name} contains ${contentTxt} (fineness ${c.fineness}), with a gross weight of ${c.gross}.` } },
+    { '@type': 'Question', name: `How much ${Mn} is in ${arl} ${c.name}?`, acceptedAnswer: { '@type': 'Answer', text: `${art} ${c.name} contains ${contentTxt} (fineness ${c.fineness}), with a gross weight of ${c.gross}.` } },
     { '@type': 'Question', name: `What is a ${c.name} worth?`, acceptedAnswer: { '@type': 'Answer', text: `Its melt value — the value of the metal it contains — is about ${fmt2(melt)} at the current ${Mn} spot price (~10 minutes delayed). Dealers sell it for a premium above this melt value.` } },
     { '@type': 'Question', name: `Why does a ${c.name} cost more than its ${Mn} value?`, acceptedAnswer: { '@type': 'Answer', text: `The difference is the premium — the markup over the metal's melt value covering minting, fabrication, distribution and dealer margin. Premiums are usually higher on smaller coins and on silver, and rise when demand is high.` } },
   ] };
@@ -130,7 +131,7 @@ function renderCoin(c) {
   <section class="sec">
     <div class="sec-head"><span class="sec-num">03</span><h2>Common questions</h2></div>
     <div class="faq-grid">
-      <article class="qa-card"><h3>How much ${Mn} is in a ${c.name}?</h3><p>A ${c.name} contains ${contentTxt} (fineness ${c.fineness}), with a gross weight of ${c.gross}.</p></article>
+      <article class="qa-card"><h3>How much ${Mn} is in ${arl} ${c.name}?</h3><p>${art} ${c.name} contains ${contentTxt} (fineness ${c.fineness}), with a gross weight of ${c.gross}.</p></article>
       <article class="qa-card"><h3>What is a ${c.name} worth?</h3><p>Its melt value is about <span data-melt="${c.metal}" data-content="${c.content}">${fmt2(melt)}</span> at the current ${Mn} spot price (~10 minutes delayed). A dealer sells it for a premium above this melt value.</p></article>
       <article class="qa-card"><h3>Why does a ${c.name} cost more than its ${Mn} value?</h3><p>The difference is the premium — the markup over melt value for minting, distribution and margin. Premiums are usually higher on smaller coins and on silver, and rise when demand is high.</p></article>
     </div>
