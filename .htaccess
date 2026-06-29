@@ -64,6 +64,9 @@ ErrorDocument 404 /404.html
   <Files "prices.json">
     Header set Cache-Control "no-cache, must-revalidate, max-age=0"
   </Files>
+  <Files "intraday.json">
+    Header set Cache-Control "no-cache, must-revalidate, max-age=0"
+  </Files>
 </IfModule>
 
 <IfModule mod_expires.c>

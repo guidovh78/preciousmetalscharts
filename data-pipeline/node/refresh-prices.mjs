@@ -51,6 +51,26 @@ if (result.ok) {
   } catch (e) { console.warn(`FX fetch failed — ${e.message} (snapshot keeps USD only)`); }
   await writeFile(SNAP, JSON.stringify(result.snapshot, null, 2));
   await writeFile(BASE, JSON.stringify(result.baseline, null, 2));
+
+  // Rolling intraday samples (~26h) so the live page can draw a small "today" chart per metal.
+  // One sample per run (~every 10 min). Trimmed by time + capped length; persisted in the repo.
+  try {
+    const INTRA = `${OUT_DIR}/intraday.json`;
+    const intr = (await readJSON(INTRA)) || {};
+    if (!intr.metals || typeof intr.metals !== 'object') intr.metals = {};
+    const ts = result.snapshot.updatedAt || new Date().toISOString();
+    const cutoff = Date.now() - 26 * 3600 * 1000;
+    for (const m of Object.keys(result.snapshot.metals)) {
+      const price = result.snapshot.metals[m] && result.snapshot.metals[m].price;
+      if (price == null) continue;
+      const arr = Array.isArray(intr.metals[m]) ? intr.metals[m] : [];
+      if (!arr.length || arr[arr.length - 1][0] !== ts) arr.push([ts, Number(price)]);
+      intr.metals[m] = arr.filter((p) => Date.parse(p[0]) >= cutoff).slice(-220);
+    }
+    intr.updatedAt = ts; intr.stepMin = 10;
+    await writeFile(INTRA, JSON.stringify(intr));
+  } catch (e) { console.warn(`intraday update failed — ${e.message}`); }
+
   console.log(`OK  ${result.snapshot.source}  gold=${result.snapshot.metals.gold.price}  eur=${result.snapshot.fx ? result.snapshot.fx.eur : 'n/a'}`);
 } else if (prev) {
   const stale = { ...prev, stale: true, lastCheckFailedAt: new Date().toISOString() };

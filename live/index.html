@@ -24,35 +24,57 @@
   html[data-theme="dark"]{--bg:#0D0E11;--surface:#16181D;--surface-2:#1B1E24;--ink:#ECEDEA;--muted:#8A9099;--faint:#5E646C;--line:#24272E;--line-strong:#2E323A;--accent:#D4A24E;--accent-soft:#2A2316;--up:#46B488;--down:#E0685C;--gold:#D4A93C;--silver:#A6ADB4;--platinum:#AFC3CE;--palladium:#CDAE8E;}
   *{box-sizing:border-box;}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);}
-  .wrap{max-width:780px;margin:0 auto;padding:16px 16px 28px;}
-  header{display:flex;align-items:center;gap:9px;margin-bottom:16px;}
+  .wrap{max-width:600px;margin:0 auto;padding:16px 16px 28px;}
+  header{display:flex;align-items:center;gap:9px;margin-bottom:14px;}
   .mark{width:26px;height:26px;flex:none;}
   .wm{font-size:15px;font-weight:600;letter-spacing:-.01em;}
   .wm .b{color:var(--accent);}
-  .live-tag{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);border-radius:5px;padding:1px 6px;}
-  .iconbtn{margin-left:auto;width:32px;height:32px;border:1px solid var(--line);background:var(--surface);border-radius:9px;color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;}
-  .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;}
-  .ctl{display:flex;flex-direction:column;gap:4px;}
-  .ctl > span{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);}
-  select.cur{appearance:none;-webkit-appearance:none;background:var(--surface) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='%236B7177' stroke-width='1.5'/></svg>") no-repeat right 10px center;border:1px solid var(--line-strong);color:var(--ink);border-radius:9px;padding:8px 28px 8px 11px;font-size:13.5px;font-family:var(--sans);min-width:170px;cursor:pointer;}
-  .seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:2px;}
-  .seg button{border:0;background:transparent;color:var(--muted);font-size:12.5px;font-weight:600;padding:7px 12px;border-radius:7px;line-height:1;cursor:pointer;font-family:var(--sans);}
-  .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 1px rgba(0,0,0,.06);}
+  .live-tag{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:3px 8px;}
+  .live-tag .livedot{background:var(--accent);}
+  .iconbtn{margin-left:auto;width:34px;height:34px;border:1px solid var(--line);background:var(--surface);border-radius:9px;color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  /* nav icons */
+  nav.appnav{display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px;}
+  nav.appnav a{display:flex;flex-direction:column;align-items:center;gap:7px;padding:13px 4px;color:var(--ink);text-decoration:none;font-size:12.5px;border-right:1px solid var(--line);}
+  nav.appnav a:last-child{border-right:0;}
+  nav.appnav a:hover,nav.appnav a:active{background:var(--surface-2);color:var(--accent);}
+  nav.appnav a svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+  /* controls card */
+  .controls{display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;}
+  .ctl{display:flex;flex-direction:column;gap:6px;}
+  .ctl > span{font-size:12px;color:var(--muted);}
+  select.cur{appearance:none;-webkit-appearance:none;background:var(--surface) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='%236B7177' stroke-width='1.5'/></svg>") no-repeat right 12px center;border:1px solid var(--line-strong);color:var(--ink);border-radius:10px;padding:10px 30px 10px 13px;font-size:14px;font-family:var(--sans);min-width:150px;cursor:pointer;}
+  .seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line-strong);border-radius:10px;padding:3px;}
+  .seg button{border:0;background:transparent;color:var(--muted);font-size:13.5px;font-weight:600;padding:8px 16px;border-radius:7px;line-height:1;cursor:pointer;font-family:var(--sans);}
+  .seg button[aria-pressed="true"]{background:var(--accent);color:#fff;}
+  html[data-theme="dark"] .seg button[aria-pressed="true"]{color:#1a1406;}
+  /* status line */
+  .status{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin:2px 2px 11px;}
+  .status .lp{color:var(--accent);font-weight:600;display:inline-flex;align-items:center;gap:6px;}
+  .status .livedot{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;}
+  .status .ar{margin-left:auto;white-space:nowrap;}
+  .status .ar b{color:var(--up);font-weight:600;}
+  .status .redot{background:var(--up);animation:pulse 2.4s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(26,127,90,.45);}70%{box-shadow:0 0 0 5px rgba(26,127,90,0);}100%{box-shadow:0 0 0 0 rgba(26,127,90,0);}}
+  /* rows */
   .rows{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
-  .row{display:grid;grid-template-columns:1fr auto auto 18px;align-items:center;gap:12px;width:100%;text-align:left;background:transparent;border:0;padding:15px 16px;cursor:pointer;font:inherit;color:inherit;}
-  .row-wrap{border-bottom:1px solid var(--line-strong);}
+  .row-wrap{border-bottom:1px solid var(--line);}
   .row-wrap:last-child{border-bottom:0;}
-  .row:hover{background:var(--surface-2);}
-  .row.open{background:var(--surface-2);}
-  .rname{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:500;}
-  .rname .dot{width:10px;height:10px;border-radius:50%;flex:none;}
-  .rname .sym{font-family:var(--mono);font-size:11px;color:var(--faint);}
-  .rprice{font-family:var(--mono);font-size:16px;font-weight:600;letter-spacing:-.01em;white-space:nowrap;}
-  .rchg{font-family:var(--mono);font-size:13px;font-weight:600;white-space:nowrap;text-align:right;min-width:82px;}
+  .row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:13px;width:100%;text-align:left;background:transparent;border:0;padding:14px 15px;cursor:pointer;font:inherit;color:inherit;}
+  .row:hover,.row.open{background:var(--surface-2);}
+  .chip{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#fff;flex:none;letter-spacing:.01em;}
+  .rname{display:flex;flex-direction:column;line-height:1.2;min-width:0;}
+  .rname .nm{font-size:14.5px;font-weight:700;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .rname .pur{font-size:11.5px;color:var(--faint);font-family:var(--mono);}
+  .rright{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none;}
+  .rprice{line-height:1.1;white-space:nowrap;}
+  .rprice .v{font-family:var(--mono);font-size:18px;font-weight:600;letter-spacing:-.01em;}
+  .rprice .u{font-size:11px;color:var(--faint);margin-left:2px;}
+  .rsub{display:flex;align-items:center;gap:11px;}
+  .rchg{font-family:var(--mono);font-size:12px;font-weight:600;line-height:1.22;text-align:right;white-space:nowrap;display:flex;flex-direction:column;}
   .rchg.up{color:var(--up);} .rchg.down{color:var(--down);} .rchg.flat{color:var(--muted);}
-  .chev{color:var(--faint);transition:transform .15s;}
-  .row.open .chev{transform:rotate(180deg);}
-  .panel{display:none;padding:4px 16px 18px;background:var(--surface-2);}
+  .rspark{width:72px;height:38px;flex:none;}
+  .rspark svg{display:block;}
+  .panel{display:none;padding:4px 15px 18px;background:var(--surface-2);}
   .panel.show{display:block;}
   .pmeta{display:flex;flex-wrap:wrap;gap:6px 18px;font-family:var(--mono);font-size:12px;color:var(--muted);margin:6px 0 10px;}
   .pmeta b{color:var(--ink);font-weight:600;}
@@ -64,15 +86,17 @@
   .chlabel{position:absolute;pointer-events:none;transform:translate(-50%,-130%);background:var(--ink);color:var(--bg);font-family:var(--mono);font-size:11px;padding:3px 7px;border-radius:6px;white-space:nowrap;opacity:0;transition:opacity .1s;}
   .deeper{display:inline-block;margin-top:8px;font-size:13px;color:var(--accent);text-decoration:none;font-weight:500;}
   .pnote{font-size:11px;color:var(--faint);margin:8px 0 0;line-height:1.5;}
-  .fresh{font-family:var(--mono);font-size:11px;color:var(--muted);margin:12px 2px 0;display:flex;align-items:center;gap:6px;}
-  .livedot{width:7px;height:7px;border-radius:50%;background:var(--up);display:inline-block;}
-  .ad{border:1px dashed var(--line-strong);border-radius:var(--radius-sm);padding:16px;margin-top:16px;text-align:center;min-height:108px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
+  /* view all */
+  .viewall{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-top:12px;color:var(--accent);font-weight:600;font-size:14.5px;text-decoration:none;}
+  .viewall:hover{background:var(--surface-2);}
+  .ad{border:1px dashed var(--line-strong);border-radius:var(--radius-sm);padding:14px;margin-top:14px;text-align:center;min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
   .ad .lbl{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);}
   .ad .ph{font-size:12.5px;color:var(--muted);}
-  footer{margin-top:18px;text-align:center;font-size:12.5px;color:var(--muted);}
-  footer a{color:var(--accent);text-decoration:none;margin:0 7px;}
-  .disclaim{font-size:11px;color:var(--faint);text-align:center;margin-top:10px;line-height:1.5;}
-  @media(max-width:480px){.row{grid-template-columns:1fr auto 16px;} .rchg{grid-column:2 / 3;grid-row:2;text-align:left;min-width:0;} .rprice{grid-row:2;} .rname{grid-row:1;grid-column:1 / 3;} .chev{grid-row:1;grid-column:3;}}
+  footer{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);display:flex;align-items:baseline;justify-content:space-between;gap:12px;}
+  footer .disc{font-size:12px;color:var(--muted);line-height:1.5;}
+  footer a{color:var(--accent);text-decoration:none;font-size:12.5px;font-weight:500;white-space:nowrap;}
+  @media(max-width:430px){.row{gap:11px;}.rspark{width:60px;height:34px;}.rprice .v{font-size:17px;}}
+  @media(max-width:340px){.rspark{display:none;}}
 </style>
 </head>
 <body>
@@ -82,9 +106,16 @@
       <svg class="mark" viewBox="0 0 34 34" fill="none" aria-hidden="true"><rect x="1" y="1" width="32" height="32" rx="9" fill="none" stroke="var(--line-strong)"/><path d="M8 22.5 L14 16 L18.5 19.5 L26 10" fill="none" stroke="var(--accent)" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/><rect x="23.4" y="7.4" width="5.2" height="5.2" rx="1.3" fill="var(--accent)"/></svg>
       <span class="wm"><span>preciousmetals</span><span class="b">charts</span></span>
     </a>
-    <span class="live-tag">live</span>
+    <span class="live-tag"><span class="livedot"></span>Live</span>
     <button class="iconbtn" id="themeBtn" aria-label="Toggle dark mode"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="themeIcon"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
   </header>
+
+  <nav class="appnav" aria-label="Site">
+    <a href="https://preciousmetalscharts.com/"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14l3-4 3 3 4-6"/></svg><span>Charts</span></a>
+    <a href="https://preciousmetalscharts.com/ratio"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 7h14M7 7l-3 6a3 3 0 0 0 6 0L7 7zM17 7l-3 6a3 3 0 0 0 6 0l-3-6zM8 21h8"/></svg><span>Ratio</span></a>
+    <a href="https://preciousmetalscharts.com/calculators"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h0M12 11h0M16 11h0M8 15h0M12 15h0M16 15h4"/></svg><span>Calculators</span></a>
+    <a href="https://preciousmetalscharts.com/newsletter"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg><span>Newsletter</span></a>
+  </nav>
 
   <div class="controls">
     <label class="ctl"><span>Currency</span>
@@ -93,9 +124,15 @@
       <span class="seg" id="unitSeg" role="group" aria-label="Unit"><button type="button" data-u="g">Gram</button><button type="button" data-u="oz" aria-pressed="true">Ounce</button><button type="button" data-u="kg">Kilo</button></span></label>
   </div>
 
+  <div class="status">
+    <span class="lp"><span class="livedot redot"></span>Live prices</span>
+    <span id="fresh">loading…</span>
+    <span class="ar">Auto-refresh <b>On</b></span>
+  </div>
+
   <div class="rows" id="rows"></div>
 
-  <div class="fresh"><span class="livedot"></span><span id="fresh">loading live prices…</span></div>
+  <a class="viewall" href="https://preciousmetalscharts.com/">View all metals <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></a>
 
   <aside class="ad" aria-label="Advertisement">
     <span class="lbl">Advertisement</span>
@@ -103,8 +140,8 @@
   </aside>
 
   <footer>
-    <a href="https://preciousmetalscharts.com/">Charts</a><a href="https://preciousmetalscharts.com/ratio">Ratio</a><a href="https://preciousmetalscharts.com/calculators">Calculators</a><a href="https://preciousmetalscharts.com/newsletter">Newsletter</a>
-    <div class="disclaim">Independent — not a dealer. Spot prices ~10 minutes delayed; verify before transacting. Educational information only, not investment advice.</div>
+    <div class="disc">Independent, not a dealer. Spot prices ~10 minutes delayed. For educational information only.</div>
+    <a href="https://preciousmetalscharts.com/methodology">Learn more</a>
   </footer>
 </div>
 
@@ -112,7 +149,8 @@
 (function(){
   var API=(location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.port==='4321')?'':'https://preciousmetalscharts.com';
   var OZT=31.1034768;
-  var METALS=[{k:'gold',n:'Gold',s:'XAU'},{k:'silver',n:'Silver',s:'XAG'},{k:'platinum',n:'Platinum',s:'XPT'},{k:'palladium',n:'Palladium',s:'XPD'}];
+  var METALS=[{k:'gold',n:'Gold',s:'XAU',sym:'Au',pur:'24K'},{k:'silver',n:'Silver',s:'XAG',sym:'Ag',pur:'.999'},{k:'platinum',n:'Platinum',s:'XPT',sym:'Pt',pur:'.9995'},{k:'palladium',n:'Palladium',s:'XPD',sym:'Pd',pur:'.9995'}];
+  var CHIP={gold:'#C19A2E',silver:'#8C9298',platinum:'#4F555E',palladium:'#8A6A4A'};
   var CURR=[['USD','US Dollar'],['EUR','Euro'],['GBP','British Pound'],['JPY','Japanese Yen'],['CNY','Chinese Yuan'],['AUD','Australian Dollar'],['CAD','Canadian Dollar'],['CHF','Swiss Franc'],['HKD','Hong Kong Dollar'],['SGD','Singapore Dollar']];
   var HR={'1m':'1m','1y':'1y','5y':'5y','max':'50y'};
   var cur='USD', unit='oz', rates={USD:1}, snap=null, open=null, range='1y', fmtCache={};
@@ -123,31 +161,34 @@
   function rate(){return rates[cur]||1;}
   function unitF(){return unit==='oz'?1:unit==='g'?1/OZT:1000/OZT;}
   function unitLabel(){return unit==='oz'?'oz':unit==='g'?'g':'kg';}
-  function fmt(v){if(v==null||isNaN(v))return '—';var k=cur;var f=fmtCache[k];if(!f){try{f=new Intl.NumberFormat('en-US',{style:'currency',currency:cur});}catch(e){f=new Intl.NumberFormat('en-US',{maximumFractionDigits:2});}fmtCache[k]=f;}return f.format(v);}
+  function fmt(v){if(v==null||isNaN(v))return '—';var f=fmtCache[cur];if(!f){try{f=new Intl.NumberFormat('en-US',{style:'currency',currency:cur});}catch(e){f=new Intl.NumberFormat('en-US',{maximumFractionDigits:2});}fmtCache[cur]=f;}return f.format(v);}
+  function num(v){return Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
   function conv(perOzUSD){return perOzUSD*unitF()*rate();}
 
-  // build currency dropdown
   (function(){var sel=id('curSel');sel.innerHTML=CURR.map(function(c){return '<option value="'+c[0]+'">'+c[0]+' — '+c[1]+'</option>';}).join('');sel.value=cur;})();
-  // build metal rows
   id('rows').innerHTML=METALS.map(function(m){
     return '<div class="row-wrap" data-k="'+m.k+'">'
       +'<button class="row" data-k="'+m.k+'" aria-expanded="false">'
-      +'<span class="rname"><span class="dot" style="background:var(--'+m.k+')"></span>'+m.n+' <span class="sym">'+m.s+'</span></span>'
-      +'<span class="rprice" data-f="price">—</span>'
-      +'<span class="rchg" data-f="chg">—</span>'
-      +'<svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>'
+      +'<span class="chip" style="background:'+CHIP[m.k]+'">'+m.sym+'</span>'
+      +'<span class="rname"><span class="nm">'+m.n.toUpperCase()+'</span><span class="pur">'+m.pur+'</span></span>'
+      +'<span class="rright"><span class="rprice"><span class="v" data-f="price">—</span><span class="u">/'+unitLabel()+'</span></span>'
+      +'<span class="rsub"><span class="rchg" data-f="chg">—</span><span class="rspark" data-spark="'+m.k+'"></span></span></span>'
       +'</button>'
       +'<div class="panel" data-panel="'+m.k+'"></div>'
       +'</div>';
   }).join('');
 
-  function pctTxt(n){return (n>=0?'▲ +':'▼ ')+Math.abs(n).toFixed(2)+'%';}
+  function pctTxt(n){return (n>=0?'+':'−')+Math.abs(n).toFixed(2)+'%';}
   function renderRow(m){
     var wrap=document.querySelector('.row-wrap[data-k="'+m.k+'"]'); if(!wrap)return;
     var d=snap&&snap.metals&&snap.metals[m.k]; if(!d||d.price==null)return;
-    var chg=d.changePct==null?0:d.changePct;
+    var chg=d.changePct==null?0:d.changePct, flat=Math.abs(chg)<0.005;
+    var prevOz=d.price/(1+chg/100), absDisp=(d.price-prevOz)*unitF()*rate();
     wrap.querySelector('[data-f="price"]').textContent=fmt(conv(d.price));
-    var c=wrap.querySelector('[data-f="chg"]');var flat=Math.abs(chg)<0.005;c.textContent=flat?'0.00%':pctTxt(chg);c.className='rchg '+(flat?'flat':(chg>=0?'up':'down'));
+    wrap.querySelector('.rprice .u').textContent='/'+unitLabel();
+    var c=wrap.querySelector('[data-f="chg"]');
+    if(flat){c.innerHTML='<span>0.00</span><span>0.00%</span>';c.className='rchg flat';}
+    else{c.innerHTML='<span>'+(chg>=0?'+':'−')+num(absDisp)+'</span><span>'+pctTxt(chg)+'</span>';c.className='rchg '+(chg>=0?'up':'down');}
   }
   function renderAll(){METALS.forEach(renderRow);
     var g=snap&&snap.metals&&snap.metals.gold;
@@ -158,11 +199,32 @@
     var d=snap&&snap.metals&&snap.metals[k];var p=document.querySelector('[data-panel="'+k+'"]');if(!d||!p)return;
     var chg=d.changePct==null?0:d.changePct, openPerOz=d.price/(1+chg/100), absUSD=(d.price-openPerOz);
     var meta=p.querySelector('.pmeta'); if(meta){
-      meta.innerHTML='<span>Per oz <b>'+fmt(d.price*1*rate())+'</b></span><span>Per gram <b>'+fmt(d.price/OZT*rate())+'</b></span><span>Per kilo <b>'+fmt(d.price/OZT*1000*rate())+'</b></span><span>Day change <b class="'+(chg>=0?'':'')+'">'+(chg>=0?'+':'−')+fmt(Math.abs(absUSD)*unitF()*rate())+' ('+pctTxt(chg)+')</b></span>';
+      meta.innerHTML='<span>Per oz <b>'+fmt(d.price*1*rate())+'</b></span><span>Per gram <b>'+fmt(d.price/OZT*rate())+'</b></span><span>Per kilo <b>'+fmt(d.price/OZT*1000*rate())+'</b></span><span>Day change <b>'+(chg>=0?'+':'−')+fmt(Math.abs(absUSD)*unitF()*rate())+' ('+pctTxt(chg)+')</b></span>';
     }
   }
 
-  // ---- chart ----
+  // ---- per-row intraday mini chart (from /intraday.json; daily history as fallback) ----
+  function drawSpark(metalK,vals){
+    var host=document.querySelector('[data-spark="'+metalK+'"]');if(!host||!vals||vals.length<2)return;
+    var w=80,h=40,pad=3,mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals),rg=(mx-mn)||1,n=vals.length;
+    var X=function(i){return pad+i/(n-1)*(w-2*pad);},Y=function(v){return h-pad-(v-mn)/rg*(h-2*pad);};
+    var d='M'+X(0).toFixed(1)+' '+Y(vals[0]).toFixed(1);
+    for(var i=1;i<n;i++){d+=' L'+X(i).toFixed(1)+' '+Y(vals[i]).toFixed(1);}
+    var col='var(--'+metalK+')',area=d+' L'+(w-pad)+' '+(h-pad)+' L'+pad+' '+(h-pad)+' Z',gid='sp_'+metalK;
+    host.innerHTML='<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" width="100%" height="'+h+'" aria-hidden="true"><defs><linearGradient id="'+gid+'" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="'+col+'" stop-opacity=".16"/><stop offset="1" stop-color="'+col+'" stop-opacity="0"/></linearGradient></defs><path d="'+area+'" fill="url(#'+gid+')"/><path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></svg>';
+  }
+  function fallbackSpark(m){fetch(API+'/history/'+m.k+'-1m.json',{cache:'force-cache'}).then(function(r){return r.ok?r.json():null;}).then(function(f){if(f&&f.points)drawSpark(m.k,f.points.slice(-14).map(function(p){return p[1];}));}).catch(function(){});}
+  function loadSparks(){
+    fetch(API+'/intraday.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(intr){
+      METALS.forEach(function(m){
+        var pts=intr&&intr.metals&&intr.metals[m.k];
+        if(pts&&pts.length>=3)drawSpark(m.k,pts.map(function(p){return p[1];}));
+        else fallbackSpark(m);
+      });
+    }).catch(function(){METALS.forEach(fallbackSpark);});
+  }
+
+  // ---- expandable detail chart ----
   function drawChart(host,pts,metal){
     host.innerHTML='<div class="chlabel"></div>';
     if(!pts||pts.length<2)return;
@@ -216,18 +278,16 @@
   setIcon();
 
   var fetchFail=false;
-  function setFresh(){var when=snap?new Date(snap.updatedAt):null,hhmm=when&&!isNaN(when.getTime())?when.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';id('fresh').textContent=(hhmm?('updated '+hhmm+' · '):'')+'~'+((snap&&snap.delayedMinutes)||10)+' min delayed'+(fetchFail?' · refresh failed — tap to retry':' · tap to refresh');}
+  function setFresh(){var when=snap?new Date(snap.updatedAt):null,hhmm=when&&!isNaN(when.getTime())?when.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';id('fresh').textContent=(hhmm?(hhmm+' · '):'')+'~'+((snap&&snap.delayedMinutes)||10)+' min delayed'+(fetchFail?' · tap to retry':'');}
   function loadPrices(){fetch(API+'/prices.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(s){if(!s){fetchFail=true;setFresh();return;}fetchFail=false;snap=s;if(s.fx&&s.fx.rates)rates=s.fx.rates;else if(s.fx&&s.fx.eur){rates={USD:1,EUR:s.fx.eur};}if(!rates.USD)rates.USD=1;
-    // keep currency valid
     if(!rates[cur]){cur='USD';id('curSel').value='USD';}
     renderAll();setFresh();}).catch(function(){fetchFail=true;setFresh();});}
   loadPrices();setInterval(loadPrices,60000);
-  // Standalone home-screen apps have no pull-to-refresh — refresh on every reopen/refocus, and let the status line be tapped to force it.
-  document.addEventListener('visibilitychange',function(){if(!document.hidden)loadPrices();});
+  loadSparks();setInterval(loadSparks,300000);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden){loadPrices();loadSparks();}});
   window.addEventListener('pageshow',function(){loadPrices();});
   window.addEventListener('focus',function(){loadPrices();});
-  (function(){var fr=id('fresh');if(fr){fr.style.cursor='pointer';fr.setAttribute('role','button');fr.setAttribute('tabindex','0');fr.setAttribute('aria-label','Refresh prices');fr.addEventListener('click',function(){loadPrices();});}})();
-  // No service worker — always fetch fresh. Actively remove any old one left on the device.
+  (function(){var fr=id('fresh');if(fr){fr.style.cursor='pointer';fr.setAttribute('role','button');fr.setAttribute('tabindex','0');fr.setAttribute('aria-label','Refresh prices');fr.addEventListener('click',function(){loadPrices();loadSparks();});}})();
   if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.update();r.unregister();});}).catch(function(){});if(window.caches&&caches.keys){caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k);});}).catch(function(){});}}
 })();
 </script>
