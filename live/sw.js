@@ -1,7 +1,8 @@
-// Minimal service worker for the live. price app.
-// Caches the app shell for instant loads + offline; price/history data is always
-// fetched fresh from the network (never served stale from cache).
-var SHELL = 'pmc-live-shell-v1';
+// Service worker for the live. price app.
+// Network-first for the page (so updates always show when online), cache-first for
+// static assets (icon/manifest) for instant loads + offline, and network-only for
+// price/history data (always fresh). Bump SHELL to force old caches to clear.
+var SHELL = 'pmc-live-shell-v2';
 var ASSETS = ['/', '/index.html', '/icon.svg', '/manifest.webmanifest'];
 
 self.addEventListener('install', function (e) {
@@ -15,9 +16,22 @@ self.addEventListener('activate', function (e) {
 });
 
 self.addEventListener('fetch', function (e) {
-  var url = e.request.url;
-  // Live data: always network, never cache.
+  var req = e.request;
+  var url = req.url;
+  // Live data: always network, never cached.
   if (url.indexOf('/prices.json') > -1 || url.indexOf('/history/') > -1) return;
-  // App shell: cache-first, fall back to network.
-  e.respondWith(caches.match(e.request).then(function (hit) { return hit || fetch(e.request); }));
+  // The page itself: network-first so a new deploy shows immediately; fall back to cache offline.
+  var accept = (req.headers.get('accept') || '');
+  if (req.mode === 'navigate' || accept.indexOf('text/html') > -1) {
+    e.respondWith(
+      fetch(req).then(function (r) {
+        var copy = r.clone();
+        caches.open(SHELL).then(function (c) { c.put('/', copy); });
+        return r;
+      }).catch(function () { return caches.match('/').then(function (m) { return m || caches.match('/index.html'); }); })
+    );
+    return;
+  }
+  // Static shell assets: cache-first.
+  e.respondWith(caches.match(req).then(function (hit) { return hit || fetch(req); }));
 });
