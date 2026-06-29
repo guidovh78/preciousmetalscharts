@@ -75,6 +75,15 @@
   .widgetbanner .wb-prev{flex:none;width:300px;}
   .widgetbanner .wb-prev iframe{display:block;width:100%;height:212px;border:0;border-radius:11px;box-shadow:0 4px 14px rgba(0,0,0,.12);background:#fff;}
   @media(max-width:680px){.widgetbanner{flex-direction:column;align-items:stretch;}.widgetbanner .wb-prev{width:100%;}}
+  .tools{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:680px){.tools{grid-template-columns:1fr;}}
+  .toolcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;display:flex;flex-direction:column;}
+  .toolcard .tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:600;}
+  .toolcard h3{margin:8px 0 6px;font-size:17px;letter-spacing:-.01em;}
+  .toolcard p{margin:0 0 12px;font-size:13.5px;line-height:1.55;color:var(--muted);}
+  .toolcard .cta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:auto;}
+  .toolcard .cta a.btn-primary{text-decoration:none;}
+  .toolcard .hint{font-size:12px;color:var(--muted);}
 </style>
 <script type="application/ld+json">
 {
@@ -137,11 +146,9 @@
 <nav class="secnav" aria-label="On this page">
   <div class="wrap secnav-inner" id="secnav">
     <a href="#live">Live prices</a>
-    <a href="#today">Today</a>
     <a href="#ratio">Ratio</a>
     <a href="#portfolio">Holdings</a>
     <a href="#premiums">Premiums</a>
-    <a href="#compare">Compare</a>
     <a href="#explore">History &amp; coins</a>
     <a href="#faq">FAQ</a>
     <a href="#alerts">Newsletter</a>
@@ -171,38 +178,7 @@
       <button class="metal" aria-pressed="false" style="--mc:var(--palladium)"><div class="metal-head"><span class="metal-name"><span class="dot"></span>Palladium</span><span class="metal-sym">XPD</span></div><div class="metal-price">$1,192.11</div><div class="metal-meta"><span class="chg up">▲ +0.12%</span><span class="unit">per troy oz</span></div></button>
     </div>
 
-    <aside class="liveapp" aria-label="Live prices on your phone">
-      <div class="liveapp-ic">
-        <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <defs>
-            <linearGradient id="laBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBFAF7"/><stop offset="1" stop-color="#E7E6DF"/></linearGradient>
-            <linearGradient id="laGold" x1="0.15" y1="0" x2="0.4" y2="1"><stop offset="0" stop-color="#E0BC63"/><stop offset="0.5" stop-color="#B5882B"/><stop offset="1" stop-color="#8A6419"/></linearGradient>
-            <filter id="laLift" x="-25%" y="-25%" width="150%" height="160%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#4A3C16" flood-opacity="0.30"/></filter>
-          </defs>
-          <rect width="512" height="512" fill="url(#laBg)"/>
-          <g transform="translate(256,256) scale(0.84) translate(-256,-256)">
-            <g filter="url(#laLift)">
-              <path d="M128 344 L212 288 L288 320 L388 168" fill="none" stroke="url(#laGold)" stroke-width="30" stroke-linejoin="round" stroke-linecap="round"/>
-              <rect x="360" y="138" width="60" height="60" rx="16" fill="url(#laGold)"/>
-            </g>
-            <path d="M128 341 L212 285 L288 317 L388 165" fill="none" stroke="#F0DCA0" stroke-opacity="0.45" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
-            <rect x="366" y="143" width="48" height="12" rx="6" fill="#F0DCA0" fill-opacity="0.45"/>
-          </g>
-        </svg>
-      </div>
-      <div>
-        <span class="tag"><span class="livedot"></span>Live</span>
-        <h2>Keep live prices on your phone</h2>
-        <p>An always-on page with gold, silver, platinum &amp; palladium in 10 currencies and per gram, ounce or kilo — ~10 min delayed, auto-refreshing, with charts. Add it to your home screen and it opens like an app.</p>
-        <div class="cta">
-          <a class="btn-primary" href="https://live.preciousmetalscharts.com/">Open live prices →</a>
-          <span class="hint">On your phone: tap <b>Share</b> → <b>Add to Home Screen</b></span>
-        </div>
-      </div>
-    </aside>
-
-    <div class="related" style="margin:12px 0 2px"><a href="/gold-price">Gold price</a><a href="/silver-price">Silver price</a><a href="/platinum-price">Platinum price</a><a href="/palladium-price">Palladium price</a><a href="/coin-prices">Coin prices</a><a href="/gold-price-history">Price history</a><a href="/market-recap">Market recap</a></div>
-    <div class="grid">
+    <div class="grid" style="grid-template-columns:1fr">
       <article class="panel" aria-label="Main price chart">
         <div class="panel-head">
           <div>
@@ -217,20 +193,6 @@
         <div class="bigprice"><span class="v mono" id="mainPrice">$4,035.02</span><span class="c mono up" id="mainChg">+0.82%</span></div>
         <div class="chart-host" id="chartHost"><div class="crosshair-label" id="chLabel"></div></div>
         <div class="story"><span class="pill">Context</span><p style="margin:0"><b id="storyLead">Today's move</b> <span id="storyBody">— spot prices move with the dollar, real interest rates and physical supply and demand. This is context, not a forecast.</span></p></div>
-      </article>
-
-      <article class="panel" id="ratio" aria-label="Gold to silver ratio">
-        <div class="panel-head"><div><div class="panel-title">Gold-to-Silver Ratio</div><div class="panel-sub">ounces of silver per ounce of gold</div></div></div>
-        <div class="ratio-val mono" id="ratioVal">69.2<small> oz</small></div>
-        <p class="ratio-cap">Near its long-run average. The ratio has topped 100 in stress periods (2020) and dipped under 35 at silver peaks.</p>
-        <div class="band" aria-hidden="true"><div class="band-track"></div><div class="band-marker" id="ratioMarker" style="left:42%"></div></div>
-        <div class="band-scale"><span>30</span><span>50</span><span>70</span><span>90</span><span>120</span></div>
-        <p class="ratio-note"><b>Reading it:</b> a high ratio is the classic signal that silver is cheap relative to gold.</p>
-        <button class="embed-btn" id="embedBtn">&lt;/&gt; Embed this on your site</button>
-        <div class="embed-box" id="embedBox">
-          <pre>&lt;script src="https://preciousmetalscharts.com/embed/ratio.js"&gt;&lt;/script&gt;</pre>
-          <p class="hint">Free widget · a backlink to preciousmetalscharts is included.</p>
-        </div>
       </article>
     </div>
   </section>
@@ -253,9 +215,22 @@
     </div>
   </section>
 
+  <!-- ratio (its own clear block) -->
+  <section class="sec" id="ratio">
+    <div class="sec-head"><span class="sec-num">02</span><h2>The gold-to-silver ratio</h2></div>
+    <article class="panel" aria-label="Gold to silver ratio">
+      <div class="panel-head"><div><div class="panel-title">Gold-to-Silver Ratio</div><div class="panel-sub">ounces of silver per ounce of gold</div></div></div>
+      <div class="ratio-val mono" id="ratioVal">69.2<small> oz</small></div>
+      <p class="ratio-cap">Near its long-run average. The ratio has topped 100 in stress periods (2020) and dipped under 35 at silver peaks.</p>
+      <div class="band" aria-hidden="true"><div class="band-track"></div><div class="band-marker" id="ratioMarker" style="left:42%"></div></div>
+      <div class="band-scale"><span>30</span><span>50</span><span>70</span><span>90</span><span>120</span></div>
+      <p class="ratio-note"><b>Reading it:</b> a high ratio is the classic signal that silver is cheap relative to gold. <a href="/ratio" style="color:var(--accent);text-decoration:none">Full ratio history →</a></p>
+    </article>
+  </section>
+
   <!-- portfolio (investment hook) -->
   <section class="sec" id="portfolio">
-    <div class="sec-head"><span class="sec-num">02</span><h2>Track your gold &amp; silver holdings</h2></div>
+    <div class="sec-head"><span class="sec-num">03</span><h2>Track your gold &amp; silver holdings</h2></div>
     <p class="sec-sub">See what you hold and watch it move with the market. The more you add, the more this becomes your home base — and it stays private.</p>
     <div class="pf">
       <div class="pf-main">
@@ -291,7 +266,7 @@
 
   <!-- premiums + compare -->
   <section class="sec" id="premiums">
-    <div class="sec-head"><span class="sec-num">03</span><h2>Premiums &amp; performance</h2></div>
+    <div class="sec-head"><span class="sec-num">04</span><h2>Premiums &amp; performance</h2></div>
     <div class="mods">
       <article class="panel" aria-label="Spot versus retail premium">
         <div class="panel-title">Spot vs. retail premium</div>
@@ -321,7 +296,7 @@
 
   <!-- explore: internal-linking hub to the long-tail pages -->
   <section class="sec" id="explore">
-    <div class="sec-head"><span class="sec-num">04</span><h2>Explore prices, history &amp; coins</h2></div>
+    <div class="sec-head"><span class="sec-num">05</span><h2>Explore prices, history &amp; coins</h2></div>
     <p class="sec-sub">Live prices for each metal, every year of price history since 1976, and the live melt value of popular bullion coins — all from our own archive.</p>
     <div style="margin-top:6px">
       <div class="panel-title" style="margin-bottom:2px">Live metal prices</div>
@@ -337,24 +312,30 @@
     </div>
   </section>
 
-  <!-- widget banner: highlight the embeddable widget → /embed -->
-  <section class="sec" style="padding-top:6px">
-    <div class="widgetbanner">
-      <div class="wb-txt">
-        <span class="tag"><span class="livedot"></span>Free widget</span>
-        <h2>Put live metal prices on your website</h2>
-        <p>Add gold, silver, platinum and palladium spot prices to any site or blog — free, no account, and it updates itself. Pick your metals, theme and currency, then copy one line of code.</p>
-        <div class="cta"><a class="btn-primary" href="/embed">Get the free widget →</a><span class="hint">Works on WordPress, Webflow, Ghost &amp; more</span></div>
-      </div>
-      <div class="wb-prev" aria-hidden="true">
-        <iframe src="/widget/?metals=gold,silver,platinum&amp;theme=light" title="Live metal prices widget preview" loading="lazy" tabindex="-1"></iframe>
-      </div>
+  <!-- tools: take it with you (live app + embeddable widget, one calm block) -->
+  <section class="sec" id="tools">
+    <div class="sec-head"><span class="sec-num">06</span><h2>Take it with you</h2></div>
+    <p class="sec-sub">Two free ways to keep these prices close — on your phone, or on your own website.</p>
+    <div class="tools">
+      <article class="toolcard">
+        <span class="tag"><span class="livedot"></span>On your phone</span>
+        <h3>Live prices, like an app</h3>
+        <p>An always-on page with all four metals in 10 currencies and per gram, ounce or kilo — auto-refreshing, with charts. Add it to your home screen and it opens like an app.</p>
+        <div class="cta"><a class="btn-primary" href="https://live.preciousmetalscharts.com/">Open live prices →</a><span class="hint">Tap <b>Share</b> → <b>Add to Home Screen</b></span></div>
+      </article>
+      <article class="toolcard">
+        <span class="tag"><span class="livedot"></span>On your website</span>
+        <h3>Free live price widget</h3>
+        <p>Add live gold, silver, platinum and palladium prices to any site or blog — free, no account, one line of code.</p>
+        <div class="wb-prev" aria-hidden="true"><iframe src="/widget/?metals=gold,silver,platinum&amp;theme=light" title="Live metal prices widget preview" loading="lazy" tabindex="-1"></iframe></div>
+        <div class="cta" style="margin-top:12px"><a class="btn-primary" href="/embed">Get the free widget →</a></div>
+      </article>
     </div>
   </section>
 
   <!-- faq (GEO answer blocks) -->
   <section class="sec" id="faq">
-    <div class="sec-head"><span class="sec-num">05</span><h2>Common questions about precious-metals prices</h2></div>
+    <div class="sec-head"><span class="sec-num">07</span><h2>Common questions about precious-metals prices</h2></div>
     <p class="sec-sub">Short, self-contained answers to the basics most people search for.</p>
     <div class="faq-grid">
       <article class="qa-card">
@@ -387,7 +368,7 @@
 
   <!-- alerts (trigger) -->
   <section class="sec" id="alerts">
-    <div class="sec-head"><span class="sec-num">06</span><h2>The metals newsletter</h2></div>
+    <div class="sec-head"><span class="sec-num">08</span><h2>The metals newsletter</h2></div>
     <div class="alert" style="margin-top:0">
       <div>
         <h3>A recap, not a sales pitch</h3>
@@ -573,9 +554,6 @@
   function syncAlert(){var a=document.getElementById("alertSummary");if(a)a.textContent=METALS[state.metal].name;var t=document.getElementById("targetPre");if(t)t.textContent=curSym();}
   function wireAlert(btnId,emailId,okId){var b=document.getElementById(btnId);if(!b)return;b.addEventListener("click",function(){var em=document.getElementById(emailId);var ok=document.getElementById(okId);if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim())){ok.classList.add("show");em.value="";}else{em.focus();em.style.borderColor="var(--down)";}});document.getElementById(emailId).addEventListener("input",function(){this.style.borderColor="";});}
   wireAlert("alertBtn","emailInput","alertOk");
-
-  /* embed toggle */
-  document.getElementById("embedBtn").addEventListener("click",function(){document.getElementById("embedBox").classList.toggle("show");});
 
   /* controls */
   document.getElementById("ranges").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;Array.prototype.forEach.call(this.querySelectorAll("button"),function(x){x.setAttribute("aria-pressed","false");});b.setAttribute("aria-pressed","true");state.range=b.dataset.r;loadChart();});
