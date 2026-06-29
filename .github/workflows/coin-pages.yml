@@ -1,0 +1,54 @@
+# Generate + publish bullion-coin price / melt-value pages
+# -----------------------------------------------------------------------------
+# Builds server-rendered coin pages (+ a coin-prices hub + sitemap-coins.xml) whose
+# original data point is each coin's live melt value (fine-metal content × spot).
+# Baked for crawlers, hydrated live from prices.json for visitors. Re-runs daily so
+# the baked "as of" value stays fresh. Requires secrets: FTP_HOST, FTP_USER, FTP_PASS.
+# -----------------------------------------------------------------------------
+name: Build coin pages
+
+on:
+  schedule:
+    - cron: "20 6 * * *"   # daily 06:20 UTC
+  workflow_dispatch: {}
+
+concurrency:
+  group: coin-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+
+      - name: Download prices
+        run: |
+          mkdir -p data
+          curl -fsS -A "Mozilla/5.0 (X11; Linux x86_64) Chrome/124" \
+               --connect-timeout 20 --max-time 60 --retry 5 --retry-delay 4 --retry-all-errors \
+               -o data/prices.json "https://preciousmetalscharts.com/prices.json"
+
+      - name: Generate coin pages
+        env: { DATA_DIR: "./data", OUT_DIR: "./out" }
+        run: |
+          node data-pipeline/node/build-coin-pages.mjs
+          echo "Generated $(ls out/*.html | wc -l) HTML files."
+
+      - name: Upload to Vimexx (FTPS)
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+        run: |
+          up() {
+            curl --fail --show-error --silent --ssl-reqd -k --ftp-pasv --disable-epsv --ftp-create-dirs \
+                 --connect-timeout 20 --max-time 90 --retry 4 --retry-delay 6 --retry-all-errors \
+                 -T "$1" -u "$FTP_USER:$FTP_PASS" "ftp://$FTP_HOST/public_html/$2"
+          }
+          n=0
+          for f in out/*.html; do up "$f" "$(basename "$f")"; n=$((n+1)); done
+          up out/sitemap-coins.xml "sitemap-coins.xml"
+          echo "Uploaded $n pages + sitemap-coins.xml."

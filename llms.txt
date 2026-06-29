@@ -47,6 +47,10 @@
   [Gold price history](https://preciousmetalscharts.com/gold-price-history) and
   [Silver price history](https://preciousmetalscharts.com/silver-price-history), with a page per
   year (e.g. https://preciousmetalscharts.com/gold-price-2008).
+- [Bullion coin prices](https://preciousmetalscharts.com/coin-prices): live melt value (fine-metal
+  content × spot) and specifications for popular gold and silver coins — American Eagle, Krugerrand,
+  Maple Leaf, Britannia, Philharmonic, Sovereign and more (e.g.
+  https://preciousmetalscharts.com/american-gold-eagle-price). Melt value only; we publish no dealer prices.
 - [Gold-to-silver ratio](https://preciousmetalscharts.com/ratio): the live ratio plus its
   full history back to the 1970s, with a plain-language guide to what it means.
 - [Where to buy gold & silver](https://preciousmetalscharts.com/buy): independent guide to

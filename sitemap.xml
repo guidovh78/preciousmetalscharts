@@ -11,4 +11,8 @@
     <loc>https://preciousmetalscharts.com/sitemap-history.xml</loc>
     <lastmod>2026-06-29</lastmod>
   </sitemap>
+  <sitemap>
+    <loc>https://preciousmetalscharts.com/sitemap-coins.xml</loc>
+    <lastmod>2026-06-29</lastmod>
+  </sitemap>
 </sitemapindex>
