@@ -1,0 +1,41 @@
+# TEMPORARY — make the uploaded WebP phone render transparent + re-encode small. Delete after use.
+name: _make-webp-transparent
+on: { workflow_dispatch: {} }
+jobs:
+  t:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install ImageMagick + WebP
+        run: sudo apt-get update && sudo apt-get install -y imagemagick webp
+      - name: Make background transparent + encode WebP
+        run: |
+          curl -fsS -o in.webp "https://preciousmetalscharts.com/assets/live_app_phone.webp"
+          echo "input:"; identify in.webp
+          W=$(identify -format '%w' in.webp); H=$(identify -format '%h' in.webp)
+          bg=$(convert in.webp -format '%[pixel:p{2,2}]' info:); echo "corner colour = $bg"
+          # flood-fill outer background to transparency from all four corners (fuzz for lossy edges)
+          convert in.webp -alpha set -bordercolor "$bg" -border 1 -fuzz 14% \
+            -fill none \
+            -draw "matte 0,0 floodfill" \
+            -draw "matte $((W-1)),0 floodfill" \
+            -draw "matte 0,$((H-1)) floodfill" \
+            -draw "matte $((W-1)),$((H-1)) floodfill" \
+            -shave 1x1 -trim +repage cut.png
+          echo "cut:"; identify cut.png
+          echo "mean alpha (1=opaque, <1=has transparency): $(convert cut.png -alpha extract -format '%[fx:mean]' info:)"
+          # encode transparent WebP (lossy quality with alpha) — small + clean edges
+          cwebp -q 86 -alpha_q 100 cut.png -o out.webp 2>/dev/null
+          echo "out.webp: $(identify -format '%wx%h' out.webp), $(stat -c%s out.webp) bytes"
+      - name: Upload transparent WebP
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+        run: |
+          curl --fail --show-error --silent --ssl-reqd -k --ftp-pasv --disable-epsv --ftp-create-dirs \
+               --connect-timeout 20 --max-time 90 --retry 4 --retry-delay 8 --retry-all-errors \
+               -T out.webp -u "$FTP_USER:$FTP_PASS" \
+               "ftp://$FTP_HOST/public_html/assets/live_app_phone_transparent.webp"
+          echo "uploaded transparent WebP."
+      - uses: actions/upload-artifact@v4
+        with: { name: phone-webp, path: "cut.png" }
