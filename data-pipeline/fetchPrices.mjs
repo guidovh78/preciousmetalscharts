@@ -87,9 +87,16 @@ export async function buildSnapshot(env, prev, baseline, opts = {}) {
   const today = new Date().toISOString().slice(0, 10);
   let base = baseline;
   if (!base || base.date !== today) {
-    base = { date: today, open: { ...price } };
+    // New trading day → the change is measured against the PREVIOUS day's close, i.e. the last
+    // price we recorded before the day rolled over (the prev snapshot). Fall back to the current
+    // price only when there is no prior snapshot at all (the very first run ever).
+    const ref = {};
+    for (const m of METALS) {
+      ref[m] = (prev && prev.metals && prev.metals[m] && prev.metals[m].price != null) ? prev.metals[m].price : price[m];
+    }
+    base = { date: today, open: ref };
   } else {
-    // backfill any metal that was missing at first run of the day
+    // backfill any metal that was missing at the first run of the day
     for (const m of METALS) if (base.open[m] == null && price[m] != null) base.open[m] = price[m];
   }
 
