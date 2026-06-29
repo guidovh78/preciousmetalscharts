@@ -31,7 +31,15 @@ if (!file_exists($ht)) { @file_put_contents($ht, "Require all denied\nDeny from 
 function cfg(string $key, $default = null) {
     static $c = null;
     global $CONFIG;
-    if ($c === null) { $c = file_exists($CONFIG) ? (include $CONFIG) : []; if (!is_array($c)) $c = []; }
+    if ($c === null) {
+        $c = [];
+        if (file_exists($CONFIG)) {
+            ob_start();                 // never echo a malformed config (e.g. an RTF file)
+            $r = @include $CONFIG;
+            ob_end_clean();
+            if (is_array($r)) $c = $r;  // only accept a clean PHP array
+        }
+    }
     return $c[$key] ?? $default;
 }
 
