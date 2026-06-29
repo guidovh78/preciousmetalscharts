@@ -37,3 +37,7 @@ jobs:
           grep -q "percentile"             ed-monthly.html && echo "monthly: ratio percentile OK"
           ! grep -q "Zoom out"             ed-daily.html   && echo "daily: correctly has NO zoom-out"
           ! grep -q "Macro backdrop"       ed-weekly.html  && echo "weekly: correctly has NO macro"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: editions
+          path: ed-*.html
