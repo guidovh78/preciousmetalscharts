@@ -82,6 +82,30 @@
   .ex-links li:first-child a{border-top:0;}
   .ex-links a::after{content:"→";color:var(--faint);font-size:13px;}
   .ex-links a:hover{color:var(--accent);} .ex-links a:hover::after{color:var(--accent);}
+  /* ratio: current value + 30-day mini chart side by side (within the one panel) */
+  .ratio-cols{display:grid;grid-template-columns:1fr 1.25fr;gap:26px;align-items:center;margin:8px 0 12px;}
+  @media(max-width:680px){.ratio-cols{grid-template-columns:1fr;gap:16px;}}
+  .ratio-spark-head{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:7px;}
+  .ratio-spark-cap{text-transform:none;letter-spacing:0;font-family:var(--font-mono);font-size:11.5px;color:var(--faint);margin-left:8px;}
+  .ratio-spark{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden;min-height:90px;}
+  /* CSS phone mockup inside the 'Live prices, like an app' tool card */
+  .phone-wrap{display:flex;justify-content:center;margin:10px 0 16px;}
+  .phone{width:152px;background:#15171c;border-radius:24px;padding:8px;box-shadow:0 10px 24px rgba(0,0,0,.20);position:relative;}
+  .phone-notch{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:44px;height:6px;border-radius:99px;background:#000;z-index:2;}
+  .phone-screen{background:#fff;border-radius:16px;padding:13px 11px 9px;}
+  .ps-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
+  .ps-logo{font-size:8px;font-weight:700;color:#17191E;letter-spacing:-.02em;}
+  .ps-logo b{color:#9A7322;}
+  .ps-live{display:inline-flex;align-items:center;gap:3px;font-size:6px;font-weight:700;color:#9A7322;border:1px solid #E7DBBE;border-radius:4px;padding:1px 4px;}
+  .ps-live .ps-dot{width:4px;height:4px;border-radius:50%;background:#1A7F5A;}
+  .ps-row{display:flex;align-items:center;gap:6px;padding:6px 0;border-top:1px solid #f0f0ec;}
+  .ps-row:first-child{border-top:0;}
+  .ps-chip{width:17px;height:17px;border-radius:5px;color:#1d1f24;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;}
+  .ps-nm{font-size:8.5px;color:#17191E;flex:1;}
+  .ps-px{font-size:9px;font-weight:600;font-family:var(--font-mono);color:#17191E;}
+  .ps-ch{font-size:7.5px;font-weight:600;min-width:26px;text-align:right;}
+  .ps-ch.up{color:#1A7F5A;} .ps-ch.down{color:#C2453A;}
+  .ps-foot{margin-top:8px;text-align:center;font-size:5.5px;color:#9AA0A6;letter-spacing:.02em;}
 </style>
 <script type="application/ld+json">
 {
@@ -218,10 +242,17 @@
     <div class="sec-head"><span class="sec-num">02</span><h2>The gold-to-silver ratio</h2></div>
     <article class="panel" aria-label="Gold to silver ratio">
       <div class="panel-head"><div><div class="panel-title">Gold-to-Silver Ratio</div><div class="panel-sub">ounces of silver per ounce of gold</div></div></div>
-      <div class="ratio-val mono" id="ratioVal">69.2<small> oz</small></div>
-      <p class="ratio-cap">Near its long-run average. The ratio has topped 100 in stress periods (2020) and dipped under 35 at silver peaks.</p>
-      <div class="band" aria-hidden="true"><div class="band-track"></div><div class="band-marker" id="ratioMarker" style="left:42%"></div></div>
-      <div class="band-scale"><span>30</span><span>50</span><span>70</span><span>90</span><span>120</span></div>
+      <div class="ratio-cols">
+        <div class="ratio-left">
+          <div class="ratio-val mono" id="ratioVal">69.2<small> oz</small></div>
+          <div class="band" aria-hidden="true"><div class="band-track"></div><div class="band-marker" id="ratioMarker" style="left:42%"></div></div>
+          <div class="band-scale"><span>30</span><span>50</span><span>70</span><span>90</span><span>120</span></div>
+        </div>
+        <div class="ratio-right">
+          <div class="ratio-spark-head">Last 30 days<span id="ratioSparkCap" class="ratio-spark-cap"></span></div>
+          <div id="ratioSpark" class="ratio-spark"></div>
+        </div>
+      </div>
       <p class="ratio-note"><b>Reading it:</b> a high ratio is the classic signal that silver is cheap relative to gold. <a href="/ratio" style="color:var(--accent);text-decoration:none">Full ratio history →</a></p>
     </article>
   </section>
@@ -335,6 +366,21 @@
         <span class="tag"><span class="livedot"></span>On your phone</span>
         <h3>Live prices, like an app</h3>
         <p>An always-on page with all four metals in 10 currencies and per gram, ounce or kilo — auto-refreshing, with charts. Add it to your home screen and it opens like an app.</p>
+        <div class="phone-wrap" aria-hidden="true">
+          <div class="phone">
+            <span class="phone-notch"></span>
+            <div class="phone-screen">
+              <div class="ps-head"><span class="ps-logo">preciousmetals<b>charts</b></span><span class="ps-live"><span class="ps-dot"></span>LIVE</span></div>
+              <div class="ps-rows">
+                <div class="ps-row"><span class="ps-chip" style="background:var(--gold)">Au</span><span class="ps-nm">Gold</span><span class="ps-px">$4,090</span><span class="ps-ch up">+0.8%</span></div>
+                <div class="ps-row"><span class="ps-chip" style="background:var(--silver)">Ag</span><span class="ps-nm">Silver</span><span class="ps-px">$59.30</span><span class="ps-ch down">−1.1%</span></div>
+                <div class="ps-row"><span class="ps-chip" style="background:var(--platinum)">Pt</span><span class="ps-nm">Platinum</span><span class="ps-px">$1,625</span><span class="ps-ch down">−0.4%</span></div>
+                <div class="ps-row"><span class="ps-chip" style="background:var(--palladium)">Pd</span><span class="ps-nm">Palladium</span><span class="ps-px">$1,228</span><span class="ps-ch up">+0.3%</span></div>
+              </div>
+              <div class="ps-foot">live.preciousmetalscharts.com</div>
+            </div>
+          </div>
+        </div>
         <div class="cta"><a class="btn-primary" href="https://live.preciousmetalscharts.com/">Open live prices →</a><span class="hint">Tap <b>Share</b> → <b>Add to Home Screen</b></span></div>
       </article>
       <article class="toolcard">
@@ -498,7 +544,24 @@
       .catch(function(){ if(req===_chartReq){chartPoints=[];renderMain();} });
   }
 
-  function renderRatio(){var r=METALS.gold.usd/METALS.silver.usd;document.getElementById("ratioVal").innerHTML=r.toFixed(1)+'<small> oz</small>';document.getElementById("ratioMarker").style.left=Math.max(0,Math.min(100,(r-30)/90*100))+"%";}
+  function renderRatio(){var r=METALS.gold.usd/METALS.silver.usd;document.getElementById("ratioVal").innerHTML=r.toFixed(1)+'<small> oz</small>';var mk=document.getElementById("ratioMarker");if(mk)mk.style.left=Math.max(0,Math.min(100,(r-30)/90*100))+"%";}
+  /* 30-day gold-to-silver ratio mini chart, from our own 1-month archive */
+  function drawRatioChart(){
+    var host=document.getElementById("ratioSpark");if(!host)return;
+    Promise.all([
+      fetch("/history/gold-1m.json",{cache:"force-cache"}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}),
+      fetch("/history/silver-1m.json",{cache:"force-cache"}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})
+    ]).then(function(res){
+      var g=res[0]&&res[0].points,s=res[1]&&res[1].points;if(!g||!s||g.length<2)return;
+      var sm={};s.forEach(function(p){sm[p[0]]=p[1];});
+      var vals=[];g.forEach(function(p){var sv=sm[p[0]];if(sv&&sv>0)vals.push(p[1]/sv);});
+      if(vals.length<2)return;
+      var w=300,h=90,pad=6,p=buildPath(vals,w,h,pad);
+      var area=p.d+" L"+(w-pad).toFixed(1)+" "+(h-pad)+" L"+pad+" "+(h-pad)+" Z";
+      host.innerHTML='<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" style="display:block;width:100%;height:90px" role="img" aria-label="Gold-to-silver ratio, last 30 days"><defs><linearGradient id="rsg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity=".16"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs><path d="'+area+'" fill="url(#rsg)"/><path d="'+p.d+'" fill="none" stroke="var(--accent)" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"/></svg>';
+      var cap=document.getElementById("ratioSparkCap");if(cap){var f=vals[0],l=vals[vals.length-1],c=l-f;cap.textContent=f.toFixed(1)+" → "+l.toFixed(1)+" ("+(c>=0?"+":"−")+Math.abs(c).toFixed(1)+")";}
+    }).catch(function(){});
+  }
   function renderPulse(){[["gold","pulseGold"],["silver","pulseSilver"],["platinum","pulsePlat"],["palladium","pulsePall"]].forEach(function(p){var el=document.getElementById(p[1]);if(!el)return;var c=METALS[p[0]].chg||0,up=c>=0;el.textContent=(up?"▲ +":"▼ ")+Math.abs(c).toFixed(2)+"%";el.className="v mono "+(up?"up":"down");});}
 
   /* ===== portfolio (investment hook) ===== */
@@ -602,7 +665,7 @@
   loadPrices();setInterval(loadPrices,60000);
 
   /* init */
-  renderMetals();loadChart();renderRatio();renderPulse();renderPortfolio();renderPremiums();renderCompare();syncAlert();loadSparks();
+  renderMetals();loadChart();renderRatio();drawRatioChart();renderPulse();renderPortfolio();renderPremiums();renderCompare();syncAlert();loadSparks();
 })();
 </script>
 <script src="/assets/site.js?v=8" defer></script>
