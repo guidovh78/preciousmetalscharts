@@ -40,8 +40,14 @@ if (result.ok) {
   // the client falls back to the last known rate.
   try {
     const fx = await fetch('https://open.er-api.com/v6/latest/USD', { signal: AbortSignal.timeout(8000) }).then((r) => r.json());
-    const eur = fx && fx.rates && Number(fx.rates.EUR);
-    if (eur && eur > 0.5 && eur < 1.5) result.snapshot.fx = { base: 'USD', eur: Number(eur.toFixed(5)) };
+    if (fx && fx.rates) {
+      // The 10 most-traded world currencies (USD base) for the live page's currency picker.
+      const WANT = ['USD', 'EUR', 'GBP', 'JPY', 'CNY', 'AUD', 'CAD', 'CHF', 'HKD', 'SGD'];
+      const rates = { USD: 1 };
+      for (const c of WANT) { const v = Number(fx.rates[c]); if (v > 0) rates[c] = Number(v.toFixed(6)); }
+      const eur = Number(fx.rates.EUR);
+      result.snapshot.fx = { base: 'USD', eur: (eur > 0.5 && eur < 1.5) ? Number(eur.toFixed(5)) : undefined, rates };
+    }
   } catch (e) { console.warn(`FX fetch failed — ${e.message} (snapshot keeps USD only)`); }
   await writeFile(SNAP, JSON.stringify(result.snapshot, null, 2));
   await writeFile(BASE, JSON.stringify(result.baseline, null, 2));
