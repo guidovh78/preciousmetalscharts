@@ -128,6 +128,9 @@ function renderPage(m, year) {
   const s = yearStats(m, year); if (!s) return null;
   const Name = META[m].name, ys = String(year);
   const rose = s.change >= 0;
+  const monthly = s.n <= 13; // coarse archive year → show month, not a precise day
+  const dFmt = (iso) => monthly ? new Date(iso + 'T00:00:00Z').toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : niceDate(iso);
+  const on = monthly ? 'in' : 'on';
   const today = snap.metals[m]?.price ?? null;
   const vsAvg = (today != null) ? (today - s.avg) / s.avg * 100 : null;
   const worth = (today != null) ? 1000 / s.avg * today : null;
@@ -138,14 +141,14 @@ function renderPage(m, year) {
   const descr = `${Name} averaged ${fmt0(s.avg)} per troy ounce in ${ys}, ranging from ${fmt0(s.lo[1])} to ${fmt0(s.hi[1])}. It opened at ${fmt0(s.open)} and ended at ${fmt0(s.close)} (${fmtP(s.change)}). See the full ${ys} ${m} price chart and how it compares to today.`;
 
   // front-loaded answer block (~50-70 words)
-  const answer = `In ${ys}, ${m} ${rose ? 'rose' : 'fell'} ${fmtP(s.change)}, opening the year around ${fmt0(s.open)} per troy ounce and ending near ${fmt0(s.close)}. It averaged ${fmt0(s.avg)}, with a high of ${fmt2(s.hi[1])} on ${niceDate(s.hi[0])} and a low of ${fmt2(s.lo[1])} on ${niceDate(s.lo[0])}.${today != null ? ` Today ${m} trades around ${fmt0(today)} — ${vsAvg >= 0 ? 'about ' + Math.abs(vsAvg).toFixed(0) + '% above' : 'about ' + Math.abs(vsAvg).toFixed(0) + '% below'} its ${ys} average.` : ''}`;
+  const answer = `In ${ys}, ${m} ${rose ? 'rose' : 'fell'} ${fmtP(s.change)}, opening the year around ${fmt0(s.open)} per troy ounce and ending near ${fmt0(s.close)}. It averaged ${fmt0(s.avg)}, with a high of ${fmt2(s.hi[1])} ${on} ${dFmt(s.hi[0])} and a low of ${fmt2(s.lo[1])} ${on} ${dFmt(s.lo[0])}.${today != null ? ` Today ${m} trades around ${fmt0(today)} — ${vsAvg >= 0 ? 'about ' + Math.abs(vsAvg).toFixed(0) + '% above' : 'about ' + Math.abs(vsAvg).toFixed(0) + '% below'} its ${ys} average.` : ''}`;
 
   const statsTable = `<table class="yr-table"><tbody>
     <tr><th>Opening price (Jan ${ys})</th><td class="n">${fmt2(s.open)}</td></tr>
     <tr><th>Closing price (Dec ${ys})</th><td class="n">${fmt2(s.close)}</td></tr>
     <tr><th>Change over ${ys}</th><td class="n" style="color:${rose ? 'var(--up)' : 'var(--down)'}">${fmtP(s.change)}</td></tr>
-    <tr><th>${ys} high</th><td class="n">${fmt2(s.hi[1])} <span style="color:var(--faint)">· ${niceDate(s.hi[0])}</span></td></tr>
-    <tr><th>${ys} low</th><td class="n">${fmt2(s.lo[1])} <span style="color:var(--faint)">· ${niceDate(s.lo[0])}</span></td></tr>
+    <tr><th>${ys} high</th><td class="n">${fmt2(s.hi[1])} <span style="color:var(--faint)">· ${dFmt(s.hi[0])}</span></td></tr>
+    <tr><th>${ys} low</th><td class="n">${fmt2(s.lo[1])} <span style="color:var(--faint)">· ${dFmt(s.lo[0])}</span></td></tr>
     <tr><th>${ys} average</th><td class="n">${fmt2(s.avg)}</td></tr>
   </tbody></table>`;
 
@@ -156,7 +159,7 @@ function renderPage(m, year) {
 
   const faqObj = {
     '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [
-      { '@type': 'Question', name: `What was the highest ${m} price in ${ys}?`, acceptedAnswer: { '@type': 'Answer', text: `The highest ${m} spot price in ${ys} was about ${fmt2(s.hi[1])} per troy ounce, on ${niceDate(s.hi[0])}. The low was about ${fmt2(s.lo[1])} on ${niceDate(s.lo[0])}.` } },
+      { '@type': 'Question', name: `What was the highest ${m} price in ${ys}?`, acceptedAnswer: { '@type': 'Answer', text: `The highest ${m} spot price in ${ys} was about ${fmt2(s.hi[1])} per troy ounce, ${on} ${dFmt(s.hi[0])}. The low was about ${fmt2(s.lo[1])} ${on} ${dFmt(s.lo[0])}.` } },
       { '@type': 'Question', name: `Did ${m} go up or down in ${ys}?`, acceptedAnswer: { '@type': 'Answer', text: `${Name} ${rose ? 'rose' : 'fell'} ${fmtP(s.change)} over ${ys}, opening near ${fmt0(s.open)} and ending near ${fmt0(s.close)} per troy ounce. It averaged ${fmt0(s.avg)} for the year.` } },
       ...(worth != null ? [{ '@type': 'Question', name: `What would ${m} bought in ${ys} be worth today?`, acceptedAnswer: { '@type': 'Answer', text: `At the ${ys} average price, $1,000 of ${m} would be worth roughly ${fmt0(worth)} today at the spot price, before any premiums, fees or taxes.` } }] : []),
     ],
@@ -197,7 +200,7 @@ function renderPage(m, year) {
   <section class="sec">
     <div class="sec-head"><span class="sec-num">02</span><h2>Common questions</h2></div>
     <div class="faq-grid">
-      <article class="qa-card"><h3>What was the highest ${m} price in ${year}?</h3><p>The highest ${m} spot price in ${year} was about ${fmt2(s.hi[1])} per troy ounce, reached on ${niceDate(s.hi[0])}. The year's low was about ${fmt2(s.lo[1])} on ${niceDate(s.lo[0])}.</p></article>
+      <article class="qa-card"><h3>What was the highest ${m} price in ${year}?</h3><p>The highest ${m} spot price in ${year} was about ${fmt2(s.hi[1])} per troy ounce, reached ${on} ${dFmt(s.hi[0])}. The year's low was about ${fmt2(s.lo[1])} ${on} ${dFmt(s.lo[0])}.</p></article>
       <article class="qa-card"><h3>Did ${m} go up or down in ${year}?</h3><p>${Name} ${rose ? 'rose' : 'fell'} ${fmtP(s.change)} over ${year}, opening near ${fmt0(s.open)} and ending near ${fmt0(s.close)}. The average for the year was ${fmt0(s.avg)}.</p></article>
       ${worth != null ? `<article class="qa-card"><h3>What would ${m} bought in ${year} be worth today?</h3><p>At the ${year} average price, $1,000 of ${m} would be worth roughly ${fmt0(worth)} today at spot — before premiums, fees and taxes. Try our <a href="/dca-calculator">DCA backtest</a> for a fuller picture.</p></article>` : ''}
     </div>
@@ -209,6 +212,74 @@ function renderPage(m, year) {
 
   const faqJSON = JSON.stringify(faqObj), datasetJSON = JSON.stringify(datasetObj);
   return head(m, year, s, descr, faqJSON, datasetJSON) + header(m) + body + footer();
+}
+
+function downsample(pts, n) { if (!pts || pts.length <= n) return pts || []; const out = [], step = (pts.length - 1) / (n - 1); for (let i = 0; i < n; i++) out.push(pts[Math.round(i * step)]); return out; }
+
+function renderHub(m, yearsWithData) {
+  const Name = META[m].name, url = `${SITE}/${m}-price-history`;
+  const all = series[m]; if (!all || all.length < 2) return null;
+  const first = all[0], last = all[all.length - 1];
+  const today = snap.metals[m]?.price ?? last[1];
+  let athPt = all[0]; for (const p of all) if (p[1] > athPt[1]) athPt = p;
+  const firstYear = first[0].slice(0, 4), mult = today / first[1];
+  const sinceFirst = (today - first[1]) / first[1] * 100;
+
+  const rows = yearsWithData.map((y) => {
+    const s = yearStats(m, y); if (!s) return '';
+    const rose = s.change >= 0;
+    return `<tr><td><a href="/${m}-price-${y}" style="color:var(--accent);text-decoration:none;font-weight:600;">${y}</a></td><td class="n">${fmt0(s.avg)}</td><td class="n" style="color:${rose ? 'var(--up)' : 'var(--down)'}">${fmtP(s.change)}</td><td class="n">${fmt0(s.hi[1])}</td><td class="n">${fmt0(s.lo[1])}</td></tr>`;
+  }).reverse().join('');
+
+  const descr = `${Name} price history from ${firstYear} to ${curYear}: yearly averages, highs, lows and annual changes per troy ounce in USD. ${Name} has moved from about ${fmt0(first[1])} in ${firstYear} to around ${fmt0(today)} today.`;
+  const answer = `${Name} has risen from an average of about ${fmt0(first[1])} per troy ounce in ${firstYear} to around ${fmt0(today)} today — roughly a ${mult.toFixed(0)}× increase (${fmtP(sinceFirst)}). Its highest level in our archive was about ${fmt0(athPt[1])} (${athPt[0].slice(0, 4)}). The table below shows every year since ${firstYear}.`;
+
+  const faqObj = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [
+    { '@type': 'Question', name: `How much has ${m} risen since ${firstYear}?`, acceptedAnswer: { '@type': 'Answer', text: `${Name} has moved from about ${fmt0(first[1])} per troy ounce in ${firstYear} to around ${fmt0(today)} today — roughly a ${mult.toFixed(0)}-fold increase (${fmtP(sinceFirst)}) in US-dollar terms.` } },
+    { '@type': 'Question', name: `What is the highest ${m} price in history?`, acceptedAnswer: { '@type': 'Answer', text: `In our archive the highest ${m} spot price was about ${fmt0(athPt[1])} per troy ounce, around ${athPt[0].slice(0, 4)}. Recent live prices are on our ${m} price page.` } },
+  ] };
+  const itemList = { '@context': 'https://schema.org', '@type': 'ItemList', name: `${Name} price by year`, itemListElement: yearsWithData.map((y, i) => ({ '@type': 'ListItem', position: i + 1, name: `${Name} price in ${y}`, url: `${SITE}/${m}-price-${y}` })) };
+
+  const headHub = `<!DOCTYPE html>
+<html lang="en" data-theme="light" data-currency="usd">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${Name} Price History — Yearly Prices ${firstYear}–${curYear} (Chart &amp; Table) | preciousmetalscharts</title>
+<meta name="description" content="${esc(descr)}">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<link rel="canonical" href="${url}">
+<meta name="author" content="preciousmetalscharts">
+<meta property="og:type" content="website"><meta property="og:site_name" content="preciousmetalscharts">
+<meta property="og:title" content="${Name} price history"><meta property="og:description" content="${esc(descr)}"><meta property="og:url" content="${url}">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"${SITE}/#org","name":"preciousmetalscharts","url":"${SITE}/","logo":"${SITE}/logo.png"},{"@type":"WebSite","@id":"${SITE}/#website","url":"${SITE}/","name":"preciousmetalscharts","publisher":{"@id":"${SITE}/#org"},"inLanguage":"en"},{"@type":"CollectionPage","@id":"${url}#webpage","url":"${url}","name":"${Name} price history","isPartOf":{"@id":"${SITE}/#website"},"dateModified":"${todayISO}"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"${SITE}/"},{"@type":"ListItem","position":2,"name":"${Name} price","item":"${SITE}/${m}-price"},{"@type":"ListItem","position":3,"name":"History","item":"${url}"}]}]}</script>
+<script type="application/ld+json">${JSON.stringify(faqObj)}</script>
+<script type="application/ld+json">${JSON.stringify(itemList)}</script>
+<link rel="stylesheet" href="/assets/site.css?v=10">
+<style>.yr-table{width:100%;border-collapse:collapse;margin:6px 0;font-size:14px;}.yr-table th,.yr-table td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;}.yr-table th.n,.yr-table td.n{text-align:right;font-family:var(--font-mono);}.yr-table thead th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);}.answer{font-size:16px;line-height:1.65;background:var(--surface-2);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--radius-sm);padding:13px 16px;margin:4px 0 14px;}</style>
+</head>
+<body>`;
+
+  const body = `<main class="wrap">
+  <section class="hero">
+    <div class="trustline"><span class="ttag">Independent</span><span>Not a dealer — we sell no metals</span><span class="sep"></span><span>Our own 50-year archive</span></div>
+    <h1 class="lede">${Name} price history</h1>
+    <p class="answer">${answer}</p>
+    <div class="related"><a href="/${m}-price">Live ${m} price</a><a href="/dca-calculator">DCA backtest</a><a href="/purchasing-power-calculator">Purchasing power</a><a href="/ratio">Gold-to-silver ratio</a></div>
+  </section>
+  <section class="sec">
+    <article class="panel" aria-label="${Name} long-term price chart">
+      <div class="panel-head"><div><div class="panel-title">${Name} price, ${firstYear}–${curYear}</div><div class="panel-sub">${META[m].sym} · USD / troy oz · our own archive</div></div></div>
+      <div style="padding:10px 4px 2px">${yearChart(downsample(all, 130), META[m].color)}</div>
+    </article>
+  </section>
+  <section class="sec">
+    <div class="sec-head"><span class="sec-num">01</span><h2>${Name} price by year</h2></div>
+    <table class="yr-table"><thead><tr><th>Year</th><th class="n">Average</th><th class="n">Change</th><th class="n">High</th><th class="n">Low</th></tr></thead><tbody>${rows}</tbody></table>
+    <p class="faq-meta">Reviewed by the preciousmetalscharts editorial team · Updated ${niceDate(todayISO)} · Spot, USD per troy oz, from our archive (deep history: World Bank Pink Sheet, CC BY 4.0). See our <a href="/methodology">methodology</a>.</p>
+  </section>
+</main>`;
+  return headHub + header(m) + body + footer();
 }
 
 // ---- main ----
@@ -229,6 +300,7 @@ await mkdir(OUT, { recursive: true });
 
 let written = 0, skipped = 0;
 const index = {};
+const urls = []; // for sitemap-history.xml
 for (const m of metals) {
   index[m] = [];
   for (const y of years) {
@@ -236,9 +308,25 @@ for (const m of metals) {
     if (!html) { skipped++; continue; }
     await writeFile(`${OUT}/${m}-price-${y}.html`, html);
     index[m].push(y); written++;
+    urls.push(`${SITE}/${m}-price-${y}`);
+  }
+  // hub page per metal
+  if (index[m].length) {
+    const hub = renderHub(m, index[m]);
+    if (hub) { await writeFile(`${OUT}/${m}-price-history.html`, hub); urls.push(`${SITE}/${m}-price-history`); written++; }
   }
 }
-// emit a small manifest so the deploy step knows what to upload + the hub can be built
+
+// sitemap fragment for the generated pages (hubs first, higher priority)
+const hubUrls = metals.map((m) => `${SITE}/${m}-price-history`);
+const sm = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'];
+for (const u of urls) {
+  const isHub = hubUrls.includes(u);
+  sm.push(`  <url><loc>${u}</loc><lastmod>${todayISO}</lastmod><changefreq>${isHub ? 'weekly' : 'monthly'}</changefreq><priority>${isHub ? '0.7' : '0.5'}</priority></url>`);
+}
+sm.push('</urlset>');
+await writeFile(`${OUT}/sitemap-history.xml`, sm.join('\n'));
+
 await writeFile(`${OUT}/_year-index.json`, JSON.stringify({ generatedAt: todayISO, metals: index }, null, 2));
-console.error(`OK year-pages → ${written} written, ${skipped} skipped (no data). metals=${metals.join(',')} years=${years[0]}..${years[years.length - 1]}`);
-for (const m of metals) console.error(`  ${m}: ${index[m].length} years (${index[m][0]}..${index[m][index[m].length - 1]})`);
+console.error(`OK year-pages → ${written} files (${urls.length} urls), ${skipped} skipped. metals=${metals.join(',')} years=${years[0]}..${years[years.length - 1]}`);
+for (const m of metals) console.error(`  ${m}: ${index[m].length} years (${index[m][0]}..${index[m][index[m].length - 1]}) + hub`);

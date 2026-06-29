@@ -42,6 +42,11 @@
     backtests switching between gold and silver at ratio extremes, with a cost-per-switch setting
     that shows how dealer spreads erode the apparent edge. Educational, not advice.
 - [Market recap](https://preciousmetalscharts.com/market-recap): an auto-generated, factual weekly recap of how the metals moved, the gold-to-silver ratio and where prices stand. Updated daily.
+- Price history by year — yearly average, high, low, % change and a chart for each year, built
+  from our own archive (deep history: World Bank Pink Sheet, CC BY 4.0):
+  [Gold price history](https://preciousmetalscharts.com/gold-price-history) and
+  [Silver price history](https://preciousmetalscharts.com/silver-price-history), with a page per
+  year (e.g. https://preciousmetalscharts.com/gold-price-2008).
 - [Gold-to-silver ratio](https://preciousmetalscharts.com/ratio): the live ratio plus its
   full history back to the 1970s, with a plain-language guide to what it means.
 - [Where to buy gold & silver](https://preciousmetalscharts.com/buy): independent guide to

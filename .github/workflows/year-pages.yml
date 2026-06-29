@@ -1,0 +1,62 @@
+# Generate + publish the historical "<metal> price in <year>" long-tail pages
+# -----------------------------------------------------------------------------
+# Builds server-rendered year pages (+ per-metal history hubs + sitemap-history.xml)
+# from our own price archive and uploads them to Vimexx. Each page stands on its own
+# with real, unique per-year data — no thin number-swaps. Re-runs monthly so the
+# "vs today" comparison and the current-year page stay reasonably fresh.
+# Requires repo secrets: FTP_HOST, FTP_USER, FTP_PASS.
+# -----------------------------------------------------------------------------
+name: Build year pages
+
+on:
+  schedule:
+    - cron: "40 3 1 * *"   # monthly, 1st at 03:40 UTC
+  workflow_dispatch: {}
+
+concurrency:
+  group: year-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+
+      - name: Download price + history data
+        run: |
+          mkdir -p data/history
+          UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36"
+          get() { curl -fsS -A "$UA" --retry 4 --retry-delay 3 --retry-all-errors -o "$1" "$2"; }
+          get data/prices.json "https://preciousmetalscharts.com/prices.json"
+          for m in gold silver; do
+            for tf in 50y 20y 10y 5y 1y; do get "data/history/$m-$tf.json" "https://preciousmetalscharts.com/history/$m-$tf.json" || true; sleep 1; done
+          done
+
+      - name: Generate year pages
+        env:
+          DATA_DIR: "./data"
+          OUT_DIR: "./out"
+          METALS: "gold,silver"
+          YEARS: "1976-2026"
+        run: |
+          node data-pipeline/node/build-year-pages.mjs
+          echo "Generated $(ls out/*.html | wc -l) HTML files."
+
+      - name: Upload to Vimexx (FTPS)
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+        run: |
+          up() {
+            curl --fail --show-error --silent --ssl-reqd -k --ftp-pasv --disable-epsv --ftp-create-dirs \
+                 --connect-timeout 20 --max-time 90 --retry 4 --retry-delay 6 --retry-all-errors \
+                 -T "$1" -u "$FTP_USER:$FTP_PASS" "ftp://$FTP_HOST/public_html/$2"
+          }
+          n=0
+          for f in out/*.html; do up "$f" "$(basename "$f")"; n=$((n+1)); done
+          up out/sitemap-history.xml "sitemap-history.xml"
+          echo "Uploaded $n pages + sitemap-history.xml."
