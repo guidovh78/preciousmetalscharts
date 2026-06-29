@@ -29,6 +29,9 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{DOCUMENT_ROOT}/$1.html -f
 RewriteRule ^(.+?)/?$ $1.html [L]
 
+# Branded 404 (keeps the 404 status code; the page itself is noindex).
+ErrorDocument 404 /404.html
+
 # -----------------------------------------------------------------------------
 # Caching — repeat visitors shouldn't re-download what hasn't changed.
 # HTML: short (deploys are occasional). History JSON: longer (updates once/day).
