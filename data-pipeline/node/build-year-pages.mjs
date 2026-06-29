@@ -251,11 +251,12 @@ function renderHub(m, yearsWithData) {
 <link rel="canonical" href="${url}">
 <meta name="author" content="preciousmetalscharts">
 <meta property="og:type" content="website"><meta property="og:site_name" content="preciousmetalscharts">
-<meta property="og:title" content="${Name} price history"><meta property="og:description" content="${esc(descr)}"><meta property="og:url" content="${url}">
+<meta property="og:title" content="${Name} price history"><meta property="og:description" content="${esc(descr)}"><meta property="og:url" content="${url}"><meta property="og:image" content="https://preciousmetalscharts.com/og-cover.png">
 <meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"${SITE}/#org","name":"preciousmetalscharts","url":"${SITE}/","logo":"${SITE}/logo.png"},{"@type":"WebSite","@id":"${SITE}/#website","url":"${SITE}/","name":"preciousmetalscharts","publisher":{"@id":"${SITE}/#org"},"inLanguage":"en"},{"@type":"CollectionPage","@id":"${url}#webpage","url":"${url}","name":"${Name} price history","isPartOf":{"@id":"${SITE}/#website"},"dateModified":"${todayISO}"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"${SITE}/"},{"@type":"ListItem","position":2,"name":"${Name} price","item":"${SITE}/${m}-price"},{"@type":"ListItem","position":3,"name":"History","item":"${url}"}]}]}</script>
 <script type="application/ld+json">${JSON.stringify(faqObj)}</script>
 <script type="application/ld+json">${JSON.stringify(itemList)}</script>
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="/assets/site.css?v=10">
 <style>.yr-table{width:100%;border-collapse:collapse;margin:6px 0;font-size:14px;}.yr-table th,.yr-table td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;}.yr-table th.n,.yr-table td.n{text-align:right;font-family:var(--font-mono);}.yr-table thead th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);}.answer{font-size:16px;line-height:1.65;background:var(--surface-2);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--radius-sm);padding:13px 16px;margin:4px 0 14px;}</style>
 </head>
