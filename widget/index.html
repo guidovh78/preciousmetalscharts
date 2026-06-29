@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Live metals price widget — preciousmetalscharts</title>
+<style>
+  :root{
+    --bg:#FFFFFF;--surf:#FAFAF8;--ink:#17191E;--muted:#6B7177;--faint:#9AA0A6;--line:#E5E6E2;
+    --accent:#9A7322;--up:#1A7F5A;--down:#C2453A;
+    --gold:#C19A2E;--silver:#8C9298;--platinum:#9FB1BB;--palladium:#B8997A;
+  }
+  html[data-theme="dark"]{
+    --bg:#16181D;--surf:#1B1E24;--ink:#ECEDEA;--muted:#8A9099;--faint:#5E646C;--line:#24272E;
+    --accent:#D4A24E;--up:#46B488;--down:#E0685C;
+    --gold:#D4A93C;--silver:#A6ADB4;--platinum:#AFC3CE;--palladium:#CDAE8E;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:transparent;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:var(--ink);}
+  .mono{font-family:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums;}
+  .w{background:var(--bg);border:1px solid var(--line);border-radius:12px;overflow:hidden;max-width:520px;margin:0 auto;}
+  .hd{display:flex;align-items:center;gap:7px;padding:10px 13px;border-bottom:1px solid var(--line);}
+  .hd .dot{width:7px;height:7px;border-radius:50%;background:var(--up);box-shadow:0 0 0 0 rgba(26,127,90,.5);animation:pulse 2.4s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(26,127,90,.45);}70%{box-shadow:0 0 0 6px rgba(26,127,90,0);}100%{box-shadow:0 0 0 0 rgba(26,127,90,0);}}
+  .hd .brand{font-size:13px;font-weight:600;letter-spacing:-.01em;}
+  .hd .brand b{color:var(--accent);font-weight:600;}
+  .hd .live{margin-left:auto;font-size:9.5px;letter-spacing:.08em;color:var(--accent);border:1px solid var(--line);border-radius:5px;padding:2px 6px;}
+  .rows{padding:3px 0;}
+  .r{display:flex;align-items:center;gap:10px;padding:9px 13px;border-bottom:1px solid var(--line);}
+  .r:last-child{border-bottom:0;}
+  .r .nm{display:flex;align-items:center;gap:8px;font-size:13.5px;flex:1;}
+  .r .nm i{width:8px;height:8px;border-radius:50%;display:inline-block;}
+  .r .px{font-size:14px;font-weight:600;}
+  .r .ch{font-size:12px;font-weight:600;width:74px;text-align:right;}
+  .r .ch.up{color:var(--up);} .r .ch.down{color:var(--down);} .r .ch.flat{color:var(--muted);}
+  .ft{display:block;padding:8px 13px;background:var(--surf);border-top:1px solid var(--line);font-size:11px;color:var(--muted);text-decoration:none;}
+  .ft:hover{color:var(--accent);}
+  .ft b{color:var(--accent);font-weight:600;}
+</style>
+</head>
+<body>
+<div class="w">
+  <div class="hd"><span class="dot"></span><span class="brand">preciousmetals<b>charts</b></span><span class="live">LIVE</span></div>
+  <div class="rows mono" id="rows"><div class="r"><span class="nm">Loading…</span></div></div>
+  <a class="ft" id="ft" href="https://preciousmetalscharts.com/?utm_source=widget&amp;utm_medium=embed" target="_blank" rel="noopener">Spot · ~10&nbsp;min delayed · <b>view live charts →</b></a>
+</div>
+<script>
+(function(){
+  var P=new URLSearchParams(location.search);
+  var META={gold:{n:'Gold',c:'var(--gold)'},silver:{n:'Silver',c:'var(--silver)'},platinum:{n:'Platinum',c:'var(--platinum)'},palladium:{n:'Palladium',c:'var(--palladium)'}};
+  var ALL=['gold','silver','platinum','palladium'];
+  var metals=(P.get('metals')||'gold,silver,platinum,palladium').split(',').map(function(s){return s.trim();}).filter(function(m){return META[m];});
+  if(!metals.length)metals=ALL.slice();
+  var ccy=(P.get('currency')||'USD').toUpperCase();
+  var theme=(P.get('theme')||'auto').toLowerCase();
+  function applyTheme(){var t=theme;if(t==='auto')t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light';document.documentElement.setAttribute('data-theme',t);}
+  applyTheme();
+  if(theme==='auto'&&window.matchMedia){try{window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change',applyTheme);}catch(e){}}
+  // utm + currency on the footer link
+  var ft=document.getElementById('ft');
+  var rates={USD:1};
+  function fmt(v){try{return new Intl.NumberFormat('en-US',{style:'currency',currency:ccy,maximumFractionDigits:(ccy==='JPY'?0:2)}).format(v);}catch(e){return '$'+v.toFixed(2);}}
+  function pct(n){return (n>=0?'▲ +':'▼ ')+Math.abs(n).toFixed(2)+'%';}
+  function render(snap){
+    var rate=rates[ccy]||1;
+    var html='';
+    metals.forEach(function(m){
+      var d=snap&&snap.metals&&snap.metals[m];if(!d||d.price==null)return;
+      var chg=d.changePct==null?0:d.changePct, flat=Math.abs(chg)<0.005;
+      html+='<div class="r"><span class="nm"><i style="background:'+META[m].c+'"></i>'+META[m].n+'</span>'
+        +'<span class="px">'+fmt(d.price*rate)+'</span>'
+        +'<span class="ch '+(flat?'flat':(chg>=0?'up':'down'))+'">'+(flat?'0.00%':pct(chg))+'</span></div>';
+    });
+    document.getElementById('rows').innerHTML=html||'<div class="r"><span class="nm">Unavailable</span></div>';
+  }
+  function load(){
+    fetch('/prices.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(s){
+      if(!s)return;
+      if(s.fx&&s.fx.rates)rates=s.fx.rates;else if(s.fx&&s.fx.eur)rates={USD:1,EUR:s.fx.eur};
+      if(!rates.USD)rates.USD=1; if(!rates[ccy])ccy='USD';
+      render(s);
+    }).catch(function(){});
+  }
+  load();setInterval(load,60000);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)load();});
+})();
+</script>
+</body>
+</html>

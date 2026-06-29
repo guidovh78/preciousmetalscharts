@@ -56,6 +56,8 @@
 - [Where to buy gold & silver](https://preciousmetalscharts.com/buy): independent guide to
   buying — physical coins and bars, vaulted (allocated) metal and savings plans — with
   premiums, storage and how to compare providers.
+- [Price widget](https://preciousmetalscharts.com/embed): a free, embeddable live gold/silver/
+  platinum/palladium price widget for any website (iframe, no account, auto-updating).
 - Trust & policy: [About](https://preciousmetalscharts.com/about),
   [Methodology](https://preciousmetalscharts.com/methodology),
   [Disclaimer](https://preciousmetalscharts.com/disclaimer),
