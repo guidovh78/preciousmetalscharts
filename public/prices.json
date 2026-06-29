@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-28T20:44:39.850Z",
+  "updatedAt": "2026-06-29T08:56:46.955Z",
   "delayedMinutes": 10,
   "base": "USD",
   "unit": "troy_oz",
@@ -9,23 +9,23 @@
   ],
   "metals": {
     "gold": {
-      "price": 4090.600098,
-      "open": 4090.600098,
+      "price": 4051.199951,
+      "open": 4051.199951,
       "changePct": 0
     },
     "silver": {
-      "price": 59.298,
-      "open": 59.298,
+      "price": 58.159,
+      "open": 58.159,
       "changePct": 0
     },
     "platinum": {
-      "price": 1625,
-      "open": 1625,
+      "price": 1608,
+      "open": 1608,
       "changePct": 0
     },
     "palladium": {
-      "price": 1228,
-      "open": 1228,
+      "price": 1251,
+      "open": 1251,
       "changePct": 0
     }
   },
@@ -33,6 +33,18 @@
   "stale": false,
   "fx": {
     "base": "USD",
-    "eur": 0.87802
+    "eur": 0.87825,
+    "rates": {
+      "USD": 1,
+      "EUR": 0.878247,
+      "GBP": 0.757693,
+      "JPY": 161.766947,
+      "CNY": 6.803731,
+      "AUD": 1.450006,
+      "CAD": 1.418861,
+      "CHF": 0.809911,
+      "HKD": 7.84203,
+      "SGD": 1.294141
+    }
   }
 }
