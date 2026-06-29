@@ -50,6 +50,18 @@
 }
 </script>
 <link rel="stylesheet" href="/assets/site.css?v=10">
+<style>
+  .liveapp{display:flex;gap:18px;align-items:center;background:var(--accent-soft);border:1px solid var(--accent);border-radius:var(--radius);padding:18px 20px;margin:16px 0 4px;}
+  .liveapp-ic{width:64px;height:64px;flex:none;border-radius:15px;overflow:hidden;box-shadow:0 2px 7px rgba(0,0,0,.14);}
+  .liveapp-ic svg{display:block;width:100%;height:100%;}
+  .liveapp .tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:600;}
+  .liveapp h2{margin:6px 0 5px;font-size:18px;letter-spacing:-.01em;}
+  .liveapp p{margin:0 0 12px;font-size:13.5px;line-height:1.55;color:var(--muted);max-width:62ch;}
+  .liveapp .cta{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .liveapp .cta a.btn-primary{text-decoration:none;}
+  .liveapp .hint{font-size:12.5px;color:var(--muted);}
+  @media(max-width:560px){.liveapp{flex-direction:column;align-items:flex-start;}}
+</style>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -142,6 +154,36 @@
       <button class="metal" aria-pressed="false" style="--mc:var(--platinum)"><div class="metal-head"><span class="metal-name"><span class="dot"></span>Platinum</span><span class="metal-sym">XPT</span></div><div class="metal-price">$1,610.59</div><div class="metal-meta"><span class="chg up">▲ +0.34%</span><span class="unit">per troy oz</span></div></button>
       <button class="metal" aria-pressed="false" style="--mc:var(--palladium)"><div class="metal-head"><span class="metal-name"><span class="dot"></span>Palladium</span><span class="metal-sym">XPD</span></div><div class="metal-price">$1,192.11</div><div class="metal-meta"><span class="chg up">▲ +0.12%</span><span class="unit">per troy oz</span></div></button>
     </div>
+
+    <aside class="liveapp" aria-label="Live prices on your phone">
+      <div class="liveapp-ic">
+        <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="laBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBFAF7"/><stop offset="1" stop-color="#E7E6DF"/></linearGradient>
+            <linearGradient id="laGold" x1="0.15" y1="0" x2="0.4" y2="1"><stop offset="0" stop-color="#E0BC63"/><stop offset="0.5" stop-color="#B5882B"/><stop offset="1" stop-color="#8A6419"/></linearGradient>
+            <filter id="laLift" x="-25%" y="-25%" width="150%" height="160%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#4A3C16" flood-opacity="0.30"/></filter>
+          </defs>
+          <rect width="512" height="512" fill="url(#laBg)"/>
+          <g transform="translate(256,256) scale(0.84) translate(-256,-256)">
+            <g filter="url(#laLift)">
+              <path d="M128 344 L212 288 L288 320 L388 168" fill="none" stroke="url(#laGold)" stroke-width="30" stroke-linejoin="round" stroke-linecap="round"/>
+              <rect x="360" y="138" width="60" height="60" rx="16" fill="url(#laGold)"/>
+            </g>
+            <path d="M128 341 L212 285 L288 317 L388 165" fill="none" stroke="#F0DCA0" stroke-opacity="0.45" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+            <rect x="366" y="143" width="48" height="12" rx="6" fill="#F0DCA0" fill-opacity="0.45"/>
+          </g>
+        </svg>
+      </div>
+      <div>
+        <span class="tag"><span class="livedot"></span>Live</span>
+        <h2>Keep live prices on your phone</h2>
+        <p>An always-on page with gold, silver, platinum &amp; palladium in 10 currencies and per gram, ounce or kilo — ~10 min delayed, auto-refreshing, with charts. Add it to your home screen and it opens like an app.</p>
+        <div class="cta">
+          <a class="btn-primary" href="https://live.preciousmetalscharts.com/">Open live prices →</a>
+          <span class="hint">On your phone: tap <b>Share</b> → <b>Add to Home Screen</b></span>
+        </div>
+      </div>
+    </aside>
 
     <div class="related" style="margin:12px 0 2px"><a href="/gold-price">Gold price</a><a href="/silver-price">Silver price</a><a href="/platinum-price">Platinum price</a><a href="/palladium-price">Palladium price</a></div>
     <div class="grid">
