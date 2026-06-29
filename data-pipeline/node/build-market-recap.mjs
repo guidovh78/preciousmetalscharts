@@ -210,7 +210,7 @@ const html = `<!DOCTYPE html>
 <script type="application/ld+json">${schema}</script>
 <script type="application/ld+json">${crumb}</script>
 <link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="stylesheet" href="/assets/site.css?v=10">
+<link rel="stylesheet" href="/assets/site.css?v=11">
 <style>
   .rc-updated{font-family:var(--font-mono);font-size:12px;color:var(--muted);}
   .rc-lead{font-size:16px;line-height:1.6;margin:6px 0 14px;}

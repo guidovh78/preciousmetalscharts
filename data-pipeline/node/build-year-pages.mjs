@@ -104,7 +104,7 @@ const head = (m, year, s, descr, faq, dataset) => {
 <script type="application/ld+json">${faq}</script>
 <script type="application/ld+json">${dataset}</script>
 <link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="stylesheet" href="/assets/site.css?v=10">
+<link rel="stylesheet" href="/assets/site.css?v=11">
 <style>.yr-table{width:100%;border-collapse:collapse;margin:6px 0 4px;font-size:14.5px;}.yr-table th,.yr-table td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);}.yr-table td.n,.yr-table th.n{text-align:right;font-family:var(--font-mono);}.yr-table tr:last-child td{border-bottom:0;}.answer{font-size:16px;line-height:1.65;background:var(--surface-2);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--radius-sm);padding:13px 16px;margin:4px 0 14px;}.yr-prevnext{display:flex;justify-content:space-between;gap:10px;margin:8px 0;}.yr-prevnext a{font-family:var(--font-mono);font-size:13px;color:var(--accent);text-decoration:none;}</style>
 </head>
 <body>`;
@@ -257,7 +257,7 @@ function renderHub(m, yearsWithData) {
 <script type="application/ld+json">${JSON.stringify(faqObj)}</script>
 <script type="application/ld+json">${JSON.stringify(itemList)}</script>
 <link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="stylesheet" href="/assets/site.css?v=10">
+<link rel="stylesheet" href="/assets/site.css?v=11">
 <style>.yr-table{width:100%;border-collapse:collapse;margin:6px 0;font-size:14px;}.yr-table th,.yr-table td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;}.yr-table th.n,.yr-table td.n{text-align:right;font-family:var(--font-mono);}.yr-table thead th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);}.answer{font-size:16px;line-height:1.65;background:var(--surface-2);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--radius-sm);padding:13px 16px;margin:4px 0 14px;}</style>
 </head>
 <body>`;
