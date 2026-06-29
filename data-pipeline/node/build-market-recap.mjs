@@ -1,11 +1,11 @@
-// build-market-recap.mjs — generate a server-rendered "Metals market recap" page.
+// build-market-recap.mjs — generate an in-depth, server-rendered "Metals market recap".
 // ---------------------------------------------------------------------------------------
-// Reads the static price snapshot + history archive and writes a fully-rendered, site-styled
-// market-recap.html: the recap text + numbers are baked into the HTML (good for SEO/GEO),
-// not loaded by JS. A GitHub Action runs this daily and uploads the page. This only DISPLAYS
-// our own data on our own site — no third-party data is redistributed. Factual only, no advice.
+// Reads our own snapshot + history archive (+ optional FRED macro CSVs) and writes a fully
+// rendered, site-styled market-recap.html. All text/numbers are baked into the HTML (SEO/GEO).
+// Only DISPLAYS our own data; FRED macro data is public domain. Factual only — "what to watch"
+// is reference levels + historical tendencies, never advice or a price forecast.
 //
-//   DATA_DIR=./public OUT=market-recap.html node build-market-recap.mjs
+//   DATA_DIR=./data OUT=market-recap.html node build-market-recap.mjs
 // ---------------------------------------------------------------------------------------
 
 import { readFile, writeFile } from 'node:fs/promises';
@@ -23,16 +23,27 @@ const META = {
   palladium: { name: 'Palladium', sym: 'XPD', color: '#B8997A' },
 };
 const ALL = ['gold', 'silver', 'platinum', 'palladium'];
-const DAYS = { daily: 1, weekly: 7, monthly: 30 };
-const PNOUN = { daily: 'day', weekly: 'week', monthly: 'month' };
-const periodDays = DAYS[PERIOD] || 7;
-const pnoun = PNOUN[PERIOD] || 'week';
+const periodDays = { daily: 1, weekly: 7, monthly: 30 }[PERIOD] || 7;
+const pnoun = { daily: 'day', weekly: 'week', monthly: 'month' }[PERIOD] || 'week';
 
 async function tryJSON(p) { try { return JSON.parse(await readFile(p, 'utf8')); } catch { return null; } }
+async function tryCSV(p) {
+  try {
+    const raw = await readFile(p, 'utf8');
+    const out = [];
+    for (const line of raw.split('\n').slice(1)) {
+      const [d, v] = line.split(',');
+      if (!d) continue; const n = Number(v);
+      if (Number.isFinite(n)) out.push([d.trim(), n]);
+    }
+    return out;
+  } catch { return null; }
+}
 
 const snap = await tryJSON(`${DATA}/prices.json`);
 if (!snap || !snap.metals) { console.error('No prices.json in ' + DATA); process.exit(1); }
 const refDate = new Date(snap.updatedAt && !isNaN(Date.parse(snap.updatedAt)) ? snap.updatedAt : Date.now());
+const rates = (snap.fx && snap.fx.rates) || { USD: 1 };
 
 const hist = {};
 for (const m of ALL) {
@@ -41,79 +52,146 @@ for (const m of ALL) {
     monthly: (await tryJSON(`${DATA}/history/${m}-50y.json`))?.points || null,
   };
 }
+const macro = {
+  dxy: await tryCSV(`${DATA}/macro/DTWEXBGS.csv`),
+  real10: await tryCSV(`${DATA}/macro/DFII10.csv`),
+  cpi: await tryCSV(`${DATA}/macro/CPIAUCSL.csv`),
+  nom10: await tryCSV(`${DATA}/macro/DGS10.csv`),
+};
 
 const isoDaysAgo = (n) => { const d = new Date(refDate); d.setDate(d.getDate() - n); return d.toISOString().slice(0, 10); };
-const closeAtOrBefore = (pts, iso) => { if (!pts) return null; let v = pts.length ? pts[0][1] : null; for (const p of pts) { if (p[0] <= iso) v = p[1]; else break; } return v; };
-const cutISO = isoDaysAgo(periodDays);
-
-const data = {};
-for (const m of ALL) {
-  const price = snap.metals[m]?.price;
-  if (price == null) continue;
-  const daily = hist[m].daily, monthly = hist[m].monthly;
-  const past = daily ? closeAtOrBefore(daily, cutISO) : null;
-  const periodPct = (past && past > 0) ? (price - past) / past * 100 : (snap.metals[m].changePct ?? null);
-  const yrAgo = daily && daily.length ? daily[0][1] : (monthly ? closeAtOrBefore(monthly, isoDaysAgo(365)) : null);
-  const yrPct = (yrAgo && yrAgo > 0) ? (price - yrAgo) / yrAgo * 100 : null;
-  const recordHigh = Math.max(price, ...(monthly || []).map((p) => p[1]), ...(daily || []).map((p) => p[1]));
-  data[m] = { price, periodPct, yrPct, recordHigh, past };
-}
-
-const rNow = (data.gold && data.silver) ? data.gold.price / data.silver.price : null;
-const rPast = (data.gold?.past && data.silver?.past) ? data.gold.past / data.silver.past : null;
-let rAvg = null;
-if (hist.gold.monthly && hist.silver.monthly) {
-  const sm = new Map(hist.silver.monthly.map((p) => [p[0], p[1]])); let sum = 0, n = 0;
-  for (const [d, gp] of hist.gold.monthly) { const sp = sm.get(d); if (sp) { sum += gp / sp; n++; } }
-  rAvg = n ? sum / n : null;
-}
+const atOrBefore = (pts, iso) => { if (!pts || !pts.length) return null; let v = pts[0][1]; for (const p of pts) { if (p[0] <= iso) v = p[1]; else break; } return v; };
+const atOrAfter = (pts, iso) => { if (!pts) return null; for (const p of pts) if (p[0] >= iso) return p[1]; return null; };
+const lastVal = (pts) => (pts && pts.length) ? pts[pts.length - 1][1] : null;
+const pct = (now, then) => (now != null && then) ? (now - then) / then * 100 : null;
 
 const fmtP = (v) => v == null ? '—' : '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const pctTxt = (n) => n == null ? '—' : (n >= 0 ? '+' : '−') + Math.abs(n).toFixed(1) + '%';
-const arrow = (n) => n == null ? '' : (n >= 0 ? '▲ ' : '▼ ');
-const colcls = (n) => n == null ? '' : (n >= 0 ? 'up' : 'down');
+const fmtCur = (v, code) => { if (v == null) return '—'; try { return new Intl.NumberFormat('en-US', { style: 'currency', currency: code, maximumFractionDigits: code === 'JPY' ? 0 : 2 }).format(v); } catch { return v.toFixed(2); } };
+const sp = (n, dp = 1) => n == null ? '—' : (n >= 0 ? '+' : '−') + Math.abs(n).toFixed(dp) + '%';
+const arr = (n) => n == null ? '' : (n >= 0 ? '▲ ' : '▼ ');
+const cc = (n) => n == null ? '' : (n >= 0 ? 'up' : 'down');
 
-const ranked = ALL.filter((m) => data[m]?.yrPct != null).sort((a, b) => data[b].yrPct - data[a].yrPct);
-const leader = ranked[0], laggard = ranked[ranked.length - 1];
+function downsample(pts, n) { if (!pts || pts.length <= n) return pts || []; const out = [], step = (pts.length - 1) / (n - 1); for (let i = 0; i < n; i++) out.push(pts[Math.round(i * step)]); return out; }
+function spark(pts, color) {
+  const d0 = downsample(pts, 56); if (!d0 || d0.length < 2) return '';
+  const v = d0.map((p) => p[1]), mn = Math.min(...v), mx = Math.max(...v), rg = (mx - mn) || 1, w = 150, h = 38, pad = 3, n = v.length;
+  let path = '';
+  for (let i = 0; i < n; i++) { const x = (pad + i / (n - 1) * (w - 2 * pad)).toFixed(1), y = (h - pad - (v[i] - mn) / rg * (h - 2 * pad)).toFixed(1); path += (i ? ' L' : 'M') + x + ' ' + y; }
+  const up = v[n - 1] >= v[0];
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><path d="${path}" fill="none" stroke="${color}" stroke-width="1.7" stroke-linejoin="round"/></svg>`;
+}
 
-const sel = ALL.filter((m) => data[m]?.periodPct != null);
-const ups = sel.filter((m) => data[m].periodPct >= 0).length;
+// ---- per-metal data ----
+const yearStart = refDate.getUTCFullYear() + '-01-01';
+const d = {};
+for (const m of ALL) {
+  const price = snap.metals[m]?.price; if (price == null) continue;
+  const dy = hist[m].daily, mo = hist[m].monthly;
+  const all = [...(mo || []), ...(dy || [])];
+  const ath = Math.max(price, ...all.map((p) => p[1]));
+  const yr = dy && dy.length ? dy[0][1] : atOrBefore(mo, isoDaysAgo(365));
+  const dvals = (dy || []).map((p) => p[1]);
+  const hi52 = dvals.length ? Math.max(...dvals, price) : null, lo52 = dvals.length ? Math.min(...dvals, price) : null;
+  const last7 = (dy || []).slice(-7).map((p) => p[1]); if (last7.length) last7.push(price);
+  d[m] = {
+    price,
+    day: snap.metals[m].changePct ?? null,
+    week: pct(price, atOrBefore(dy, isoDaysAgo(7))),
+    month: pct(price, atOrBefore(dy, isoDaysAgo(30))),
+    ytd: pct(price, atOrAfter(dy, yearStart)),
+    yr: pct(price, yr),
+    y5: pct(price, atOrBefore(mo, isoDaysAgo(365 * 5))),
+    hi52, lo52, posIn52: (hi52 != null && hi52 > lo52) ? (price - lo52) / (hi52 - lo52) * 100 : null,
+    ath, fromAth: pct(price, ath),
+    wkHi: last7.length ? Math.max(...last7) : null, wkLo: last7.length ? Math.min(...last7) : null,
+    spark: spark(dy, META[m].color),
+    period: pct(price, atOrBefore(dy, isoDaysAgo(periodDays))),
+  };
+}
+
+// ---- ratio (gold/silver) + percentile vs 50y ----
+const rNow = (d.gold && d.silver) ? d.gold.price / d.silver.price : null;
+const rPast = (atOrBefore(hist.gold.daily, isoDaysAgo(periodDays)) && atOrBefore(hist.silver.daily, isoDaysAgo(periodDays))) ? atOrBefore(hist.gold.daily, isoDaysAgo(periodDays)) / atOrBefore(hist.silver.daily, isoDaysAgo(periodDays)) : null;
+let rAvg = null, rMin = null, rMax = null, rPctile = null;
+if (hist.gold.monthly && hist.silver.monthly) {
+  const sm = new Map(hist.silver.monthly.map((p) => [p[0], p[1]])); const series = [];
+  for (const [dt, gp] of hist.gold.monthly) { const spv = sm.get(dt); if (spv) series.push(gp / spv); }
+  if (series.length) { rAvg = series.reduce((a, b) => a + b, 0) / series.length; rMin = Math.min(...series); rMax = Math.max(...series); if (rNow != null) rPctile = Math.round(series.filter((x) => x <= rNow).length / series.length * 100); }
+}
+const gpRatio = (d.gold && d.platinum) ? d.gold.price / d.platinum.price : null;
+
+// ---- leaders ----
+const byYr = ALL.filter((m) => d[m]?.yr != null).sort((a, b) => d[b].yr - d[a].yr);
+const leaderY = byYr[0], laggardY = byYr[byYr.length - 1];
+const byWk = ALL.filter((m) => d[m]?.period != null).sort((a, b) => d[b].period - d[a].period);
+const topW = byWk[0], botW = byWk[byWk.length - 1];
+
+// ---- macro (FRED) ----
+function macroPoint(series, code) {
+  if (!series || !series.length) return null;
+  const latest = lastVal(series), latestDate = series[series.length - 1][0];
+  const wk = atOrBefore(series, isoDaysAgo(7));
+  return { latest, wk, latestDate };
+}
+const mDxy = macroPoint(macro.dxy), mReal = macroPoint(macro.real10), mNom = macroPoint(macro.nom10);
+let cpiYoY = null, cpiDate = null;
+if (macro.cpi && macro.cpi.length) { const latest = lastVal(macro.cpi); const yrAgo = atOrBefore(macro.cpi, isoDaysAgo(365)); cpiYoY = pct(latest, yrAgo); cpiDate = macro.cpi[macro.cpi.length - 1][0]; }
+
+// ---- narrative ----
+const sel = ALL.filter((m) => d[m]?.period != null);
+const ups = sel.filter((m) => d[m].period >= 0).length;
 const tone = sel.length === 0 ? 'mixed' : ups === sel.length ? 'broadly firmer' : ups === 0 ? 'softer' : 'mixed';
-const byMove = [...sel].sort((a, b) => data[b].periodPct - data[a].periodPct);
-const top = byMove[0], bottom = byMove[byMove.length - 1];
 let narrative = '';
-if (top) narrative += `${META[top].name} ${data[top].periodPct >= 0 ? 'led' : 'fell least in'} a ${tone} ${pnoun}`;
-if (bottom && bottom !== top) narrative += `, while ${META[bottom].name.toLowerCase()} ${data[bottom].periodPct >= 0 ? 'lagged' : 'slipped'}`;
-if (rNow != null) { const dir = (rPast != null) ? (rNow < rPast - 0.2 ? 'compressed' : rNow > rPast + 0.2 ? 'widened' : 'held') : 'stood'; narrative += `. The gold-to-silver ratio ${dir} to ${rNow.toFixed(1)}`; }
+if (topW) narrative += `${META[topW].name} ${d[topW].period >= 0 ? 'led' : 'fell least in'} a ${tone} ${pnoun}`;
+if (botW && botW !== topW) narrative += `, while ${META[botW].name.toLowerCase()} ${d[botW].period >= 0 ? 'lagged' : 'slipped'}`;
+if (rNow != null) { const dir = rPast != null ? (rNow < rPast - 0.2 ? 'compressed' : rNow > rPast + 0.2 ? 'widened' : 'held') : 'stood'; narrative += `. The gold-to-silver ratio ${dir} to ${rNow.toFixed(1)}`; }
 narrative += '.';
 
-const bullets = [];
-if (data.gold) { const d = (data.gold.recordHigh - data.gold.price) / data.gold.recordHigh * 100; bullets.push(d < 0.5 ? 'Gold is trading at or near a record high.' : `Gold sits about ${d < 10 ? d.toFixed(1) : Math.round(d)}% below its record high.`); }
-if (leader && data[leader].yrPct != null) bullets.push(`${META[leader].name} is the 12-month leader, ${data[leader].yrPct >= 0 ? 'up' : 'down'} ~${Math.abs(data[leader].yrPct).toFixed(0)}%.`);
-if (laggard && laggard !== leader && data[laggard].yrPct != null) bullets.push(`${META[laggard].name} is the laggard, ${data[laggard].yrPct >= 0 ? 'up' : 'down'} ~${Math.abs(data[laggard].yrPct).toFixed(0)}% on the year.`);
-if (rNow != null && rAvg != null) bullets.push(`The gold-to-silver ratio (${rNow.toFixed(1)}) is ${rNow < rAvg ? 'below' : 'above'} its long-run average (~${rAvg.toFixed(0)}).`);
-
-const end = new Date(refDate); const start = new Date(refDate); start.setDate(start.getDate() - periodDays);
+const end = new Date(refDate), start = new Date(refDate); start.setDate(start.getDate() - periodDays);
 const opt = { day: 'numeric', month: 'short' };
 const dateRange = `${start.toLocaleDateString('en-GB', opt)} – ${end.toLocaleDateString('en-GB', { ...opt, year: 'numeric' })}`;
-const isoDate = refDate.toISOString().slice(0, 10);
 const longDate = end.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
-const rows = ALL.filter((m) => data[m]).map((m) => {
-  const d = data[m];
-  return `<tr><td><span class="dot" style="background:${META[m].color}"></span>${META[m].name} <span class="sym">${META[m].sym}</span></td><td class="num">${fmtP(d.price)}</td><td class="num ${colcls(d.periodPct)}">${arrow(d.periodPct)}${pctTxt(d.periodPct)}</td><td class="num ${colcls(d.yrPct)}">${pctTxt(d.yrPct)}</td></tr>`;
+// ---- per-metal cards ----
+const tf = (label, v) => `<span class="tf"><span class="k">${label}</span><span class="val ${cc(v)}">${sp(v)}</span></span>`;
+const cards = ALL.filter((m) => d[m]).map((m) => {
+  const x = d[m];
+  const bar = (x.posIn52 != null) ? `<div class="r52"><div class="r52-track"><span class="r52-dot" style="left:${x.posIn52.toFixed(0)}%"></span></div><div class="r52-lab"><span>52-wk low ${fmtP(x.lo52)}</span><span>high ${fmtP(x.hi52)}</span></div></div>` : '';
+  return `<article class="mcard">
+    <div class="mc-top"><span class="mc-name"><span class="dot" style="background:${META[m].color}"></span>${META[m].name} <span class="sym">${META[m].sym}</span></span><span class="mc-price">${fmtP(x.price)}</span></div>
+    <div class="mc-day ${cc(x.day)}">${arr(x.day)}${sp(x.day, 2)} <span class="mc-daylab">today</span></div>
+    ${x.spark}
+    <div class="tfrow">${tf('1W', x.week)}${tf('1M', x.month)}${tf('YTD', x.ytd)}${tf('1Y', x.yr)}${tf('5Y', x.y5)}</div>
+    ${bar}
+    <div class="mc-foot">${x.fromAth != null && x.fromAth > -0.5 ? 'At/near its record high.' : 'About ' + Math.abs(x.fromAth).toFixed(0) + '% below its record high.'} <a href="${SITE}/${m}-price">full chart →</a></div>
+  </article>`;
 }).join('');
 
-const faqText = `${narrative} ${bullets.join(' ')}`.replace(/"/g, '\\"');
-const schema = JSON.stringify({
-  '@context': 'https://schema.org', '@type': 'Article',
-  headline: `Metals market recap — ${dateRange}`,
-  description: narrative,
-  datePublished: refDate.toISOString(), dateModified: refDate.toISOString(),
-  author: { '@type': 'Organization', name: 'preciousmetalscharts', url: SITE + '/' },
-  publisher: { '@id': SITE + '/#org' },
-  isAccessibleForFree: true, inLanguage: 'en',
-});
+// ---- currencies row (gold in other currencies) ----
+const curRow = (d.gold && rates) ? ['EUR', 'GBP', 'JPY', 'CNY'].filter((c) => rates[c]).map((c) => `<span>${fmtCur(d.gold.price * rates[c], c)}</span>`).join('') : '';
+
+// ---- "what to watch" (factual reference points) ----
+const watch = [];
+if (d.gold) watch.push(`<b>Gold:</b> record high near ${fmtP(d.gold.ath)} (about ${Math.abs(d.gold.fromAth).toFixed(0)}% away); 52-week range ${fmtP(d.gold.lo52)}–${fmtP(d.gold.hi52)}.`);
+if (rNow != null && rMin != null) watch.push(`<b>Gold-to-silver ratio:</b> ${rNow.toFixed(1)} now${rPctile != null ? ` (${rPctile}th percentile of the last 50 years)` : ''}; historical range ${rMin.toFixed(0)}–${rMax.toFixed(0)}. Readings above ~80 have historically marked silver as cheap versus gold.`);
+if (mDxy && mDxy.latest != null) watch.push(`<b>US dollar &amp; real yields:</b> gold has historically moved inversely to the dollar and to real interest rates — the broad dollar index and the 10-year real yield are the macro levels to watch (below).`);
+
+// ---- notable ----
+const notable = [];
+if (topW && d[topW]) notable.push(`${META[topW].name} was the biggest mover this ${pnoun} (${arr(d[topW].period)}${sp(d[topW].period)}).`);
+for (const m of ALL) { if (d[m] && d[m].hi52 != null && d[m].price >= d[m].hi52 - 1e-6) notable.push(`${META[m].name} is at a fresh 52-week high.`); }
+if (d.gold && d.gold.fromAth > -0.5) notable.push('Gold is at or near an all-time high.');
+
+// ---- macro section ----
+let macroHTML = '';
+const macroBits = [];
+if (mDxy && mDxy.latest != null) macroBits.push(`<div class="mb"><div class="mb-k">US dollar index (broad)</div><div class="mb-v">${mDxy.latest.toFixed(1)} <small class="${cc(pct(mDxy.latest, mDxy.wk))}">${sp(pct(mDxy.latest, mDxy.wk))} wk</small></div><div class="mb-n">Gold has historically moved inversely to the dollar.</div></div>`);
+if (mReal && mReal.latest != null) { const ch = (mReal.wk != null) ? (mReal.latest - mReal.wk) * 100 : null; macroBits.push(`<div class="mb"><div class="mb-k">10-yr real yield</div><div class="mb-v">${mReal.latest.toFixed(2)}% <small class="${ch == null ? '' : (ch <= 0 ? 'up' : 'down')}">${ch == null ? '' : (ch >= 0 ? '+' : '−') + Math.abs(ch).toFixed(0) + 'bp wk'}</small></div><div class="mb-n">Gold tends to move inversely to real yields.</div></div>`); }
+if (cpiYoY != null) macroBits.push(`<div class="mb"><div class="mb-k">Inflation (CPI, YoY)</div><div class="mb-v">${cpiYoY.toFixed(1)}%</div><div class="mb-n">Gold is often discussed as an inflation hedge — see our <a href="${SITE}/purchasing-power-calculator">purchasing-power tool</a>.</div></div>`);
+if (mNom && mNom.latest != null) macroBits.push(`<div class="mb"><div class="mb-k">10-yr Treasury yield</div><div class="mb-v">${mNom.latest.toFixed(2)}%</div><div class="mb-n">The nominal benchmark rate.</div></div>`);
+if (macroBits.length) macroHTML = `<section class="sec"><div class="sec-head"><span class="sec-num">04</span><h2>Macro backdrop</h2></div><p class="sub" style="margin-top:0">The forces that historically drive metals. These are <b>historical tendencies, shown as context — not predictions or advice.</b></p><div class="mb-grid">${macroBits.join('')}</div><p class="faq-meta">Macro data: U.S. Federal Reserve (FRED), public domain. Relationships are long-run tendencies, not rules.</p></section>`;
+
+const schema = JSON.stringify({ '@context': 'https://schema.org', '@type': 'Article', headline: `Metals market recap — ${dateRange}`, description: narrative, datePublished: refDate.toISOString(), dateModified: refDate.toISOString(), author: { '@type': 'Organization', name: 'preciousmetalscharts', url: SITE + '/' }, publisher: { '@id': SITE + '/#org' }, isAccessibleForFree: true, inLanguage: 'en' });
 const crumb = JSON.stringify({ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: SITE + '/' }, { '@type': 'ListItem', position: 2, name: 'Market recap', item: SITE + '/market-recap' }] });
 
 const html = `<!DOCTYPE html>
@@ -121,7 +199,7 @@ const html = `<!DOCTYPE html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Metals Market Recap (${dateRange}) — Gold, Silver, Platinum, Palladium | preciousmetalscharts</title>
-<meta name="description" content="${(narrative + ' Spot prices, the gold-to-silver ratio and where things stand. Updated ' + longDate + '.').replace(/"/g, '&quot;')}">
+<meta name="description" content="${(narrative + ' Multi-timeframe performance, the gold-to-silver ratio, the macro backdrop and key levels to watch. Updated ' + longDate + '.').replace(/"/g, '&quot;')}">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <link rel="canonical" href="${SITE}/market-recap">
 <meta name="author" content="preciousmetalscharts">
@@ -133,17 +211,27 @@ const html = `<!DOCTYPE html>
 <script type="application/ld+json">${crumb}</script>
 <link rel="stylesheet" href="/assets/site.css?v=10">
 <style>
-  .rc-table{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0 6px;}
-  .rc-table th,.rc-table td{text-align:left;padding:11px 10px;border-bottom:1px solid var(--line);}
-  .rc-table th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600;}
-  .rc-table td.num{font-family:var(--font-mono);text-align:right;white-space:nowrap;}
-  .rc-table .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px;}
-  .rc-table .sym{font-family:var(--font-mono);font-size:11px;color:var(--faint);}
-  .rc-table .up{color:var(--up);} .rc-table .down{color:var(--down);}
-  .rc-lead{font-size:16px;line-height:1.6;margin:6px 0 14px;}
-  .rc-ratio{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px;margin:6px 0 14px;}
-  .rc-ratio .v{font-family:var(--font-mono);font-size:20px;font-weight:600;}
   .rc-updated{font-family:var(--font-mono);font-size:12px;color:var(--muted);}
+  .rc-lead{font-size:16px;line-height:1.6;margin:6px 0 14px;}
+  .mcards{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:640px){.mcards{grid-template-columns:1fr;}}
+  .mcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;}
+  .mc-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+  .mc-name{font-size:15px;font-weight:500;} .mc-name .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;} .mc-name .sym{font-family:var(--font-mono);font-size:11px;color:var(--faint);}
+  .mc-price{font-family:var(--font-mono);font-size:18px;font-weight:600;}
+  .mc-day{font-family:var(--font-mono);font-size:12.5px;font-weight:600;margin-top:2px;} .mc-day.up{color:var(--up);} .mc-day.down{color:var(--down);} .mc-daylab{color:var(--muted);font-weight:400;}
+  .spark{display:block;width:100%;height:38px;margin:8px 0 4px;}
+  .tfrow{display:flex;flex-wrap:wrap;gap:6px 14px;margin:4px 0 8px;}
+  .tf{display:flex;flex-direction:column;} .tf .k{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);} .tf .val{font-family:var(--font-mono);font-size:12.5px;font-weight:600;} .tf .val.up{color:var(--up);} .tf .val.down{color:var(--down);}
+  .r52{margin:4px 0 8px;} .r52-track{position:relative;height:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;} .r52-dot{position:absolute;top:-3px;width:10px;height:10px;border-radius:50%;background:var(--accent);transform:translateX(-50%);} .r52-lab{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10.5px;color:var(--faint);margin-top:4px;}
+  .mc-foot{font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:8px;} .mc-foot a{color:var(--accent);text-decoration:none;}
+  .meso{display:flex;flex-wrap:wrap;gap:14px;}
+  .meso .card{flex:1;min-width:200px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:13px 15px;}
+  .meso .k{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);} .meso .v{font-family:var(--font-mono);font-size:20px;font-weight:600;margin:3px 0;} .meso .n{font-size:12.5px;color:var(--muted);line-height:1.5;}
+  .curline{font-family:var(--font-mono);font-size:13px;display:flex;gap:14px;flex-wrap:wrap;margin-top:4px;}
+  .mb-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;} @media(max-width:560px){.mb-grid{grid-template-columns:1fr;}}
+  .mb{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px;} .mb-k{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);} .mb-v{font-family:var(--font-mono);font-size:19px;font-weight:600;margin:3px 0;} .mb-v small{font-size:12px;font-weight:500;} .mb-v .up{color:var(--up);} .mb-v .down{color:var(--down);} .mb-n{font-size:12px;color:var(--muted);line-height:1.5;} .mb-n a{color:var(--accent);text-decoration:none;}
+  ul.watch{font-size:14px;line-height:1.75;padding-left:18px;margin:4px 0;} ul.watch li{margin:5px 0;}
 </style>
 </head>
 <body>
@@ -158,19 +246,36 @@ const html = `<!DOCTYPE html>
     <h1 class="lede">Metals market recap</h1>
     <div class="rc-updated">${dateRange} · spot, USD per troy oz · updated ${longDate}</div>
     <p class="rc-lead">${narrative}</p>
-    <div class="related"><a href="${LIVE}/">Live prices</a><a href="/gold-price">Gold</a><a href="/silver-price">Silver</a><a href="/ratio">Ratio</a><a href="/calculators">Calculators</a></div>
+    <div class="related"><a href="${LIVE}/">Live prices</a><a href="/ratio">Ratio</a><a href="/calculators">Calculators</a><a href="/dca-calculator">DCA backtest</a></div>
   </section>
 
   <section class="sec">
-    <div class="sec-head"><span class="sec-num">01</span><h2>This ${pnoun} at a glance</h2></div>
-    <table class="rc-table"><thead><tr><th>Metal</th><th style="text-align:right">Price</th><th style="text-align:right">${pnoun === 'week' ? '1-week' : pnoun === 'day' ? '1-day' : '1-month'}</th><th style="text-align:right">1-year</th></tr></thead><tbody>${rows}</tbody></table>
-    ${rNow != null ? `<div class="rc-ratio"><div style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">Gold-to-silver ratio</div><div class="v">${rNow.toFixed(1)}</div><div style="font-size:12.5px;color:var(--muted);margin-top:3px">${rAvg != null ? `${rNow < rAvg ? 'Below' : 'Above'} its long-run average of ~${rAvg.toFixed(0)} — the ounces of silver it takes to buy one ounce of gold.` : ''}</div></div>` : ''}
+    <div class="sec-head"><span class="sec-num">01</span><h2>The metals now</h2></div>
+    <div class="mcards">${cards}</div>
   </section>
 
   <section class="sec">
-    <div class="sec-head"><span class="sec-num">02</span><h2>Where it stands</h2></div>
-    <ul style="font-size:14px;line-height:1.8;color:var(--ink);padding-left:18px;margin:4px 0">${bullets.map((b) => `<li>${b}</li>`).join('')}</ul>
-    <p class="faq-meta">Figures are spot, ~10 minutes delayed, from our own price archive (deep history from World Bank commodity data, CC BY 4.0). Educational information only — not investment advice. Auto-generated ${longDate}.</p>
+    <div class="sec-head"><span class="sec-num">02</span><h2>The precious complex</h2></div>
+    <div class="meso">
+      ${rNow != null ? `<div class="card"><div class="k">Gold-to-silver ratio</div><div class="v">${rNow.toFixed(1)}</div><div class="n">${rPctile != null ? `${rPctile}th percentile of the last 50 years · ` : ''}${rAvg != null ? `long-run avg ~${rAvg.toFixed(0)}` : ''}${rMin != null ? ` (range ${rMin.toFixed(0)}–${rMax.toFixed(0)})` : ''}.</div></div>` : ''}
+      ${gpRatio != null ? `<div class="card"><div class="k">Gold-to-platinum ratio</div><div class="v">${gpRatio.toFixed(2)}</div><div class="n">Ounces of platinum per ounce of gold.</div></div>` : ''}
+      ${leaderY ? `<div class="card"><div class="k">12-month leader / laggard</div><div class="v" style="font-size:15px">${META[leaderY].name} ${sp(d[leaderY].yr, 0)} · ${META[laggardY].name} ${sp(d[laggardY].yr, 0)}</div><div class="n">Best and worst of the four over the past year.</div></div>` : ''}
+    </div>
+    ${curRow ? `<p class="sub" style="margin:12px 0 2px">Gold in other currencies</p><div class="curline">${curRow}</div>` : ''}
+  </section>
+
+  ${macroHTML}
+
+  <section class="sec">
+    <div class="sec-head"><span class="sec-num">05</span><h2>What to watch</h2></div>
+    <p class="sub" style="margin-top:0">Reference levels and historical tendencies — <b>not predictions or advice.</b></p>
+    <ul class="watch">${watch.map((w) => `<li>${w}</li>`).join('')}</ul>
+  </section>
+
+  ${notable.length ? `<section class="sec"><div class="sec-head"><span class="sec-num">06</span><h2>Notable this ${pnoun}</h2></div><ul class="watch">${notable.map((x) => `<li>${x}</li>`).join('')}</ul></section>` : ''}
+
+  <section class="sec">
+    <p class="faq-meta">Figures are spot, ~10 minutes delayed, from our own price archive (deep history from World Bank commodity data, CC BY 4.0); macro data from the U.S. Federal Reserve (FRED), public domain. Educational information only — not investment advice. Auto-generated ${longDate}.</p>
   </section>
 </main>
 <footer><div class="wrap foot">
@@ -183,4 +288,4 @@ const html = `<!DOCTYPE html>
 </body></html>`;
 
 await writeFile(OUT, html);
-console.error(`OK market-recap → ${OUT} · ${dateRange} · ratio ${rNow ? rNow.toFixed(1) : 'n/a'} · ${bullets.length} context lines`);
+console.error(`OK recap → ${OUT} · ${dateRange} · ratio ${rNow ? rNow.toFixed(1) : 'n/a'} (pctile ${rPctile}) · macro[dxy=${mDxy?.latest ?? 'n/a'} real=${mReal?.latest ?? 'n/a'} cpi=${cpiYoY != null ? cpiYoY.toFixed(1) : 'n/a'}] · ${cards ? ALL.filter((m) => d[m]).length : 0} metals`);

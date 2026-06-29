@@ -35,6 +35,14 @@ jobs:
             curl -fsS -o "data/history/$m-50y.json" "https://preciousmetalscharts.com/history/$m-50y.json" || true
           done
 
+      - name: Download macro data (FRED, public domain)
+        run: |
+          mkdir -p data/macro
+          # DTWEXBGS = broad USD index, DFII10 = 10y real yield, CPIAUCSL = CPI-U, DGS10 = 10y nominal
+          for s in DTWEXBGS DFII10 CPIAUCSL DGS10; do
+            curl -fsS -o "data/macro/$s.csv" "https://fred.stlouisfed.org/graph/fredgraph.csv?id=$s" || true
+          done
+
       - name: Build the recap page
         env:
           DATA_DIR: "./data"
