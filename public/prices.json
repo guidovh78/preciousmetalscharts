@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-29T19:24:48.496Z",
+  "updatedAt": "2026-06-29T22:41:52.626Z",
   "delayedMinutes": 10,
   "base": "USD",
   "unit": "troy_oz",
@@ -9,24 +9,24 @@
   ],
   "metals": {
     "gold": {
-      "price": 4013.600098,
+      "price": 4013.399902,
       "open": 4051.199951,
       "changePct": -0.93
     },
     "silver": {
-      "price": 58.301998,
+      "price": 58.366001,
       "open": 58.159,
-      "changePct": 0.25
+      "changePct": 0.36
     },
     "platinum": {
-      "price": 1587,
+      "price": 1588,
       "open": 1608,
-      "changePct": -1.31
+      "changePct": -1.24
     },
     "palladium": {
-      "price": 1242,
+      "price": 1248,
       "open": 1251,
-      "changePct": -0.72
+      "changePct": -0.24
     }
   },
   "attributions": [],
