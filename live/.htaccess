@@ -8,7 +8,7 @@ AddType image/svg+xml .svg
     Header set Cache-Control "no-cache"
   </Files>
   <FilesMatch "\.html$">
-    Header set Cache-Control "public, max-age=600"
+    Header set Cache-Control "no-cache"
   </FilesMatch>
   <FilesMatch "\.(svg|webmanifest)$">
     Header set Cache-Control "public, max-age=86400"

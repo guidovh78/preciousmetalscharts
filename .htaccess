@@ -21,8 +21,11 @@ RewriteRule ^(.+?)/?$ $1.html [L]
 # prices.json: never cache (refreshes ~every 10 min and must stay fresh).
 # -----------------------------------------------------------------------------
 <IfModule mod_headers.c>
+  # HTML always revalidates with the server, so a deploy shows immediately (no stale page).
+  # The browser keeps a copy but checks "changed?" each load → tiny 304 if unchanged, fresh if not.
+  # CSS/JS are version-busted (?v=N), so they update the moment the HTML points to a new version.
   <FilesMatch "\.html$">
-    Header set Cache-Control "public, max-age=600"
+    Header set Cache-Control "no-cache"
   </FilesMatch>
   <FilesMatch "\.json$">
     Header set Cache-Control "public, max-age=3600"
@@ -46,7 +49,7 @@ RewriteRule ^(.+?)/?$ $1.html [L]
 
 <IfModule mod_expires.c>
   ExpiresActive On
-  ExpiresByType text/html "access plus 10 minutes"
+  ExpiresByType text/html "access plus 0 seconds"
   ExpiresByType application/json "access plus 1 hour"
   ExpiresByType application/xml "access plus 1 day"
   ExpiresByType text/plain "access plus 1 day"

@@ -44,8 +44,17 @@ jobs:
           git config user.name "prices-bot"
           git config user.email "bot@users.noreply.github.com"
           git add public/prices.json public/baseline.json || true
-          git diff --staged --quiet || git commit -m "chore: refresh prices [skip ci]"
-          git push || true
+          if git diff --staged --quiet; then
+            echo "No price change to commit."
+          else
+            git commit -m "chore: refresh prices [skip ci]"
+            # Rebase on top of any commits that landed meanwhile (so the day-open baseline is
+            # never lost to a non-fast-forward push) and retry a few times.
+            for i in 1 2 3 4 5; do
+              if git pull --rebase --autostash && git push; then echo "pushed"; break; fi
+              echo "push attempt $i failed; retrying…"; sleep 6
+            done
+          fi
 
       - name: Upload prices.json to Vimexx (FTPS)
         env:
