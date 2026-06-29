@@ -60,3 +60,9 @@ jobs:
           for f in out/*.html; do up "$f" "$(basename "$f")"; n=$((n+1)); done
           up out/sitemap-history.xml "sitemap-history.xml"
           echo "Uploaded $n pages + sitemap-history.xml."
+          # IndexNow: submit every generated URL to Bing/Yandex
+          K=454011a3f4a5e849e205d837cf4d37dc
+          urls=$(grep -oE '<loc>[^<]+' out/sitemap-history.xml | sed 's/<loc>//; s/.*/"&"/' | paste -sd, -)
+          curl -s -X POST "https://api.indexnow.org/indexnow" -H "Content-Type: application/json" \
+            -d "{\"host\":\"preciousmetalscharts.com\",\"key\":\"$K\",\"keyLocation\":\"https://preciousmetalscharts.com/$K.txt\",\"urlList\":[$urls]}" \
+            -o /dev/null -w "IndexNow year pages → HTTP %{http_code}\n" || true

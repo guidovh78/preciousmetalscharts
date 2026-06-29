@@ -66,3 +66,6 @@ jobs:
                -T market-recap.html -u "$FTP_USER:$FTP_PASS" \
                "ftp://$FTP_HOST/public_html/market-recap.html"
           echo "market-recap.html uploaded."
+          # IndexNow: tell Bing/Yandex the recap just changed
+          K=454011a3f4a5e849e205d837cf4d37dc
+          curl -s "https://api.indexnow.org/indexnow?url=https://preciousmetalscharts.com/market-recap&key=$K&keyLocation=https://preciousmetalscharts.com/$K.txt" -o /dev/null -w "IndexNow recap → HTTP %{http_code}\n" || true
