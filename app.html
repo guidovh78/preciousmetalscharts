@@ -31,20 +31,24 @@
   .appopt ul{list-style:none;padding:0;margin:0 0 20px;display:flex;flex-direction:column;gap:9px;}
   .appopt li{display:flex;gap:9px;align-items:flex-start;font-size:14px;color:var(--ink);line-height:1.5;}
   .appopt li svg{flex:none;width:17px;height:17px;margin-top:1px;color:var(--accent);}
-  .appopt .foot{margin-top:auto;}
+  .appopt .foot{margin-top:6px;}
   .appopt .note{font-size:12px;color:var(--faint);margin-top:10px;}
-  .appopt-img{text-align:center;margin:-6px 0 16px;}
-  .appopt-img img{max-height:300px;max-width:100%;width:auto;height:auto;}
+  .appopt-img{text-align:center;margin-top:auto;padding-top:22px;}
+  .appopt-img img{max-height:330px;max-width:100%;width:auto;height:auto;}
   /* official App Store badge — kept at its real 3:1 proportions, never stretched */
   .btn-appstore{display:inline-block;line-height:0;transition:transform .16s ease;}
   .btn-appstore:hover{transform:translateY(-2px);}
   .aps-badge{display:block;height:48px;width:auto;}
   /* clearer install instructions */
-  .install{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:13px 15px;margin-top:12px;}
-  .install .t{display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:9px;}
-  .install ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;}
-  .install li{font-size:13px;color:var(--muted);line-height:1.5;}
-  .install li b{color:var(--ink);}
+  .install{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:14px 16px;margin-top:12px;}
+  .install .t{display:block;font-size:14px;font-weight:600;color:var(--ink);}
+  .install-intro{font-size:12.5px;color:var(--muted);margin:3px 0 13px;line-height:1.5;}
+  .ins-os{margin-bottom:13px;}
+  .ins-os:last-child{margin-bottom:0;}
+  .ins-os .os{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);font-weight:600;margin-bottom:6px;}
+  .ins-os ol{margin:0;padding-left:19px;display:flex;flex-direction:column;gap:5px;}
+  .ins-os li{font-size:13px;color:var(--ink);line-height:1.5;}
+  .ins-os li b{font-weight:600;}
   .install .shr{display:inline-flex;vertical-align:-3px;width:15px;height:15px;color:var(--accent);}
   .soon{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);border-radius:99px;padding:8px 15px;}
   .hint2{display:block;font-size:12.5px;color:var(--muted);margin-top:10px;}
@@ -93,7 +97,6 @@
 
     <!-- Option 1: native iOS app -->
     <article class="appopt">
-      <div class="appopt-img"><img src="/assets/3D_App.webp" alt="The Precious Metals Charts iOS app on an iPhone" loading="lazy" onerror="this.parentNode.style.display='none'"></div>
       <span class="tag"><span class="livedot"></span>App Store · iPhone</span>
       <h2>The official iOS app</h2>
       <p class="what">A native iPhone app — fast, calm and built for the job. It opens instantly from your home screen and feels right at home on iOS.</p>
@@ -116,11 +119,11 @@
         <span class="soon" id="iosSoon"><span class="livedot"></span>Coming soon to the App Store</span>
         <span class="note">Requires iPhone (iOS 16 or later). Free.</span>
       </div>
+      <div class="appopt-img"><img src="/assets/3D_App.webp" alt="The Precious Metals Charts iOS app on an iPhone" loading="lazy" onerror="this.parentNode.style.display='none'"></div>
     </article>
 
     <!-- Option 2: web app (PWA) -->
     <article class="appopt">
-      <div class="appopt-img"><img src="/assets/live_app_phone.webp" alt="The live web app on an iPhone home screen" loading="lazy" onerror="this.parentNode.style.display='none'"></div>
       <span class="tag"><span class="livedot"></span>Web · any phone</span>
       <h2>The web app — no download</h2>
       <p class="what">Runs right in your browser, on iPhone <em>and</em> Android. Add it to your home screen and it opens full-screen, just like an app — but there's nothing to install and it's always the latest version.</p>
@@ -133,13 +136,26 @@
       <div class="foot">
         <a class="btn-primary" href="https://live.preciousmetalscharts.com/">Open the web app →</a>
         <div class="install">
-          <span class="t">Put it on your home screen — takes 5 seconds:</span>
-          <ol>
-            <li><b>iPhone (Safari):</b> tap the Share button <svg class="shr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4M6 11v7a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-7"/></svg> at the bottom → scroll down → tap <b>Add to Home Screen</b> → <b>Add</b>.</li>
-            <li><b>Android (Chrome):</b> tap the menu <b>⋮</b> (top-right) → tap <b>Add to Home screen</b> → <b>Add</b>.</li>
-          </ol>
+          <span class="t">How to add it to your home screen</span>
+          <p class="install-intro">Then it opens full-screen and works just like a real app — no download.</p>
+          <div class="ins-os">
+            <span class="os">iPhone — in Safari</span>
+            <ol>
+              <li>Tap the <b>Share</b> icon <svg class="shr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4M6 11v7a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-7"/></svg> at the bottom of the screen.</li>
+              <li>Scroll down and tap <b>Add to Home Screen</b>.</li>
+              <li>Tap <b>Add</b> — the icon now sits on your home screen.</li>
+            </ol>
+          </div>
+          <div class="ins-os">
+            <span class="os">Android — in Chrome</span>
+            <ol>
+              <li>Tap the <b>⋮</b> menu in the top-right corner.</li>
+              <li>Tap <b>Add to Home screen</b>, then <b>Add</b>.</li>
+            </ol>
+          </div>
         </div>
       </div>
+      <div class="appopt-img"><img src="/assets/3D_App_white.webp" alt="The live web app shown on an iPhone" loading="lazy" onerror="this.parentNode.style.display='none'"></div>
     </article>
 
   </div>
