@@ -13,6 +13,7 @@ struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var vm = PricesViewModel()
     @AppStorage("themeMode") private var themeMode = "system"   // system | light | dark
+    @State private var selection: MetalSelection?               // tapped metal → detail chart
 
     private var t: Theme { Theme(scheme: scheme) }
     private var resolvedScheme: ColorScheme? {
@@ -36,7 +37,10 @@ struct ContentView: View {
                     LazyVStack(spacing: 0) {
                         ForEach(vm.order, id: \.self) { key in
                             if let m = vm.snapshot?.metals[key], let price = m.price {
-                                MetalRow(key: key, metal: m, price: price, vm: vm, t: t)
+                                Button { selection = MetalSelection(key: key) } label: {
+                                    MetalRow(key: key, metal: m, price: price, vm: vm, t: t)
+                                }
+                                .buttonStyle(.plain)
                                 Rectangle().fill(t.line).frame(height: 1).padding(.leading, 16)
                             }
                         }
@@ -55,6 +59,9 @@ struct ContentView: View {
             if phase == .active { Task { await vm.refresh() } }
         }
         .preferredColorScheme(resolvedScheme)
+        .sheet(item: $selection) { sel in
+            MetalDetailView(key: sel.key, vm: vm, t: t)
+        }
     }
 
     // MARK: header
@@ -258,7 +265,7 @@ struct MetalRow: View {
 
             // sparkline
             Sparkline(data: vm.spark[key] ?? [], color: up ? t.up : t.down)
-                .frame(width: 64, height: 30)
+                .frame(width: 52, height: 30)
                 .opacity((vm.spark[key]?.count ?? 0) >= 2 ? 1 : 0)
 
             // price + change
@@ -270,6 +277,10 @@ struct MetalRow: View {
                     .font(.system(size: 12, weight: .semibold, design: .monospaced))
                     .foregroundColor(up ? t.up : t.down)
             }
+
+            Image(systemName: "chevron.right")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundColor(t.faint)
         }
         .padding(.horizontal, 16).padding(.vertical, 12)
     }
@@ -322,6 +333,198 @@ struct LogoMark: View {
             // node
             let node = Path(roundedRect: CGRect(x: 23.4 * s, y: 7.4 * s, width: 5.2 * s, height: 5.2 * s), cornerRadius: 1.3 * s)
             ctx.fill(node, with: .color(t.accent))
+        }
+    }
+}
+
+// MARK: - tap a metal → expanded chart (like the Live web app)
+
+struct MetalSelection: Identifiable { let key: String; var id: String { key } }
+
+private struct Rng: Identifiable { let label: String; let file: String; var id: String { file } }
+
+struct MetalDetailView: View {
+    let key: String
+    @ObservedObject var vm: PricesViewModel
+    let t: Theme
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var range = "1y"
+    @State private var values: [Double] = []
+    @State private var dates: [String] = []
+    @State private var loading = true
+
+    private let ranges = [Rng(label: "1M", file: "1m"), Rng(label: "1Y", file: "1y"),
+                          Rng(label: "5Y", file: "5y"), Rng(label: "Max", file: "50y")]
+
+    private var metal: Metal? { vm.snapshot?.metals[key] }
+    private var chg: Double { metal?.changePct ?? 0 }
+    private var up: Bool { chg >= 0 }
+
+    var body: some View {
+        ZStack {
+            t.bg.ignoresSafeArea()
+            VStack(spacing: 0) {
+                header
+                priceLine
+                rangeBar
+                BigChart(values: values, dates: dates, color: up ? t.up : t.down, t: t, fmt: { vm.displayPrice($0) })
+                    .frame(height: 244)
+                    .padding(.horizontal, 16).padding(.top, 6)
+                    .opacity(values.count > 1 ? 1 : 0)
+                    .overlay { if loading && values.count < 2 { ProgressView().tint(t.muted) } }
+                Spacer(minLength: 0)
+                Text("Our own price archive · deep history via World Bank · prices ~10 min delayed")
+                    .font(.system(size: 10)).foregroundColor(t.faint)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24).padding(.bottom, 16).padding(.top, 8)
+            }
+        }
+        .task { await load() }
+    }
+
+    private var header: some View {
+        HStack {
+            HStack(spacing: 10) {
+                Text(MetalInfo.symbol[key] ?? "")
+                    .font(.system(size: 14, weight: .bold, design: .monospaced)).foregroundColor(.white)
+                    .frame(width: 36, height: 36).background(t.metal(key)).clipShape(RoundedRectangle(cornerRadius: 9))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(MetalInfo.name[key] ?? key.capitalized).font(.system(size: 16, weight: .semibold)).foregroundColor(t.ink)
+                    Text(MetalInfo.purity[key] ?? "").font(.system(size: 11, design: .monospaced)).foregroundColor(t.faint)
+                }
+            }
+            Spacer()
+            Button { dismiss() } label: {
+                Image(systemName: "xmark").font(.system(size: 14, weight: .semibold)).foregroundColor(t.muted).frame(width: 32, height: 32)
+            }.buttonStyle(.plain)
+        }
+        .padding(.horizontal, 16).padding(.top, 16).padding(.bottom, 8)
+    }
+
+    @ViewBuilder private var priceLine: some View {
+        if let price = metal?.price {
+            HStack(alignment: .firstTextBaseline, spacing: 10) {
+                Text(vm.displayPrice(price)).font(.system(size: 30, weight: .semibold, design: .monospaced)).foregroundColor(t.ink)
+                Text(vm.displayAbsChange(price: price, changePct: chg) + "  " + vm.pctString(chg))
+                    .font(.system(size: 13, weight: .semibold, design: .monospaced)).foregroundColor(up ? t.up : t.down)
+                Spacer()
+            }
+            .padding(.horizontal, 16).padding(.bottom, 4)
+        }
+    }
+
+    private var rangeBar: some View {
+        HStack(spacing: 6) {
+            ForEach(ranges) { r in
+                Button {
+                    range = r.file
+                    Task { await load() }
+                } label: {
+                    Text(r.label)
+                        .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                        .foregroundColor(range == r.file ? t.accent : t.muted)
+                        .padding(.horizontal, 13).padding(.vertical, 6)
+                        .background(range == r.file ? t.accentSoft : Color.clear)
+                        .clipShape(Capsule())
+                }.buttonStyle(.plain)
+            }
+            Spacer()
+        }
+        .padding(.horizontal, 16).padding(.vertical, 8)
+    }
+
+    private func load() async {
+        loading = true
+        guard var c = URLComponents(string: "https://preciousmetalscharts.com/history/\(key)-\(range).json") else { loading = false; return }
+        c.queryItems = [URLQueryItem(name: "t", value: String(Int(Date().timeIntervalSince1970)))]
+        guard let url = c.url else { loading = false; return }
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            if let obj = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let pts = obj["points"] as? [[Any]] {
+                var vs: [Double] = [], ds: [String] = []
+                for p in pts {
+                    guard p.count >= 2 else { continue }
+                    let v = (p[1] as? NSNumber)?.doubleValue ?? (p[1] as? Double)
+                    if let v = v { vs.append(v); ds.append((p[0] as? String) ?? "") }
+                }
+                values = vs; dates = ds
+            }
+        } catch { }
+        loading = false
+    }
+}
+
+// MARK: - the large interactive line chart
+
+struct BigChart: View {
+    let values: [Double]
+    let dates: [String]
+    let color: Color
+    let t: Theme
+    let fmt: (Double) -> String
+    @State private var sel: Int? = nil
+
+    var body: some View {
+        GeometryReader { geo in
+            let w = geo.size.width
+            let h = geo.size.height
+            let axis: CGFloat = 18           // bottom strip for date labels
+            let plot = h - axis
+            if values.count >= 2, let mn = values.min(), let mx = values.max() {
+                let span = (mx - mn) == 0 ? 1 : (mx - mn)
+                let xOf: (Int) -> CGFloat = { i in w * CGFloat(i) / CGFloat(values.count - 1) }
+                let yOf: (Double) -> CGFloat = { v in (plot - 8) - CGFloat((v - mn) / span) * (plot - 16) + 4 }
+
+                ZStack(alignment: .topLeading) {
+                    ForEach(1..<4) { g in
+                        let gy = plot * CGFloat(g) / 4
+                        Path { p in p.move(to: CGPoint(x: 0, y: gy)); p.addLine(to: CGPoint(x: w, y: gy)) }
+                            .stroke(t.line, lineWidth: 1)
+                    }
+                    Path { p in
+                        p.move(to: CGPoint(x: xOf(0), y: yOf(values[0])))
+                        for i in 1..<values.count { p.addLine(to: CGPoint(x: xOf(i), y: yOf(values[i]))) }
+                        p.addLine(to: CGPoint(x: xOf(values.count - 1), y: plot)); p.addLine(to: CGPoint(x: xOf(0), y: plot)); p.closeSubpath()
+                    }
+                    .fill(LinearGradient(colors: [color.opacity(0.18), color.opacity(0)], startPoint: .top, endPoint: .bottom))
+                    Path { p in
+                        p.move(to: CGPoint(x: xOf(0), y: yOf(values[0])))
+                        for i in 1..<values.count { p.addLine(to: CGPoint(x: xOf(i), y: yOf(values[i]))) }
+                    }
+                    .stroke(color, style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
+
+                    if let s = sel, s >= 0, s < values.count {
+                        Path { p in p.move(to: CGPoint(x: xOf(s), y: 0)); p.addLine(to: CGPoint(x: xOf(s), y: plot)) }
+                            .stroke(t.lineStrong, lineWidth: 1)
+                        Circle().fill(color).frame(width: 8, height: 8).position(x: xOf(s), y: yOf(values[s]))
+                        Text("\(dates[s]) · \(fmt(values[s]))")
+                            .font(.system(size: 11, weight: .semibold, design: .monospaced)).foregroundColor(t.ink)
+                            .padding(.horizontal, 8).padding(.vertical, 4)
+                            .background(t.surface).clipShape(RoundedRectangle(cornerRadius: 6))
+                            .overlay(RoundedRectangle(cornerRadius: 6).stroke(t.line, lineWidth: 1))
+                            .position(x: min(max(xOf(s), 72), w - 72), y: 12)
+                    } else {
+                        Text(fmt(mx)).font(.system(size: 10, design: .monospaced)).foregroundColor(t.faint)
+                            .padding(.horizontal, 4).background(t.bg).position(x: 34, y: 10)
+                        Text(fmt(mn)).font(.system(size: 10, design: .monospaced)).foregroundColor(t.faint)
+                            .padding(.horizontal, 4).background(t.bg).position(x: 34, y: plot - 10)
+                    }
+
+                    Text(dates.first ?? "").font(.system(size: 10, design: .monospaced)).foregroundColor(t.faint)
+                        .position(x: 34, y: h - 8)
+                    Text(dates.last ?? "").font(.system(size: 10, design: .monospaced)).foregroundColor(t.faint)
+                        .position(x: w - 38, y: h - 8)
+                }
+                .contentShape(Rectangle())
+                .gesture(DragGesture(minimumDistance: 0)
+                    .onChanged { g in
+                        let i = Int((g.location.x / max(w, 1) * CGFloat(values.count - 1)).rounded())
+                        sel = min(max(i, 0), values.count - 1)
+                    }
+                    .onEnded { _ in sel = nil })
+            }
         }
     }
 }
