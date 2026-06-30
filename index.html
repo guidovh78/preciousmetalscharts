@@ -97,6 +97,15 @@
   .toolcard-app .phone-wrap{flex:none;margin:0;}
   .toolcard-app .phone-img{max-height:230px;}
   @media(max-width:420px){.toolcard-app{gap:13px;}.toolcard-app .phone-img{max-height:194px;}}
+  /* app choices: App Store badge + web-app button */
+  .app-choices{display:flex;flex-direction:column;align-items:flex-start;gap:10px;}
+  .btn-appstore{display:inline-flex;align-items:center;gap:9px;background:#000;color:#fff;border-radius:11px;padding:8px 16px;text-decoration:none;transition:transform .16s ease,box-shadow .2s ease;}
+  .btn-appstore:hover{transform:translateY(-2px);box-shadow:0 7px 18px rgba(0,0,0,.28);}
+  [data-theme="dark"] .btn-appstore{background:#fff;color:#000;}
+  .btn-appstore svg{width:21px;height:21px;fill:currentColor;flex:none;}
+  .btn-appstore .aps-t{display:flex;flex-direction:column;line-height:1.04;}
+  .btn-appstore .aps-t small{font-size:9.5px;opacity:.85;letter-spacing:.02em;}
+  .btn-appstore .aps-t b{font-size:16px;font-weight:600;letter-spacing:-.01em;}
   /* newsletter signup — the single accent CTA highlight */
   .newsletter{display:flex;gap:20px;align-items:flex-start;background:var(--accent-soft);border:1px solid var(--accent);border-radius:var(--radius);padding:22px 24px;}
   .nl-icon{flex:none;width:54px;height:54px;border-radius:15px;background:var(--surface);border:1px solid var(--line);color:var(--accent);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.06);}
@@ -386,9 +395,16 @@
       <article class="toolcard toolcard-app">
         <div class="tc-text">
           <span class="tag"><span class="livedot"></span>On your phone</span>
-          <h3>Live prices, like an app</h3>
-          <p>An always-on page with all four metals in 10 currencies and per gram, ounce or kilo — auto-refreshing, with charts. Add it to your home screen and it opens like an app.</p>
-          <div class="cta"><a class="btn-primary" href="https://live.preciousmetalscharts.com/">Open live prices →</a><span class="hint">Tap <b>Share</b> → <b>Add to Home Screen</b></span></div>
+          <h3>Live prices on your phone</h3>
+          <p>All four metals in 10 currencies and per gram, ounce or kilo — auto-refreshing, with charts. Get the official app, or add the web app to your home screen — it opens just like an app.</p>
+          <div class="cta app-choices">
+            <a class="btn-appstore" id="iosAppBtn" href="#" target="_blank" rel="noopener" hidden aria-label="Download on the App Store">
+              <svg viewBox="0 0 384 512" aria-hidden="true"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
+              <span class="aps-t"><small>Download on the</small><b>App Store</b></span>
+            </a>
+            <a class="btn-primary" href="https://live.preciousmetalscharts.com/">Open the web app →</a>
+            <span class="hint">No App Store needed — tap <b>Share</b> → <b>Add to Home Screen</b></span>
+          </div>
         </div>
         <div class="phone-wrap">
           <picture>
@@ -684,6 +700,11 @@
     fetch("/prices.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(s){if(s)applySnapshot(s);}).catch(function(){});
   }
   loadPrices();setInterval(loadPrices,60000);
+
+  /* show the App Store button once the iOS app is live (server-controlled flag) */
+  (function(){fetch("/app-links.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(a){
+    if(a&&a.iosAppLive===true&&a.iosAppUrl){var b=document.getElementById("iosAppBtn");if(b){b.href=a.iosAppUrl;b.hidden=false;}}
+  }).catch(function(){});})();
 
   /* init */
   renderMetals();loadChart();renderRatio();drawRatioChart();renderPulse();renderPortfolio();renderPremiums();renderCompare();syncAlert();loadSparks();
