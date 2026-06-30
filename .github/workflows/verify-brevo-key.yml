@@ -1,0 +1,27 @@
+name: Verify Brevo key
+
+# Diagnostic: checks the BREVO_API_KEY secret against Brevo's /v3/account endpoint.
+# 200 = valid, 401 = bad/typo'd key. Reveals no secret (GitHub masks it in logs).
+# Handy after rotating the key. Run manually from the Actions tab.
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check BREVO_API_KEY against Brevo
+        env:
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "accept: application/json" -H "api-key: $BREVO_API_KEY" \
+            https://api.brevo.com/v3/account)
+          echo "Brevo /v3/account -> HTTP $code"
+          if [ "$code" = "200" ]; then
+            echo "RESULT: VALID — the GitHub secret key authenticates with Brevo."
+          else
+            echo "RESULT: INVALID (HTTP $code) — check the secret for a typo."
+            exit 1
+          fi
