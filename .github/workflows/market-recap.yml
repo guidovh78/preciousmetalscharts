@@ -54,6 +54,11 @@ jobs:
           PERIOD: "weekly"
         run: node data-pipeline/node/build-market-recap.mjs
 
+      - name: Build ratio data (stats JSON + downloadable CSV)
+        env:
+          DATA_DIR: "./data"
+        run: node data-pipeline/node/build-ratio-data.mjs
+
       - name: Upload market-recap.html to Vimexx (FTPS)
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
@@ -66,6 +71,14 @@ jobs:
                -T market-recap.html -u "$FTP_USER:$FTP_PASS" \
                "ftp://$FTP_HOST/public_html/market-recap.html"
           echo "market-recap.html uploaded."
+          for f in ratio-stats.json ratio-history.csv; do
+            curl --fail --show-error --silent \
+                 --ssl-reqd -k --ftp-pasv --disable-epsv --ftp-create-dirs \
+                 --connect-timeout 20 --max-time 90 --retry 4 --retry-delay 10 --retry-all-errors \
+                 -T "data/$f" -u "$FTP_USER:$FTP_PASS" \
+                 "ftp://$FTP_HOST/public_html/$f"
+            echo "$f uploaded."
+          done
           # IndexNow: tell Bing/Yandex the recap just changed
           K=454011a3f4a5e849e205d837cf4d37dc
           curl -s "https://api.indexnow.org/indexnow?url=https://preciousmetalscharts.com/market-recap&key=$K&keyLocation=https://preciousmetalscharts.com/$K.txt" -o /dev/null -w "IndexNow recap → HTTP %{http_code}\n" || true

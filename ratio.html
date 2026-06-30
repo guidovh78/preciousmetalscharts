@@ -50,6 +50,16 @@
   .cta-card h3{font-family:var(--font-display);font-weight:600;font-size:17px;margin:0 0 4px;}
   .cta-card p{margin:0;color:var(--muted);font-size:13.5px;max-width:62ch;}
   @media(max-width:920px){.answer-grid{grid-template-columns:1fr;}}
+  .ratio-answer{max-width:62ch;margin:14px 0 0;font-size:15px;line-height:1.65;color:var(--ink);}
+  .ratio-answer b{font-family:var(--font-mono);font-weight:600;color:var(--ink);}
+  .ratio-stats{margin-top:14px;border-top:1px solid var(--line);padding-top:12px;display:grid;gap:9px;}
+  .rstat{display:flex;align-items:baseline;justify-content:space-between;gap:12px;}
+  .rstat .rk{color:var(--muted);font-size:12.5px;}
+  .rstat .rk-sub{color:var(--faint);font-size:11px;}
+  .rstat .rv{font-family:var(--font-mono);font-size:14px;color:var(--ink);font-weight:600;}
+  .ratio-dl{display:inline-flex;align-items:center;gap:7px;margin-top:14px;font-size:13px;font-weight:500;color:var(--accent);text-decoration:none;}
+  .ratio-dl:hover{text-decoration:underline;}
+  .ratio-dl svg{width:15px;height:15px;}
 </style>
 </head>
 <body>
@@ -107,6 +117,7 @@
     </div>
     <h1 class="lede">The gold-to-silver ratio, <em>live</em> — and its 50-year story.</h1>
     <p class="sub">The ratio is the number of ounces of silver it takes to buy one ounce of gold. It is one of the oldest, simplest gauges of how the two metals are priced relative to each other.</p>
+    <p class="ratio-answer" id="ratioAnswer">The gold-to-silver ratio is currently <b id="raNow">around 68</b> ounces of silver per ounce of gold. Over the past ~50 years it has averaged about <b id="raAvg">65</b>, ranging from roughly <b id="raMin">30</b> at silver's peaks to over <b id="raMax">100</b> in times of market stress. <span id="raPctile"></span></p>
 
     <div class="grid">
       <article class="panel" aria-label="Gold to silver ratio history">
@@ -131,6 +142,15 @@
         <div class="band" aria-hidden="true"><div class="band-track"></div><div class="band-marker" id="ratioMarker" style="left:42%"></div></div>
         <div class="band-scale"><span>30</span><span>50</span><span>70</span><span>90</span><span>120</span></div>
         <p class="ratio-note" id="ratioParts">Gold and silver spot update about every 10 minutes.</p>
+        <div class="ratio-stats" id="ratioStats" hidden>
+          <div class="rstat"><span class="rk">50-year average</span><span class="rv mono" id="rsAvg">—</span></div>
+          <div class="rstat"><span class="rk">Range <span class="rk-sub" id="rsRange"></span></span><span class="rv mono"><span id="rsMin">—</span> – <span id="rsMax">—</span></span></div>
+          <div class="rstat"><span class="rk">Today vs. the last 50 years</span><span class="rv mono" id="rsPctile">—</span></div>
+        </div>
+        <a class="ratio-dl" id="ratioDl" href="/ratio-history.csv" download>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+          Download the full ratio history (CSV)
+        </a>
       </article>
     </div>
   </section>
@@ -213,6 +233,7 @@
 <script>
 (function(){
   "use strict";
+  var LIVE_R=null, STATS=null;
   // theme toggle
   var sun='<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',moon='<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>';
   document.getElementById("themeBtn").addEventListener("click",function(){var c=document.documentElement.getAttribute("data-theme"),n=c==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",n);document.getElementById("themeIcon").innerHTML=n==="dark"?moon:sun;drawRatio(lastPts);});
@@ -228,12 +249,39 @@
       document.getElementById("ratioVal").innerHTML=r.toFixed(1)+'<small> oz</small>';
       document.getElementById("ratioMarker").style.left=Math.max(0,Math.min(100,(r-30)/90*100))+"%";
       document.getElementById("ratioParts").innerHTML="<b>Now:</b> gold $"+Math.round(g).toLocaleString("en-US")+" ÷ silver $"+s.toFixed(2)+" = "+r.toFixed(1)+".";
+      LIVE_R=r; applyContext();
     }
     var t=new Date(snap.updatedAt), hhmm=isNaN(t.getTime())?"":t.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
     var el=document.getElementById("freshLabel"); if(el) el.textContent=(hhmm?("as of "+hhmm+" · "):"")+"~"+(snap.delayedMinutes||10)+" min delayed";
   }
   function loadLive(){fetch("/prices.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(s){if(s)paintLive(s);}).catch(function(){});}
   loadLive(); setInterval(loadLive,60000);
+
+  // ---- long-run statistical context (citeable, from our 50-yr archive) ----
+  function applyContext(){
+    if(!STATS) return;
+    var avg=STATS.average, mn=STATS.min, mx=STATS.max;
+    var setT=function(id,v){var e=document.getElementById(id); if(e) e.textContent=v;};
+    setT("raAvg",avg); setT("rsAvg",avg);
+    setT("raMin",Math.round(mn.value)); setT("raMax",Math.round(mx.value));
+    setT("rsMin",mn.value+" ("+String(mn.date).slice(0,4)+")");
+    setT("rsMax",mx.value+" ("+String(mx.date).slice(0,4)+")");
+    setT("rsRange","· "+STATS.rangeLabel);
+    var box=document.getElementById("ratioStats"); if(box) box.hidden=false;
+    if(LIVE_R!=null){
+      setT("raNow",LIVE_R.toFixed(1));
+      var d=STATS.distribution||[], below=0,i; for(i=0;i<d.length;i++){ if(d[i]<=LIVE_R) below++; }
+      if(d.length){
+        var pc=Math.round(below/d.length*100), hi=pc>=50;
+        var word=hi?("higher than "+pc+"%"):("lower than "+(100-pc)+"%");
+        setT("rsPctile",word+" of months");
+        var ans=document.getElementById("raPctile");
+        if(ans) ans.textContent="At "+LIVE_R.toFixed(1)+", today's reading is "+word+" of the last 50 years — "+(LIVE_R>avg?"above":"below")+" the long-run average of "+avg+".";
+      }
+    }
+  }
+  function loadStats(){fetch("/ratio-stats.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(s){if(s){STATS=s;applyContext();}}).catch(function(){});}
+  loadStats();
 
   // ---- historical ratio chart (gold ÷ silver from our archive) ----
   var HR={"1y":"1y","5y":"5y","10y":"10y","max":"50y"}, SAMPLE={"1y":"daily","5y":"weekly","10y":"weekly","max":"monthly"};
