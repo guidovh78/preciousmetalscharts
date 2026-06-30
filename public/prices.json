@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-29T22:41:52.626Z",
+  "updatedAt": "2026-06-30T05:47:51.923Z",
   "delayedMinutes": 10,
   "base": "USD",
   "unit": "troy_oz",
@@ -9,42 +9,42 @@
   ],
   "metals": {
     "gold": {
-      "price": 4013.399902,
-      "open": 4051.199951,
-      "changePct": -0.93
+      "price": 3982.600098,
+      "open": 4013.399902,
+      "changePct": -0.77
     },
     "silver": {
-      "price": 58.366001,
-      "open": 58.159,
-      "changePct": 0.36
+      "price": 57.587002,
+      "open": 58.366001,
+      "changePct": -1.33
     },
     "platinum": {
-      "price": 1588,
-      "open": 1608,
-      "changePct": -1.24
+      "price": 1574,
+      "open": 1588,
+      "changePct": -0.88
     },
     "palladium": {
-      "price": 1248,
-      "open": 1251,
-      "changePct": -0.24
+      "price": 1238,
+      "open": 1248,
+      "changePct": -0.8
     }
   },
   "attributions": [],
   "stale": false,
   "fx": {
     "base": "USD",
-    "eur": 0.87825,
+    "eur": 0.87598,
     "rates": {
       "USD": 1,
-      "EUR": 0.878247,
-      "GBP": 0.757693,
-      "JPY": 161.766947,
-      "CNY": 6.803731,
-      "AUD": 1.450006,
-      "CAD": 1.418861,
-      "CHF": 0.809911,
-      "HKD": 7.84203,
-      "SGD": 1.294141
+      "EUR": 0.875977,
+      "GBP": 0.755108,
+      "JPY": 161.890461,
+      "CNY": 6.804421,
+      "AUD": 1.451863,
+      "CAD": 1.420448,
+      "CHF": 0.808128,
+      "HKD": 7.841468,
+      "SGD": 1.292998
     }
   }
 }
