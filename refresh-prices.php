@@ -58,7 +58,7 @@ function nowIso() {
   $t = microtime(true); $ms = (int)round(($t - floor($t)) * 1000); if ($ms > 999) $ms = 999;
   return gmdate('Y-m-d\TH:i:s', (int)floor($t)) . sprintf('.%03dZ', $ms);
 }
-function logmsg($s) { fwrite(STDERR, $s . "\n"); if (PHP_SAPI !== 'cli') echo $s . "\n"; }
+function logmsg($s) { $s .= "\n"; if (PHP_SAPI === 'cli') fwrite(STDERR, $s); else echo $s; }
 
 $prev      = readJSON($SNAP);
 $updatedAt = nowIso();
