@@ -52,8 +52,14 @@ Je hebt nu 4 bestanden in het project: `PreciousMetalsChartsApp.swift`, `Model.s
   (ik kan Xcode hier niet draaien, dus dit gaat met een paar rondjes heen-en-weer).
 
 ## Stap 5 — App-icoon
-De app heeft nog een icoon nodig. In Xcode: **Assets** → **AppIcon** → sleep een **1024×1024 PNG**
-erin. Wil je dat ik een nette icoon-set genereer uit je bestaande logo? Dan maak ik die voor je.
+Er staan **twee kant-en-klare iconen** voor je klaar in de map **`ios-app/AppIcon/`** (beide
+1024×1024, dekkend, zonder alfakanaal — precies wat de App Store eist):
+- **`AppIcon-B-gold.png`** — gouden achtergrond met donker grafiek-merkteken (hoog contrast, muntachtig).
+- **`AppIcon-A-dark-glow.png`** — donker grafiet met oplichtend goud (sfeervol/premium).
+
+In Xcode: open **Assets** → **AppIcon** → sleep je favoriet erin (bij het 1024-vak / "Single Size").
+Xcode maakt zelf de kleinere formaten. Apple maakt zelf de ronde hoeken — daarom zijn de iconen vierkant.
+Wil je een aanpassing (andere goudtint, meer/minder gloed, dunnere lijn)? Vraag het me.
 
 ## Stap 6 — Naar de App Store (wanneer je tevreden bent)
 1. In Xcode: kies bovenin **Any iOS Device (arm64)** als doel.
