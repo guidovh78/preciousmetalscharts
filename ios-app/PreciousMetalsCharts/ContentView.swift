@@ -11,6 +11,7 @@ import SwiftUI
 struct ContentView: View {
     @Environment(\.colorScheme) private var scheme
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.openURL) private var openURL
     @StateObject private var vm = PricesViewModel()
     @AppStorage("themeMode") private var themeMode = "system"   // system | light | dark
     @State private var selection: MetalSelection?               // tapped metal → detail chart
@@ -67,10 +68,17 @@ struct ContentView: View {
     // MARK: header
     private var header: some View {
         HStack(spacing: 9) {
-            LogoMark(t: t).frame(width: 30, height: 30)
-            (Text("preciousmetals").foregroundColor(t.ink)
-                + Text("charts").foregroundColor(t.accent))
-                .font(.system(size: 17, weight: .semibold))
+            Button {
+                if let u = URL(string: "https://preciousmetalscharts.com") { openURL(u) }
+            } label: {
+                HStack(spacing: 9) {
+                    LogoMark(t: t).frame(width: 30, height: 30)
+                    (Text("preciousmetals").foregroundColor(t.ink)
+                        + Text("charts").foregroundColor(t.accent))
+                        .font(.system(size: 17, weight: .semibold))
+                }
+            }
+            .buttonStyle(.plain)
             Spacer()
             Button(action: cycleTheme) {
                 Image(systemName: themeIcon)
