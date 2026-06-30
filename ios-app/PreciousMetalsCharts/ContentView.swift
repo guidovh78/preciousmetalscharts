@@ -12,8 +12,18 @@ struct ContentView: View {
     @Environment(\.colorScheme) private var scheme
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var vm = PricesViewModel()
+    @AppStorage("themeMode") private var themeMode = "system"   // system | light | dark
 
     private var t: Theme { Theme(scheme: scheme) }
+    private var resolvedScheme: ColorScheme? {
+        themeMode == "light" ? .light : (themeMode == "dark" ? .dark : nil)
+    }
+    private var themeIcon: String {
+        themeMode == "light" ? "sun.max.fill" : (themeMode == "dark" ? "moon.fill" : "circle.lefthalf.filled")
+    }
+    private func cycleTheme() {
+        themeMode = themeMode == "system" ? "light" : (themeMode == "light" ? "dark" : "system")
+    }
 
     var body: some View {
         ZStack {
@@ -44,15 +54,25 @@ struct ContentView: View {
         .onChange(of: scenePhase) { phase in
             if phase == .active { Task { await vm.refresh() } }
         }
+        .preferredColorScheme(resolvedScheme)
     }
 
     // MARK: header
     private var header: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 9) {
+            LogoMark(t: t).frame(width: 30, height: 30)
             (Text("preciousmetals").foregroundColor(t.ink)
                 + Text("charts").foregroundColor(t.accent))
                 .font(.system(size: 17, weight: .semibold))
             Spacer()
+            Button(action: cycleTheme) {
+                Image(systemName: themeIcon)
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(t.muted)
+                    .frame(width: 30, height: 30)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Appearance: \(themeMode)")
             HStack(spacing: 5) {
                 Circle().fill(t.up).frame(width: 7, height: 7)
                 Text("LIVE")
@@ -277,6 +297,31 @@ struct Sparkline: View {
                 }
                 .stroke(color, style: StrokeStyle(lineWidth: 1.6, lineCap: .round, lineJoin: .round))
             }
+        }
+    }
+}
+
+// MARK: - brand logo mark (the gold chart, drawn to match the website)
+
+struct LogoMark: View {
+    let t: Theme
+    var body: some View {
+        Canvas { ctx, size in
+            let s = size.width / 34.0
+            func P(_ x: CGFloat, _ y: CGFloat) -> CGPoint { CGPoint(x: x * s, y: y * s) }
+            // rounded border
+            let border = Path(roundedRect: CGRect(x: 1 * s, y: 1 * s, width: 32 * s, height: 32 * s), cornerRadius: 9 * s)
+            ctx.stroke(border, with: .color(t.lineStrong), lineWidth: 1.4 * s)
+            // baseline
+            var base = Path(); base.move(to: P(8, 26.4)); base.addLine(to: P(26, 26.4))
+            ctx.stroke(base, with: .color(t.faint), style: StrokeStyle(lineWidth: 1.4 * s, lineCap: .round))
+            // chart line
+            var line = Path()
+            line.move(to: P(8, 22.5)); line.addLine(to: P(14, 16)); line.addLine(to: P(18.5, 19.5)); line.addLine(to: P(26, 10))
+            ctx.stroke(line, with: .color(t.accent), style: StrokeStyle(lineWidth: 2.1 * s, lineCap: .round, lineJoin: .round))
+            // node
+            let node = Path(roundedRect: CGRect(x: 23.4 * s, y: 7.4 * s, width: 5.2 * s, height: 5.2 * s), cornerRadius: 1.3 * s)
+            ctx.fill(node, with: .color(t.accent))
         }
     }
 }
