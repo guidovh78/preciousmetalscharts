@@ -63,9 +63,13 @@ function logmsg($s) { $s .= "\n"; if (PHP_SAPI === 'cli') fwrite(STDERR, $s); el
 $prev      = readJSON($SNAP);
 $updatedAt = nowIso();
 
+// Test hook (web-trigger only): ?fail=1 simulates a gold-api outage so the fallback can be verified.
+$FORCE_FAIL = (PHP_SAPI !== 'cli' && isset($_GET['fail']) && $_GET['fail'] === '1');
+
 // ---- 1) PRIMARY source: gold-api.com (keyless, per-symbol) ----
 $price = []; $ok = true; $sourcesTried = ['gold-api']; $source = 'gold-api.com'; $attributions = [];
 foreach ($METALS as $m => $sym) {
+  if ($FORCE_FAIL) { $ok = false; break; }
   $j = getJSON("https://api.gold-api.com/price/$sym");
   if ($j && isset($j['price']) && is_numeric($j['price']) && $j['price'] > 0) $price[$m] = (float)$j['price'];
   else { $ok = false; break; }
