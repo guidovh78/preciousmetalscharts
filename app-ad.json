@@ -1,0 +1,8 @@
+{
+  "active": false,
+  "sponsored": true,
+  "title": "",
+  "subtitle": "",
+  "url": "",
+  "_help": "Bottom slot for the iOS app. To run a paid advertiser: set active=true, sponsored=true, and fill title/subtitle/url (https). The 'ADVERTISEMENT' label shows when sponsored=true. When active=false (or fields empty), the app shows the house newsletter promo instead. No app resubmission needed — just edit and re-upload this file."
+}

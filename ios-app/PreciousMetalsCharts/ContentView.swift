@@ -35,7 +35,8 @@ struct ContentView: View {
                 }
                 .refreshable { await vm.refresh() }
                 Spacer(minLength: 0)
-                footer
+                AdSlotView(ad: vm.ad, t: t)
+                legalLine
             }
         }
         .onAppear { vm.start() }
@@ -107,16 +108,67 @@ struct ContentView: View {
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
-    // MARK: footer
-    private var footer: some View {
-        HStack {
-            Text("Independent · not a dealer · educational only")
-                .font(.system(size: 11)).foregroundColor(t.faint)
-            Spacer()
+    // MARK: slim legal line (under the ad slot)
+    private var legalLine: some View {
+        Text("Independent · not a dealer · educational only, not investment advice")
+            .font(.system(size: 10)).foregroundColor(t.faint)
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
+            .background(t.bg)
+    }
+}
+
+// MARK: - bottom ad / sponsor slot (server-controlled via app-ad.json)
+
+struct AdSlotView: View {
+    let ad: AdSlot?
+    let t: Theme
+    @Environment(\.openURL) private var openURL
+
+    // When no paid advertiser is active, show the house newsletter promo —
+    // a real, tappable element (cleaner for App Review than an empty placeholder).
+    private var resolved: (sponsored: Bool, title: String, subtitle: String, url: String) {
+        if let a = ad, a.active == true, let title = a.title, !title.isEmpty, let url = a.url, !url.isEmpty {
+            return (a.sponsored ?? true, title, a.subtitle ?? "", url)
         }
-        .padding(.horizontal, 16).padding(.vertical, 10)
-        .background(t.surface2)
-        .overlay(Rectangle().fill(t.line).frame(height: 1), alignment: .top)
+        return (false,
+                "The metals market, summarised",
+                "Get the free newsletter — daily, weekly or monthly.",
+                "https://preciousmetalscharts.com/newsletter")
+    }
+
+    var body: some View {
+        let r = resolved
+        Button {
+            if let u = URL(string: r.url) { openURL(u) }
+        } label: {
+            VStack(alignment: .leading, spacing: 4) {
+                if r.sponsored {
+                    Text("ADVERTISEMENT")
+                        .font(.system(size: 9, weight: .semibold)).tracking(0.8)
+                        .foregroundColor(t.faint)
+                }
+                HStack(spacing: 10) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(r.title)
+                            .font(.system(size: 14, weight: .semibold)).foregroundColor(t.ink)
+                        if !r.subtitle.isEmpty {
+                            Text(r.subtitle)
+                                .font(.system(size: 12)).foregroundColor(t.muted)
+                        }
+                    }
+                    Spacer(minLength: 8)
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .semibold)).foregroundColor(t.faint)
+                }
+            }
+            .padding(.horizontal, 16).padding(.vertical, 12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(t.surface2)
+            .overlay(Rectangle().fill(t.line).frame(height: 1), alignment: .top)
+        }
+        .buttonStyle(.plain)
     }
 }
 

@@ -28,6 +28,16 @@ struct FX: Codable {
     let rates: [String: Double]?
 }
 
+// MARK: - app-ad.json (server-controlled bottom slot — change advertisers without an app update)
+
+struct AdSlot: Codable {
+    let active: Bool?      // false => app shows the house newsletter promo
+    let sponsored: Bool?   // true  => show the "ADVERTISEMENT" disclosure label
+    let title: String?
+    let subtitle: String?
+    let url: String?
+}
+
 // MARK: - per-metal display info
 
 enum MetalInfo {

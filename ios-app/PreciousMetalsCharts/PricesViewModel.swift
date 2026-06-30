@@ -11,6 +11,7 @@ final class PricesViewModel: ObservableObject {
 
     @Published var snapshot: Snapshot?
     @Published var spark: [String: [Double]] = [:]   // metal -> intraday price series
+    @Published var ad: AdSlot?                        // server-controlled bottom slot
     @Published var currency: String = "USD"
     @Published var unit: Unit = .ounce
     @Published var loadFailed = false
@@ -55,6 +56,16 @@ final class PricesViewModel: ObservableObject {
     func refresh() async {
         await loadPrices()
         await loadIntraday()
+        await loadAd()
+    }
+
+    private func loadAd() async {
+        do {
+            let (data, _) = try await URLSession.shared.data(from: busted("app-ad.json"))
+            ad = try JSONDecoder().decode(AdSlot.self, from: data)
+        } catch {
+            // keep the built-in house promo fallback
+        }
     }
 
     // MARK: networking

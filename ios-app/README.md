@@ -77,6 +77,17 @@ Wil je een aanpassing (andere goudtint, meer/minder gloed, dunnere lijn)? Vraag 
 
 ---
 
+## Adverteerder-ruimte onderin (server-gestuurd)
+Onderaan de app zit een **sponsor-/advertentieruimte** — net als in de Live-webapp. Die is
+**server-gestuurd**: de app leest `https://preciousmetalscharts.com/app-ad.json`, dus je kunt een
+adverteerder plaatsen of wisselen **zonder de app opnieuw in te dienen** — je past één bestand aan.
+- **Geen betaalde adverteerder?** Laat `active:false` → de app toont automatisch je eigen
+  nieuwsbrief-promo (een echte, klikbare knop — netter voor Apple's review dan een lege plek).
+- **Wel een adverteerder?** Zet in `app-ad.json`: `active:true`, `sponsored:true`, en vul
+  `title`, `subtitle` en `url` (https). Het label "ADVERTISEMENT" verschijnt dan automatisch
+  (verplichte transparantie). Upload het bestand → binnen ~1 min zien alle gebruikers het.
+  Ik kan dit voor je invullen zodra je een sponsor hebt.
+
 ## Wat de app doet (kort)
 - `prices.json` → prijs, dag-open en `changePct` per metaal + wisselkoersen (`fx.rates`).
 - `intraday.json` → rollende ~26-uurs reeks per metaal voor het grafiekje.
