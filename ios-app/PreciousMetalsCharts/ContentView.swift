@@ -126,15 +126,15 @@ struct AdSlotView: View {
     let t: Theme
     @Environment(\.openURL) private var openURL
 
-    // When no paid advertiser is active, show the house newsletter promo —
-    // a real, tappable element (cleaner for App Review than an empty placeholder).
-    private var resolved: (sponsored: Bool, title: String, subtitle: String, url: String) {
+    // When no paid advertiser is active, show an inviting house newsletter promo
+    // (a real, tappable element — cleaner for App Review than an empty placeholder).
+    private var resolved: (house: Bool, sponsored: Bool, title: String, subtitle: String, url: String) {
         if let a = ad, a.active == true, let title = a.title, !title.isEmpty, let url = a.url, !url.isEmpty {
-            return (a.sponsored ?? true, title, a.subtitle ?? "", url)
+            return (false, a.sponsored ?? true, title, a.subtitle ?? "", url)
         }
-        return (false,
-                "The metals market, summarised",
-                "Get the free newsletter — daily, weekly or monthly.",
+        return (true, false,
+                "The free metals newsletter",
+                "A short, factual recap — daily, weekly or monthly.",
                 "https://preciousmetalscharts.com/newsletter")
     }
 
@@ -143,32 +143,64 @@ struct AdSlotView: View {
         Button {
             if let u = URL(string: r.url) { openURL(u) }
         } label: {
-            VStack(alignment: .leading, spacing: 4) {
-                if r.sponsored {
-                    Text("ADVERTISEMENT")
-                        .font(.system(size: 9, weight: .semibold)).tracking(0.8)
-                        .foregroundColor(t.faint)
-                }
-                HStack(spacing: 10) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(r.title)
-                            .font(.system(size: 14, weight: .semibold)).foregroundColor(t.ink)
-                        if !r.subtitle.isEmpty {
-                            Text(r.subtitle)
-                                .font(.system(size: 12)).foregroundColor(t.muted)
-                        }
-                    }
-                    Spacer(minLength: 8)
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 12, weight: .semibold)).foregroundColor(t.faint)
-                }
-            }
-            .padding(.horizontal, 16).padding(.vertical, 12)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(t.surface2)
-            .overlay(Rectangle().fill(t.line).frame(height: 1), alignment: .top)
+            if r.house { housePromo(r) } else { advertiser(r) }
         }
         .buttonStyle(.plain)
+    }
+
+    // inviting newsletter promo: envelope icon + copy + "Subscribe" pill on accent-soft
+    private func housePromo(_ r: (house: Bool, sponsored: Bool, title: String, subtitle: String, url: String)) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "envelope.fill")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(.white)
+                .frame(width: 38, height: 38)
+                .background(t.accent)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            VStack(alignment: .leading, spacing: 2) {
+                Text(r.title).font(.system(size: 14, weight: .semibold)).foregroundColor(t.ink)
+                if !r.subtitle.isEmpty {
+                    Text(r.subtitle).font(.system(size: 12)).foregroundColor(t.muted)
+                }
+            }
+            Spacer(minLength: 8)
+            Text("Subscribe →")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(.white)
+                .padding(.horizontal, 13).padding(.vertical, 7)
+                .background(t.accent)
+                .clipShape(Capsule())
+        }
+        .padding(.horizontal, 14).padding(.vertical, 12)
+        .frame(maxWidth: .infinity)
+        .background(t.accentSoft)
+        .overlay(Rectangle().fill(t.line).frame(height: 1), alignment: .top)
+    }
+
+    // neutral paid advertiser card with an "ADVERTISEMENT" disclosure label
+    private func advertiser(_ r: (house: Bool, sponsored: Bool, title: String, subtitle: String, url: String)) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            if r.sponsored {
+                Text("ADVERTISEMENT")
+                    .font(.system(size: 9, weight: .semibold)).tracking(0.8)
+                    .foregroundColor(t.faint)
+            }
+            HStack(spacing: 10) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(r.title).font(.system(size: 14, weight: .semibold)).foregroundColor(t.ink)
+                    if !r.subtitle.isEmpty {
+                        Text(r.subtitle).font(.system(size: 12)).foregroundColor(t.muted)
+                    }
+                }
+                Spacer(minLength: 8)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold)).foregroundColor(t.faint)
+            }
+        }
+        .padding(.horizontal, 16).padding(.vertical, 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(t.surface2)
+        .overlay(Rectangle().fill(t.line).frame(height: 1), alignment: .top)
     }
 }
 

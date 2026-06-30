@@ -88,6 +88,7 @@ struct Theme {
     var faint: Color    { dark ? Color(hex: "5E646C") : Color(hex: "9AA0A6") }
     var line: Color     { dark ? Color(hex: "24272E") : Color(hex: "E5E6E2") }
     var accent: Color   { dark ? Color(hex: "D4A24E") : Color(hex: "9A7322") }
+    var accentSoft: Color { dark ? Color(hex: "2A2316") : Color(hex: "F0E6CF") }
     var up: Color       { dark ? Color(hex: "46B488") : Color(hex: "1A7F5A") }
     var down: Color     { dark ? Color(hex: "E0685C") : Color(hex: "C2453A") }
 
