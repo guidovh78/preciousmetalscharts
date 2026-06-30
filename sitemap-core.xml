@@ -110,6 +110,12 @@
     <priority>0.3</priority>
   </url>
   <url>
+    <loc>https://preciousmetalscharts.com/app</loc>
+    <lastmod>2026-06-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://preciousmetalscharts.com/affiliate-disclosure</loc>
     <lastmod>2026-06-28</lastmod>
     <changefreq>yearly</changefreq>
