@@ -104,6 +104,12 @@
     <priority>0.3</priority>
   </url>
   <url>
+    <loc>https://preciousmetalscharts.com/privacy</loc>
+    <lastmod>2026-06-30</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
     <loc>https://preciousmetalscharts.com/affiliate-disclosure</loc>
     <lastmod>2026-06-28</lastmod>
     <changefreq>yearly</changefreq>
