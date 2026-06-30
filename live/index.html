@@ -91,8 +91,10 @@
   /* view all */
   .viewall{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-top:12px;color:var(--accent);font-weight:600;font-size:14.5px;text-decoration:none;}
   .viewall:hover{background:var(--surface-2);}
-  .ad{border:1px dashed var(--line-strong);border-radius:var(--radius-sm);padding:14px;margin-top:14px;text-align:center;min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
-  .ad .lbl{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);}
+  .ad{display:flex;flex-direction:column;gap:3px;border:1px solid var(--line);border-radius:var(--radius-sm);padding:13px 15px;margin-top:14px;text-decoration:none;background:var(--surface-2);}
+  .ad:hover{border-color:var(--line-strong);}
+  .ad .lbl{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);}
+  .ad .adttl{font-size:14px;font-weight:600;color:var(--ink);letter-spacing:-.01em;}
   .ad .ph{font-size:12.5px;color:var(--muted);}
   footer{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);display:flex;align-items:baseline;justify-content:space-between;gap:12px;}
   footer .disc{font-size:12px;color:var(--muted);line-height:1.5;}
@@ -136,10 +138,11 @@
 
   <a class="viewall" href="https://preciousmetalscharts.com/">View all metals <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></a>
 
-  <aside class="ad" aria-label="Advertisement">
-    <span class="lbl">Advertisement</span>
-    <span class="ph">Reserved space — your ad or sponsor goes here</span>
-  </aside>
+  <a class="ad" id="adSlot" aria-label="Sponsor" href="https://preciousmetalscharts.com/newsletter" target="_blank" rel="noopener">
+    <span class="lbl" id="adLbl" hidden>Advertisement</span>
+    <span class="adttl" id="adTtl">The metals market, summarised</span>
+    <span class="ph" id="adSub">Get the free newsletter — daily, weekly or monthly.</span>
+  </a>
 
   <footer>
     <div class="disc">Independent, not a dealer. Spot prices ~10 minutes delayed. For educational information only.</div>
@@ -292,6 +295,14 @@
     renderAll();setFresh();}).catch(function(){fetchFail=true;setFresh();});}
   loadPrices();setInterval(loadPrices,60000);
   loadSparks();setInterval(loadSparks,300000);
+  function loadAd(){fetch(API+'/app-ad.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(a){
+    if(!a||a.active!==true||!a.title||!a.url)return; // no paid advertiser → keep the house newsletter promo
+    var el=id('adSlot');if(!el)return; el.href=a.url;
+    id('adTtl').textContent=a.title;
+    var sub=id('adSub');sub.textContent=a.subtitle||'';sub.style.display=a.subtitle?'':'none';
+    var lbl=id('adLbl');if(lbl)lbl.hidden=(a.sponsored!==true);
+  }).catch(function(){});}
+  loadAd();setInterval(loadAd,300000);
   document.addEventListener('visibilitychange',function(){if(!document.hidden){loadPrices();loadSparks();}});
   window.addEventListener('pageshow',function(){loadPrices();});
   window.addEventListener('focus',function(){loadPrices();});
