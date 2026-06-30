@@ -125,11 +125,23 @@ function page(string $title, string $bodyHtml): void {
 
 // ---- GET ?selftest=1 : configuration diagnostic (reveals NO secret) -------------------
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['selftest'])) {
+    $brevoAuth = null; $brevoAuthCode = null;
+    if (!empty(cfg('brevo_key'))) {                       // live key check — reveals NO secret
+        $ch = curl_init('https://api.brevo.com/v3/account');
+        curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 12,
+            CURLOPT_HTTPHEADER => ['accept: application/json', 'api-key: ' . cfg('brevo_key')]]);
+        curl_exec($ch);
+        $brevoAuthCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        $brevoAuth = ($brevoAuthCode === 200);           // 200 = valid, 401 = bad/typo'd key
+    }
     jsonOut([
         'ok'               => !empty(cfg('brevo_key')),
         'configFileExists' => file_exists($CONFIG),
         'configPath'       => $CONFIG,
         'hasBrevoKey'      => !empty(cfg('brevo_key')),
+        'brevoAuth'        => $brevoAuth,
+        'brevoAuthCode'    => $brevoAuthCode,
         'senderEmail'      => cfg('sender_email'),
         'senderName'       => cfg('sender_name'),
         'dataDirExists'    => is_dir($DATA_DIR),
