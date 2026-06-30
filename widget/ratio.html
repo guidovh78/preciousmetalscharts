@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Gold-to-silver ratio widget — preciousmetalscharts</title>
+<style>
+  :root{
+    --bg:#FFFFFF;--surf:#FAFAF8;--ink:#17191E;--muted:#6B7177;--faint:#9AA0A6;--line:#E5E6E2;
+    --accent:#9A7322;--up:#1A7F5A;--down:#C2453A;--gold:#C19A2E;--silver:#8C9298;
+  }
+  html[data-theme="dark"]{
+    --bg:#16181D;--surf:#1B1E24;--ink:#ECEDEA;--muted:#8A9099;--faint:#5E646C;--line:#24272E;
+    --accent:#D4A24E;--up:#46B488;--down:#E0685C;--gold:#D4A93C;--silver:#A6ADB4;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:transparent;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:var(--ink);}
+  .mono{font-family:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums;}
+  .w{background:var(--bg);border:1px solid var(--line);border-radius:12px;overflow:hidden;max-width:360px;margin:0 auto;}
+  .hd{display:flex;align-items:center;gap:7px;padding:10px 13px;border-bottom:1px solid var(--line);}
+  .hd .dot{width:7px;height:7px;border-radius:50%;background:var(--up);box-shadow:0 0 0 0 rgba(26,127,90,.5);animation:pulse 2.4s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(26,127,90,.45);}70%{box-shadow:0 0 0 6px rgba(26,127,90,0);}100%{box-shadow:0 0 0 0 rgba(26,127,90,0);}}
+  .hd .brand{font-size:13px;font-weight:600;letter-spacing:-.01em;}
+  .hd .brand b{color:var(--accent);font-weight:600;}
+  .hd .live{margin-left:auto;font-size:9.5px;letter-spacing:.08em;color:var(--accent);border:1px solid var(--line);border-radius:5px;padding:2px 6px;}
+  .bd{padding:15px 16px 6px;}
+  .lab{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+  .val{font-size:42px;font-weight:600;line-height:1;letter-spacing:-.01em;}
+  .val small{font-size:13px;font-weight:400;color:var(--muted);letter-spacing:0;}
+  .band{position:relative;height:6px;border-radius:4px;margin:15px 0 7px;
+    background:linear-gradient(90deg,var(--silver),var(--faint),var(--gold));opacity:.85;}
+  .marker{position:absolute;top:50%;width:11px;height:11px;border-radius:50%;background:var(--accent);
+    border:2px solid var(--bg);transform:translate(-50%,-50%);transition:left .5s ease;left:45%;box-shadow:0 1px 3px rgba(0,0,0,.25);}
+  .scale{display:flex;justify-content:space-between;font-size:10px;color:var(--faint);}
+  .ctx{padding:9px 16px 0;font-size:12px;color:var(--muted);line-height:1.5;}
+  .ctx b{color:var(--ink);font-weight:600;}
+  .ft{display:block;margin-top:12px;padding:8px 13px;background:var(--surf);border-top:1px solid var(--line);font-size:11px;color:var(--muted);text-decoration:none;}
+  .ft:hover{color:var(--accent);}
+  .ft b{color:var(--accent);font-weight:600;}
+</style>
+</head>
+<body>
+<div class="w">
+  <div class="hd"><span class="dot"></span><span class="brand">preciousmetals<b>charts</b></span><span class="live">LIVE</span></div>
+  <div class="bd">
+    <div class="lab">Gold-to-silver ratio</div>
+    <div class="val mono"><span id="val">—</span><small> oz silver / oz gold</small></div>
+    <div class="band" aria-hidden="true"><div class="marker" id="marker"></div></div>
+    <div class="scale mono"><span id="sMin">20</span><span id="sMid">·</span><span id="sMax">120</span></div>
+  </div>
+  <div class="ctx" id="ctx">Loading live gold and silver spot…</div>
+  <a class="ft" id="ft" href="https://preciousmetalscharts.com/ratio?utm_source=widget&amp;utm_medium=embed" target="_blank" rel="noopener">Gold-silver ratio by <b>preciousmetalscharts</b> →</a>
+</div>
+<script>
+(function(){
+  var P=new URLSearchParams(location.search);
+  var theme=(P.get('theme')||'auto').toLowerCase();
+  function applyTheme(){var t=theme;if(t==='auto')t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light';document.documentElement.setAttribute('data-theme',t);}
+  applyTheme();
+  if(theme==='auto'&&window.matchMedia){try{window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change',applyTheme);}catch(e){}}
+
+  var STATS=null, LIVE=null;
+  var id=function(x){return document.getElementById(x);};
+  function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+
+  function paint(){
+    if(LIVE==null) return;
+    id('val').textContent=LIVE.toFixed(1);
+    // band scale from the 50-yr min/max (fallback 20–120)
+    var lo=20, hi=120, mid='·';
+    if(STATS&&STATS.min&&STATS.max){lo=Math.floor(STATS.min.value/5)*5; hi=Math.ceil(STATS.max.value/5)*5;}
+    id('sMin').textContent=lo; id('sMax').textContent=hi;
+    if(STATS&&STATS.average){id('sMid').textContent='avg '+STATS.average;}
+    id('marker').style.left=(clamp((LIVE-lo)/(hi-lo),0,1)*100)+'%';
+    // context line with percentile
+    if(STATS){
+      var d=STATS.distribution||[], below=0,i; for(i=0;i<d.length;i++){if(d[i]<=LIVE)below++;}
+      var txt='50-yr average <b>'+STATS.average+'</b>';
+      if(d.length){var pc=Math.round(below/d.length*100),hiP=pc>=50;
+        txt+=' · today is <b>'+(hiP?('higher than '+pc+'%'):('lower than '+(100-pc)+'%'))+'</b> of the last 50 years';}
+      id('ctx').innerHTML=txt+'.';
+    }
+  }
+  function loadLive(){
+    fetch('/prices.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(s){
+      if(!s||!s.metals)return;
+      var g=s.metals.gold&&s.metals.gold.price, sv=s.metals.silver&&s.metals.silver.price;
+      if(g&&sv&&sv>0){LIVE=g/sv; paint();}
+    }).catch(function(){});
+  }
+  function loadStats(){
+    fetch('/ratio-stats.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(s){
+      if(s){STATS=s; paint();}
+    }).catch(function(){});
+  }
+  loadStats(); loadLive(); setInterval(loadLive,60000);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)loadLive();});
+})();
+</script>
+</body>
+</html>
