@@ -53,6 +53,7 @@
   .status .livedot{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;}
   .status .ar{margin-left:auto;white-space:nowrap;}
   .status .ar b{color:var(--up);font-weight:600;}
+  .status #fresh.stale{color:var(--down);font-weight:600;}
   .status .redot{background:var(--up);animation:pulse 2.4s infinite;}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(26,127,90,.45);}70%{box-shadow:0 0 0 5px rgba(26,127,90,0);}100%{box-shadow:0 0 0 0 rgba(26,127,90,0);}}
   /* rows */
@@ -278,7 +279,13 @@
   setIcon();
 
   var fetchFail=false;
-  function setFresh(){var when=snap?new Date(snap.updatedAt):null,hhmm=when&&!isNaN(when.getTime())?when.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';id('fresh').textContent=(hhmm?(hhmm+' · '):'')+'~'+((snap&&snap.delayedMinutes)||10)+' min delayed'+(fetchFail?' · tap to retry':'');}
+  function setFresh(){var when=snap?new Date(snap.updatedAt):null,hhmm=when&&!isNaN(when.getTime())?when.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';
+    var ageMin=when&&!isNaN(when.getTime())?(Date.now()-when.getTime())/60000:null,stale=false,txt;
+    if(fetchFail){txt=(hhmm?(hhmm+' · '):'')+'refresh failed — tap to retry';stale=true;}
+    else if(ageMin!=null&&ageMin>20){var h=Math.floor(ageMin/60),m=Math.round(ageMin%60);txt=(hhmm?(hhmm+' · '):'')+'updated '+(h>0?(h+'h '+m+'m'):Math.round(ageMin)+' min')+' ago · tap to refresh';stale=true;}
+    else{txt=(hhmm?(hhmm+' · '):'')+'~'+((snap&&snap.delayedMinutes)||10)+' min delayed';}
+    var el=id('fresh');if(el){el.textContent=txt;el.classList.toggle('stale',stale);}
+    var rd=document.querySelector('.status .redot');if(rd)rd.style.background=stale?'var(--down)':'var(--up)';}
   function loadPrices(){fetch(API+'/prices.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(s){if(!s){fetchFail=true;setFresh();return;}fetchFail=false;snap=s;if(s.fx&&s.fx.rates)rates=s.fx.rates;else if(s.fx&&s.fx.eur){rates={USD:1,EUR:s.fx.eur};}if(!rates.USD)rates.USD=1;
     if(!rates[cur]){cur='USD';id('curSel').value='USD';}
     renderAll();setFresh();}).catch(function(){fetchFail=true;setFresh();});}
