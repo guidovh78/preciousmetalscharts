@@ -65,6 +65,13 @@ jobs:
           OUT_DIR: "."
         run: node data-pipeline/node/build-driver-pages.mjs
 
+      - name: Build records & valuation pages (ATH log + inflation-adjusted)
+        env:
+          DATA_DIR: "./data"
+          HIST_FILE: "./public/history/gold.json"
+          OUT_DIR: "."
+        run: node data-pipeline/node/build-records-pages.mjs
+
       - name: Upload market-recap.html to Vimexx (FTPS)
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
@@ -93,6 +100,17 @@ jobs:
                  "ftp://$FTP_HOST/public_html/why-is-$m-moving.html"
             echo "why-is-$m-moving.html uploaded."
             curl -s "https://api.indexnow.org/indexnow?url=https://preciousmetalscharts.com/why-is-$m-moving&key=454011a3f4a5e849e205d837cf4d37dc&keyLocation=https://preciousmetalscharts.com/454011a3f4a5e849e205d837cf4d37dc.txt" -o /dev/null || true
+          done
+          for f in gold-all-time-high.html gold-price-inflation-adjusted.html gold-price-inflation-adjusted.csv; do
+            curl --fail --show-error --silent \
+                 --ssl-reqd -k --ftp-pasv --disable-epsv --ftp-create-dirs \
+                 --connect-timeout 20 --max-time 90 --retry 4 --retry-delay 10 --retry-all-errors \
+                 -T "$f" -u "$FTP_USER:$FTP_PASS" \
+                 "ftp://$FTP_HOST/public_html/$f"
+            echo "$f uploaded."
+          done
+          for u in gold-all-time-high gold-price-inflation-adjusted; do
+            curl -s "https://api.indexnow.org/indexnow?url=https://preciousmetalscharts.com/$u&key=454011a3f4a5e849e205d837cf4d37dc&keyLocation=https://preciousmetalscharts.com/454011a3f4a5e849e205d837cf4d37dc.txt" -o /dev/null || true
           done
           # IndexNow: tell Bing/Yandex the recap just changed
           K=454011a3f4a5e849e205d837cf4d37dc
