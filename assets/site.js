@@ -139,7 +139,8 @@
     function lv() { chLine.setAttribute('opacity', '0'); if (label) label.style.opacity = '0'; }
     svg.addEventListener('mousemove', mv); svg.addEventListener('touchmove', mv, { passive: true }); svg.addEventListener('mouseleave', lv); svg.addEventListener('touchend', lv);
   }
-  function loadChart() { var hr = HR[range] || '1y'; fetch('/history/' + metal + '-' + hr + '.json', { cache: 'force-cache' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (f) { if (f && f.points) draw(f.points); }).catch(function () {}); }
+  var _chartReq = 0;
+  function loadChart() { var hr = HR[range] || '1y', myReq = ++_chartReq; fetch('/history/' + metal + '-' + hr + '.json', { cache: 'force-cache' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (f) { if (myReq !== _chartReq) return; if (f && f.points) draw(f.points); }).catch(function () {}); }
   var ranges = document.getElementById('ranges');
   if (ranges) ranges.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; Array.prototype.forEach.call(this.querySelectorAll('button'), function (x) { x.setAttribute('aria-pressed', 'false'); }); b.setAttribute('aria-pressed', 'true'); range = b.dataset.r; loadChart(); });
   loadChart();

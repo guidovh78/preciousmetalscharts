@@ -13,21 +13,25 @@
  * Cron (every 10 min), in DirectAdmin → Advanced → Cron Jobs:
  *   php /home/USER/domains/preciousmetalscharts.com/public_html/refresh-prices.php >/dev/null 2>&1
  *
- * Manual test from a browser:  /refresh-prices.php?key=<WEB_TRIGGER_KEY>
+ * Manual test from a browser:  /refresh-prices.php?key=<web_trigger_key from prices-config.php>
  */
-
-// ---- access guard: CLI (cron) always allowed; web only with a matching key ----
-const WEB_TRIGGER_KEY = 'a982797fa7e08408ded09815137aac75'; // for manual URL test; cron uses CLI and ignores this
-if (PHP_SAPI !== 'cli') {
-  $k = isset($_GET['key']) ? (string)$_GET['key'] : '';
-  if (WEB_TRIGGER_KEY === '' || !hash_equals(WEB_TRIGGER_KEY, $k)) { http_response_code(403); exit("forbidden\n"); }
-  header('Content-Type: text/plain; charset=utf-8');
-}
 
 $DIR   = __DIR__;
 $SNAP  = $DIR . '/prices.json';
 $INTRA = $DIR . '/intraday.json';
-$CFG   = $DIR . '/prices-config.php'; // optional: return ['metalpriceapi_key' => '...'];
+$CFG   = $DIR . '/prices-config.php'; // return ['metalpriceapi_key'=>'...', 'web_trigger_key'=>'...']
+$CFG_DATA = is_file($CFG) ? include $CFG : null; // loaded once; also reused by the metalpriceapi fallback below
+
+// ---- access guard: CLI (cron) always allowed; web only with a matching key ----
+// The key lives in prices-config.php (server-only, uploaded by the "Upload
+// prices-config" GitHub Action from a repo secret) — never hardcoded here, so
+// it can't leak via the public git history the way the old constant did.
+if (PHP_SAPI !== 'cli') {
+  $WEB_TRIGGER_KEY = (is_array($CFG_DATA) && !empty($CFG_DATA['web_trigger_key'])) ? (string)$CFG_DATA['web_trigger_key'] : '';
+  $k = isset($_GET['key']) ? (string)$_GET['key'] : '';
+  if ($WEB_TRIGGER_KEY === '' || !hash_equals($WEB_TRIGGER_KEY, $k)) { http_response_code(403); exit("forbidden\n"); }
+  header('Content-Type: text/plain; charset=utf-8');
+}
 
 $METALS = ['gold' => 'XAU', 'silver' => 'XAG', 'platinum' => 'XPT', 'palladium' => 'XPD'];
 $FX_CCY = ['USD', 'EUR', 'GBP', 'JPY', 'CNY', 'AUD', 'CAD', 'CHF', 'HKD', 'SGD'];
@@ -77,8 +81,7 @@ foreach ($METALS as $m => $sym) {
 
 // ---- 2) FALLBACK source: metalpriceapi.com (only if a key is configured) ----
 if (!$ok) {
-  $cfg = is_file($CFG) ? include $CFG : null;
-  $key = (is_array($cfg) && !empty($cfg['metalpriceapi_key'])) ? $cfg['metalpriceapi_key'] : '';
+  $key = (is_array($CFG_DATA) && !empty($CFG_DATA['metalpriceapi_key'])) ? $CFG_DATA['metalpriceapi_key'] : '';
   if ($key) {
     $sourcesTried[] = 'metalpriceapi';
     $j = getJSON("https://api.metalpriceapi.com/v1/latest?api_key=$key&base=USD&currencies=XAU,XAG,XPT,XPD");

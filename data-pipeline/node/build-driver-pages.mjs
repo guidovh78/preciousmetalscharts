@@ -40,6 +40,7 @@ async function tryCSV(p) {
 const snap = await tryJSON(`${DATA}/prices.json`);
 if (!snap || !snap.metals) { console.error('No prices.json in ' + DATA); process.exit(1); }
 const refDate = new Date(!isNaN(Date.parse(snap.updatedAt)) ? snap.updatedAt : Date.now());
+if (Date.now() - refDate.getTime() > 36 * 3600 * 1000) console.error(`WARNING: prices.json is stale (updatedAt=${refDate.toISOString()}) — 'today' framing on this page may be misleading until the server cron recovers.`);
 const todayISO = refDate.toISOString().slice(0, 10);
 const niceToday = refDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
@@ -154,9 +155,13 @@ function render(m) {
 
   const dayW = dirWord(s.day, 'up', 'down');
   const weekW = dirWord(s.week, 'gained', 'lost', 'held roughly flat');
+  // s.day can be null right after a cron restart (no baseline yet) — dirWord(null)
+  // returns '' and Math.abs(null) coerces to 0, which used to render a fabricated
+  // "0.0%" instead of honestly omitting the day-change clause.
+  const dayClause = s.day == null ? '' : (dayW === 'little changed' ? 'little changed' : `${dayW} ${Math.abs(s.day).toFixed(1)}%`);
 
   // ---- the daily-baked answer (~55-70 words) ----
-  let answer = `${Name} is trading around ${fmt2(s.price)} per troy ounce — ${dayW === 'little changed' ? 'little changed' : `${dayW} ${Math.abs(s.day).toFixed(1)}%`} on the day`;
+  let answer = `${Name} is trading around ${fmt2(s.price)} per troy ounce${dayClause ? ` — ${dayClause} on the day` : ''}`;
   if (s.week != null) answer += `, and it has ${weekW === 'held roughly flat' ? weekW : `${weekW} ${Math.abs(s.week).toFixed(1)}%`} over the past week`;
   answer += '.';
   const dxyPhrase = dxyWk == null ? '' : (Math.abs(dxyWk) < 0.05 ? 'about flat' : `${dxyWk > 0 ? 'up' : 'down'} ${Math.abs(dxyWk).toFixed(1)}%`) + ' this week';
@@ -186,7 +191,7 @@ function render(m) {
   const faqHtml = faq.map(([q, a]) => `<article class="qa-card"><h3>${esc(q)}</h3><p>${esc(a)}</p></article>`).join('\n');
   const faqLD = JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) });
 
-  const descr = `${Name} is ${dayW === 'little changed' ? 'little changed' : dayW + ' ' + Math.abs(s.day).toFixed(1) + '%'} today at ${fmt0(s.price)}. See the forces behind the move — updated daily — and a plain-language guide to what actually drives the ${m} price.`;
+  const descr = `${Name} is ${dayClause || 'trading'} today at ${fmt0(s.price)}. See the forces behind the move — updated daily — and a plain-language guide to what actually drives the ${m} price.`;
 
   const ld = JSON.stringify({
     '@context': 'https://schema.org', '@graph': [

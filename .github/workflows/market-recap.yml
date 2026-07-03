@@ -44,8 +44,20 @@ jobs:
           mkdir -p data/macro
           # DTWEXBGS = broad USD index, DFII10 = 10y real yield, CPIAUCSL = CPI-U, DGS10 = 10y nominal
           # NASDAQCOM = NASDAQ Composite (since 1971), CBBTCUSD = Coinbase Bitcoin (since ~2014)
+          # Download to a .tmp name and only move it into place once it looks like a real
+          # CSV (>5 rows). A mid-transfer failure previously left a truncated file in
+          # place (curl -o writes directly to the destination); a truncated series makes
+          # macroCtx.latest==wkAgo, which silently published "+0.0% this week" with no
+          # error. On failure the destination is simply left absent — every generator
+          # already null-guards a missing macro CSV.
           for s in DTWEXBGS DFII10 CPIAUCSL DGS10 NASDAQCOM CBBTCUSD; do
-            curl -fsS -o "data/macro/$s.csv" "https://fred.stlouisfed.org/graph/fredgraph.csv?id=$s" || true
+            tmp="data/macro/$s.csv.tmp"
+            if curl -fsS -o "$tmp" "https://fred.stlouisfed.org/graph/fredgraph.csv?id=$s" && [ "$(wc -l < "$tmp")" -gt 5 ]; then
+              mv "$tmp" "data/macro/$s.csv"
+            else
+              echo "::warning::$s.csv download failed or looked truncated — skipping this series today"
+              rm -f "$tmp"
+            fi
           done
 
       - name: Build the recap page

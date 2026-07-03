@@ -43,6 +43,7 @@ const cpiNowKey = cpiMonths[cpiMonths.length - 1];
 const cpiNow = cpi.get(cpiNowKey);
 
 const refDate = new Date(snap && !isNaN(Date.parse(snap.updatedAt)) ? snap.updatedAt : Date.now());
+if (Date.now() - refDate.getTime() > 36 * 3600 * 1000) console.error(`WARNING: prices.json is stale (updatedAt=${refDate.toISOString()}) — 'today' framing on this page may be misleading until the server cron recovers.`);
 const todayISO = refDate.toISOString().slice(0, 10);
 const niceToday = refDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 const curPrice = snap?.metals?.gold?.price ?? pts[pts.length - 1][1];

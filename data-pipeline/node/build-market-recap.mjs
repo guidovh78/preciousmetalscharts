@@ -43,6 +43,7 @@ async function tryCSV(p) {
 const snap = await tryJSON(`${DATA}/prices.json`);
 if (!snap || !snap.metals) { console.error('No prices.json in ' + DATA); process.exit(1); }
 const refDate = new Date(snap.updatedAt && !isNaN(Date.parse(snap.updatedAt)) ? snap.updatedAt : Date.now());
+if (Date.now() - refDate.getTime() > 36 * 3600 * 1000) console.error(`WARNING: prices.json is stale (updatedAt=${refDate.toISOString()}) — 'today' framing on this page may be misleading until the server cron recovers.`);
 const rates = (snap.fx && snap.fx.rates) || { USD: 1 };
 
 const hist = {};

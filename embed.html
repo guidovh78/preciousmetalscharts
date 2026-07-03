@@ -155,7 +155,14 @@
   document.getElementById('ccy').addEventListener('change',build);
   Array.prototype.forEach.call(document.querySelectorAll('#themeSeg button'),function(b){b.addEventListener('click',function(){theme=b.getAttribute('data-v');Array.prototype.forEach.call(document.querySelectorAll('#themeSeg button'),function(x){x.setAttribute('aria-pressed',x===b?'true':'false');});build();});});
   var cb=document.getElementById('copyBtn');
-  cb.addEventListener('click',function(){var t=document.getElementById('snippet');t.select();try{navigator.clipboard.writeText(t.value);}catch(e){document.execCommand('copy');}cb.textContent='Copied ✓';cb.classList.add('done');setTimeout(function(){cb.textContent='Copy';cb.classList.remove('done');},1800);});
+  cb.addEventListener('click',function(){
+    var t=document.getElementById('snippet');t.select();
+    function done(ok){cb.textContent=ok?'Copied ✓':'Copy failed — select & press ⌘/Ctrl+C';cb.classList.toggle('done',ok);setTimeout(function(){cb.textContent='Copy';cb.classList.remove('done');},ok?1800:3000);}
+    // The clipboard API returns a Promise — only report success once it actually resolves
+    // (a rejected promise, e.g. permission denied, used to still flip the button to "Copied ✓").
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t.value).then(function(){done(true);},function(){done(document.execCommand('copy'));});}
+    else{done(document.execCommand('copy'));}
+  });
   build();
 })();
 </script>

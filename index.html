@@ -665,7 +665,10 @@
 
   /* scroll-spy */
   var links=Array.prototype.slice.call(document.querySelectorAll("#secnav a"));var map={};links.forEach(function(a){map[a.getAttribute("href").slice(1)]=a;});
-  var io=new IntersectionObserver(function(entries){entries.forEach(function(en){if(en.isIntersecting){links.forEach(function(a){a.classList.remove("active");});if(map[en.target.id])map[en.target.id].classList.add("active");}});},{rootMargin:"-45% 0px -50% 0px"});
+  // "today" and "tools" have no secnav link (they sit between sections that do). Only
+  // clear+set the highlight when the intersecting section actually has one — otherwise
+  // the nav highlight blanks out while scrolling through those in-between spots.
+  var io=new IntersectionObserver(function(entries){entries.forEach(function(en){if(en.isIntersecting&&map[en.target.id]){links.forEach(function(a){a.classList.remove("active");});map[en.target.id].classList.add("active");}});},{rootMargin:"-45% 0px -50% 0px"});
   ["live","today","ratio","portfolio","premiums","explore","tools","faq","alerts"].forEach(function(id){var el=document.getElementById(id);if(el)io.observe(el);});
 
   /* ===== live spot from our own cache (/prices.json) — refreshed server-side every ~10 min ===== */

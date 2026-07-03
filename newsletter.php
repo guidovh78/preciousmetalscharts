@@ -18,6 +18,9 @@ declare(strict_types=1);
 const SITE       = 'https://preciousmetalscharts.com';
 const ALLOWED_M  = ['gold', 'silver', 'platinum', 'palladium'];
 const ALLOWED_F  = ['daily', 'weekly', 'monthly'];
+// Low-sensitivity gate for the diagnostic endpoint (?selftest=1&key=...): stops
+// anonymous callers from burning our Brevo API quota and reading the server path.
+const SELFTEST_KEY = '980fc1dde03ed15f68de7cd5b756de35';
 
 $DATA_DIR = __DIR__ . '/data';
 $STORE    = $DATA_DIR . '/subscribers.json';
@@ -50,24 +53,29 @@ function jsonOut(array $data, int $code = 200): void {
     exit;
 }
 
-function loadSubs(string $store): array {
-    if (!file_exists($store)) return [];
-    $raw = file_get_contents($store);
-    $d = json_decode($raw ?: '[]', true);
-    return is_array($d) ? $d : [];
-}
-
-function saveSubs(string $store, array $subs): bool {
+/**
+ * Open, lock, read, let $fn mutate $subs (by reference) and call $save() when it wants
+ * the change persisted, then unlock — all under ONE exclusive lock. This closes a race
+ * where two concurrent requests (e.g. two signups, or a signup landing between another
+ * request's read and write) could each read the same snapshot and the second write
+ * silently discard the first. Returns whatever $fn returns.
+ */
+function withLockedSubs(string $store, callable $fn) {
+    $empty = []; $noop = function () {};   // named vars — a literal can't bind to a by-ref param
     $fp = fopen($store, 'c+');
-    if (!$fp) return false;
-    $ok = false;
-    if (flock($fp, LOCK_EX)) {
+    if (!$fp) return $fn($empty, $noop);
+    if (!flock($fp, LOCK_EX)) { fclose($fp); return $fn($empty, $noop); }
+    $raw = stream_get_contents($fp);
+    $subs = is_array($d = json_decode($raw ?: '[]', true)) ? $d : [];
+    $save = function () use ($fp, &$subs) {
         ftruncate($fp, 0); rewind($fp);
         fwrite($fp, json_encode(array_values($subs), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-        fflush($fp); flock($fp, LOCK_UN); $ok = true;
-    }
+        fflush($fp);
+    };
+    $ret = $fn($subs, $save);
+    flock($fp, LOCK_UN);
     fclose($fp);
-    return $ok;
+    return $ret;
 }
 
 function tok(): string { return bin2hex(random_bytes(16)); }
@@ -125,6 +133,8 @@ function page(string $title, string $bodyHtml): void {
 
 // ---- GET ?selftest=1 : configuration diagnostic (reveals NO secret) -------------------
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['selftest'])) {
+    $k = (string)($_GET['key'] ?? '');
+    if (!hash_equals(SELFTEST_KEY, $k)) { http_response_code(403); exit("forbidden\n"); }
     $brevoAuth = null; $brevoAuthCode = null;
     if (!empty(cfg('brevo_key'))) {                       // live key check — reveals NO secret
         $ch = curl_init('https://api.brevo.com/v3/account');
@@ -156,18 +166,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $unsub   = $_GET['u'] ?? '';
     if ($confirm === '' && $unsub === '') { header('Location: ' . SITE . '/newsletter'); exit; }
 
-    $subs = loadSubs($STORE); $changed = false; $matched = null;
-    foreach ($subs as &$s) {
-        if ($confirm !== '' && hash_equals((string)($s['confirmToken'] ?? ''), $confirm)) {
-            if (($s['status'] ?? '') !== 'active') { $s['status'] = 'active'; $s['confirmedAt'] = nowISO(); }
-            $matched = $s; $changed = true; break;
+    $matched = withLockedSubs($STORE, function (&$subs, $save) use ($confirm, $unsub) {
+        $matched = null;
+        foreach ($subs as &$s) {
+            if ($confirm !== '' && hash_equals((string)($s['confirmToken'] ?? ''), $confirm)) {
+                if (($s['status'] ?? '') !== 'active') { $s['status'] = 'active'; $s['confirmedAt'] = nowISO(); }
+                $matched = $s; $save(); break;
+            }
+            if ($unsub !== '' && hash_equals((string)($s['unsubToken'] ?? ''), $unsub)) {
+                $s['status'] = 'unsubscribed'; $matched = $s; $save(); break;
+            }
         }
-        if ($unsub !== '' && hash_equals((string)($s['unsubToken'] ?? ''), $unsub)) {
-            $s['status'] = 'unsubscribed'; $matched = $s; $changed = true; break;
-        }
-    }
-    unset($s);
-    if ($changed) saveSubs($STORE, $subs);
+        unset($s);
+        return $matched;
+    });
 
     if ($confirm !== '') {
         if ($matched) page('Subscription confirmed', '<h1>You\'re in ✓</h1><p>Your ' . htmlspecialchars(ucfirst($matched['frequency'] ?? '')) . ' metals recap is on its way at the next edition. You can change or cancel from any email.</p><a class="btn" href="' . SITE . '/">Back to the charts</a>');
@@ -196,42 +208,47 @@ if (!in_array($freq, ALLOWED_F, true)) $freq = 'weekly';
 if (!$metals) jsonOut(['ok' => false, 'error' => 'Pick at least one metal.'], 422);
 if (!cfg('brevo_key')) jsonOut(['ok' => false, 'error' => 'The newsletter is not configured yet. Please try again later.'], 503);
 
-$subs = loadSubs($STORE);
-$existing = null;
-foreach ($subs as $i => $s) { if (strtolower((string)($s['email'] ?? '')) === $email) { $existing = $i; break; } }
+$outcome = withLockedSubs($STORE, function (&$subs, $save) use ($email, $freq, $metals) {
+    $existing = null;
+    foreach ($subs as $i => $s) { if (strtolower((string)($s['email'] ?? '')) === $email) { $existing = $i; break; } }
 
-if ($existing !== null) {
-    $s = $subs[$existing];
-    $s['frequency'] = $freq;
-    $s['metals']    = $metals;
-    if (($s['status'] ?? '') === 'active') {
-        // already confirmed — just update preferences, no new confirm email needed
+    if ($existing !== null) {
+        $s = $subs[$existing];
+        $s['frequency'] = $freq;
+        $s['metals']    = $metals;
+        if (($s['status'] ?? '') === 'active') {
+            // already confirmed — just update preferences, no new confirm email needed
+            $subs[$existing] = $s;
+            $save();
+            return ['already' => true];
+        }
+        // pending or previously unsubscribed → re-confirm
+        $s['status'] = 'pending';
+        if (empty($s['confirmToken'])) $s['confirmToken'] = tok();
+        if (empty($s['unsubToken']))   $s['unsubToken']   = tok();
         $subs[$existing] = $s;
-        saveSubs($STORE, $subs);
-        jsonOut(['ok' => true, 'already' => true]);
+    } else {
+        $s = [
+            'email'        => $email,
+            'frequency'    => $freq,
+            'metals'       => $metals,
+            'status'       => 'pending',
+            'confirmToken' => tok(),
+            'unsubToken'   => tok(),
+            'createdAt'    => nowISO(),
+            'confirmedAt'  => null,
+            'lastSent'     => new stdClass(),
+        ];
+        $subs[] = $s;
     }
-    // pending or previously unsubscribed → re-confirm
-    $s['status'] = 'pending';
-    if (empty($s['confirmToken'])) $s['confirmToken'] = tok();
-    if (empty($s['unsubToken']))   $s['unsubToken']   = tok();
-    $subs[$existing] = $s;
-} else {
-    $s = [
-        'email'        => $email,
-        'frequency'    => $freq,
-        'metals'       => $metals,
-        'status'       => 'pending',
-        'confirmToken' => tok(),
-        'unsubToken'   => tok(),
-        'createdAt'    => nowISO(),
-        'confirmedAt'  => null,
-        'lastSent'     => new stdClass(),
-    ];
-    $subs[] = $s;
-}
+    $save();
+    return ['sub' => $s];
+});
 
-if (!saveSubs($STORE, $subs)) jsonOut(['ok' => false, 'error' => 'Could not save. Please try again.'], 500);
+if (!$outcome) jsonOut(['ok' => false, 'error' => 'Could not save. Please try again.'], 500);
+if (!empty($outcome['already'])) jsonOut(['ok' => true, 'already' => true]);
 
+$s = $outcome['sub'];
 $confirmUrl = SITE . '/newsletter.php?confirm=' . $s['confirmToken'];
 [$html, $text] = confirmEmailHtml($confirmUrl, $freq, $metals);
 $sent = brevoSend($email, 'Confirm your metals newsletter', $html, $text);
