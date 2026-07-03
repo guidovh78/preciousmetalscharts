@@ -23,8 +23,11 @@ jobs:
         run: |
           set -e
           printf "<?php\nreturn ['metalpriceapi_key' => '%s', 'web_trigger_key' => '%s'];\n" "$MPA_KEY" "$TRIGGER_KEY" > prices-config.php
+          # -k is required here: Vimexx's FTPS cert chain is incomplete ("unable to
+          # get local issuer certificate" — confirmed live, 2026-07-03). Verified
+          # true of every workflow in this repo; do not remove without a CA pin.
           curl --fail --show-error --silent \
-               --ssl-reqd --ftp-pasv --disable-epsv --ftp-create-dirs \
+               --ssl-reqd -k --ftp-pasv --disable-epsv --ftp-create-dirs \
                --connect-timeout 20 --max-time 120 \
                --retry 4 --retry-delay 10 --retry-all-errors \
                -T prices-config.php -u "$FTP_USER:$FTP_PASS" \
