@@ -16,10 +16,15 @@ RewriteEngine On
 # -----------------------------------------------------------------------------
 RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
 RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
-# Force HTTPS only when the upstream proxy explicitly reports plain http.
+# Force HTTPS unless the upstream proxy explicitly confirms this request was https.
 # (Vimexx terminates SSL upstream, so %{HTTPS} reads "off" even on https — using
-# it here would redirect https→https forever. X-Forwarded-Proto=http is loop-safe.)
-RewriteCond %{HTTP:X-Forwarded-Proto} =http [NC]
+# it here would redirect https→https forever. X-Forwarded-Proto is loop-safe.)
+# Using "!=https" (deny-list) instead of "=http" (allow-list) also catches requests
+# that reach Apache directly on plain port 80, where the proxy never sets the header
+# at all — those used to slip through with no redirect, creating a live http:// and
+# https:// duplicate of every page (seen in Search Console as "Google chose a
+# different canonical than the user").
+RewriteCond %{HTTP:X-Forwarded-Proto} !=https [NC]
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 
 # If the requested path is NOT an existing file or directory, but the same name
