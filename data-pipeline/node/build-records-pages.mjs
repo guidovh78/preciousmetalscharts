@@ -288,6 +288,7 @@ ${pageFoot}`;
       <a href="/gold-price-inflation-adjusted">Gold adjusted for inflation</a>
       <a href="/why-is-gold-moving">Why is gold moving?</a>
       <a href="/gold-price-history">Gold price by year</a>
+      <a href="/gold-vs-stocks-bitcoin">Gold vs stocks vs bitcoin</a>
       <a href="/ratio">Gold-to-silver ratio</a>
       <a href="/newsletter">Get the recap by email</a>
     </div>
@@ -360,6 +361,7 @@ ${pageFoot}`;
       <a href="/gold-all-time-high">Gold all-time highs</a>
       <a href="/why-is-gold-moving">Why is gold moving?</a>
       <a href="/gold-price-history">Gold price by year</a>
+      <a href="/gold-vs-stocks-bitcoin">Gold vs stocks vs bitcoin</a>
       <a href="/purchasing-power-calculator">Purchasing-power calculator</a>
       <a href="/newsletter">Get the recap by email</a>
     </div>

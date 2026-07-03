@@ -260,7 +260,7 @@ ${faqHtml}
     <div class="related">
       <a href="/${m}-price">Live ${m} price</a>
       ${(m === 'gold' || m === 'silver') ? '<a href="/ratio">Gold-to-silver ratio</a>' : ''}
-      ${m === 'gold' ? '<a href="/gold-all-time-high">Gold all-time highs</a><a href="/gold-price-inflation-adjusted">Adjusted for inflation</a>' : ''}
+      ${m === 'gold' ? '<a href="/gold-all-time-high">Gold all-time highs</a><a href="/gold-price-inflation-adjusted">Adjusted for inflation</a><a href="/gold-vs-stocks-bitcoin">Gold vs stocks vs bitcoin</a>' : ''}
       <a href="/market-recap">Weekly market recap</a>
       <a href="/${m === 'gold' || m === 'silver' ? m + '-price-history' : 'gold-price-history'}">Price history</a>
       ${other.map((o) => `<a href="/why-is-${o}-moving">Why is ${o} moving?</a>`).join('')}
