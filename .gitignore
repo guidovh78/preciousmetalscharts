@@ -19,3 +19,4 @@ prices-config.php
 # Xcode project lives here (user-managed); keep it out of the website repo
 ios-app/PreciousMetalsCharts/PreciousMetalsCharts/
 .DS_Store
+why-is-*-moving.html
