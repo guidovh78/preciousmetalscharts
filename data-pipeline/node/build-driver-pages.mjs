@@ -159,10 +159,11 @@ function render(m) {
   let answer = `${Name} is trading around ${fmt2(s.price)} per troy ounce — ${dayW === 'little changed' ? 'little changed' : `${dayW} ${Math.abs(s.day).toFixed(1)}%`} on the day`;
   if (s.week != null) answer += `, and it has ${weekW === 'held roughly flat' ? weekW : `${weekW} ${Math.abs(s.week).toFixed(1)}%`} over the past week`;
   answer += '.';
+  const dxyPhrase = dxyWk == null ? '' : (Math.abs(dxyWk) < 0.05 ? 'about flat' : `${dxyWk > 0 ? 'up' : 'down'} ${Math.abs(dxyWk).toFixed(1)}%`) + ' this week';
   if (dxyC && dxyWk != null && realC && realWkPP != null && (m === 'gold' || m === 'silver')) {
-    answer += ` Two macro forces frame the move: the broad US dollar index is ${dirWord(dxyWk, 'up', 'down', 'about flat')} ${Math.abs(dxyWk).toFixed(1)}% this week, and 10-year real yields sit at ${realC.latest.toFixed(2)}% (${realWkPP >= 0 ? '+' : '−'}${Math.abs(realWkPP).toFixed(2)} pt on the week).`;
+    answer += ` Two macro forces frame the move: the broad US dollar index is ${dxyPhrase}, and 10-year real yields sit at ${realC.latest.toFixed(2)}% (${realWkPP >= 0 ? '+' : '−'}${Math.abs(realWkPP).toFixed(2)} pt on the week).`;
   } else if (dxyC && dxyWk != null) {
-    answer += ` The broad US dollar index — a headwind or tailwind for all dollar-priced metals — is ${dirWord(dxyWk, 'up', 'down', 'about flat')} ${Math.abs(dxyWk).toFixed(1)}% this week.`;
+    answer += ` The broad US dollar index — a headwind or tailwind for all dollar-priced metals — is ${dxyPhrase}.`;
   }
 
   // ---- context table rows ----
