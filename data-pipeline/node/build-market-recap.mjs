@@ -135,7 +135,15 @@ function macroPoint(series, code) {
 }
 const mDxy = macroPoint(macro.dxy), mReal = macroPoint(macro.real10), mNom = macroPoint(macro.nom10);
 let cpiYoY = null, cpiDate = null;
-if (macro.cpi && macro.cpi.length) { const latest = lastVal(macro.cpi); const yrAgo = atOrBefore(macro.cpi, isoDaysAgo(365)); cpiYoY = pct(latest, yrAgo); cpiDate = macro.cpi[macro.cpi.length - 1][0]; }
+if (macro.cpi && macro.cpi.length) {
+  // CPI publishes ~2 months behind. Base the YoY window on the LATEST CPI row's
+  // own date minus 12 months — anchoring on today-minus-365 quietly produced a
+  // ~10-month change mislabelled as "YoY".
+  const latest = lastVal(macro.cpi); cpiDate = macro.cpi[macro.cpi.length - 1][0];
+  const base = new Date(cpiDate + 'T00:00:00Z'); base.setUTCFullYear(base.getUTCFullYear() - 1);
+  const yrAgo = atOrBefore(macro.cpi, base.toISOString().slice(0, 10));
+  cpiYoY = pct(latest, yrAgo);
+}
 
 // ---- narrative ----
 const sel = ALL.filter((m) => d[m]?.period != null);

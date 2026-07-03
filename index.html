@@ -588,7 +588,7 @@
 
   /* ===== portfolio (investment hook) ===== */
   var HKEY="pmc_holdings_v1";
-  function loadHoldings(){try{var a=JSON.parse(localStorage.getItem(HKEY));return Array.isArray(a)?a:[];}catch(e){return [];}}
+  function loadHoldings(){try{var a=JSON.parse(localStorage.getItem(HKEY));if(!Array.isArray(a))return [];return a.filter(function(h){return h&&METALS[h.metal]&&isFinite(h.oz)&&h.oz>0&&(h.cost==null||isFinite(h.cost));});}catch(e){return [];}}
   function saveHoldings(){try{localStorage.setItem(HKEY,JSON.stringify(holdings));}catch(e){}}
   var holdings=loadHoldings();
   function renderPortfolio(){

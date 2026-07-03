@@ -34,6 +34,16 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{DOCUMENT_ROOT}/$1.html -f
 RewriteRule ^(.+?)/?$ $1.html [L]
 
+# -----------------------------------------------------------------------------
+# Hard deny for private files — defense in depth. newsletter.php also writes a
+# .htaccess inside data/ at runtime, but that must never be the ONLY protection
+# (silent write failure or FTP re-creation of data/ would expose subscriber PII).
+# -----------------------------------------------------------------------------
+RedirectMatch 403 ^/data(/|$)
+<Files "prices-config.php">
+  Require all denied
+</Files>
+
 # Branded 404 (keeps the 404 status code; the page itself is noindex).
 ErrorDocument 404 /404.html
 

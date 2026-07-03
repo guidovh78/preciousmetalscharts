@@ -307,13 +307,14 @@
   loadSparks();setInterval(loadSparks,300000);
   function loadAd(){fetch(API+'/app-ad.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(a){
     var el=id('adSlot');if(!el)return; var sub=id('adSub'),lbl=id('adLbl');
-    if(a&&a.active===true&&a.title&&a.url){            // paid advertiser → neutral ad card
-      el.href=a.url; id('adTtl').textContent=a.title;
+    var okUrl=false; try{ if(a&&a.url) okUrl=new URL(a.url).protocol==='https:'; }catch(e){}
+    if(a&&a.active===true&&a.title&&okUrl){            // paid advertiser → neutral ad card (https only)
+      el.href=a.url; el.rel='sponsored nofollow noopener'; id('adTtl').textContent=a.title;
       sub.textContent=a.subtitle||'';sub.style.display=a.subtitle?'':'none';
       if(lbl)lbl.hidden=(a.sponsored!==true);
       el.classList.remove('ad-house');el.classList.add('ad-sponsor');
     }else{                                              // house → inviting newsletter promo
-      el.href='https://preciousmetalscharts.com/newsletter';
+      el.href='https://preciousmetalscharts.com/newsletter'; el.rel='noopener';
       id('adTtl').textContent='The free metals newsletter';
       sub.textContent='A short, factual recap — daily, weekly or monthly.';sub.style.display='';
       if(lbl)lbl.hidden=true;

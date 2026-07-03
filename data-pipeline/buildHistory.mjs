@@ -29,8 +29,24 @@ export function emptyMaster(metal) { return { metal, base: 'USD', unit: 'troy_oz
 export function mergeIncremental(master, map) {
   const seen = new Set(master.points.map((p) => p[0]));
   let added = 0;
-  for (const [day, px] of map) {
-    if (!seen.has(day) && inRange(master.metal, px)) { master.points.push([day, px]); seen.add(day); added++; }
+  const lastPt = master.points.length ? master.points[master.points.length - 1] : null;
+  // Sort incoming days so the continuity check walks forward in time.
+  const days = [...map.keys()].sort();
+  let prevPx = lastPt ? lastPt[1] : null, prevDay = lastPt ? lastPt[0] : null;
+  const gapDays = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
+  for (const day of days) {
+    const px = map.get(day);
+    if (seen.has(day) || !inRange(master.metal, px)) continue;
+    // Continuity guard — ONLY for short gaps (≤7 days, i.e. the daily update
+    // path): a real metal close never jumps ±25% in a day, but a provider
+    // glitch (wrong unit, decimal slip) does — and once merged it can never be
+    // corrected (the seen-set skips existing days forever). Monthly seed data
+    // (gaps ~30 days) is exempt: gold genuinely moved >25% in a month in 1980.
+    if (prevPx != null && prevDay != null && gapDays(prevDay, day) <= 7 && Math.abs(px - prevPx) / prevPx > 0.25) {
+      console.error(`REJECTED implausible ${master.metal} close ${day}=${px} (prev ${prevDay}=${prevPx}) — provider glitch?`);
+      continue;
+    }
+    master.points.push([day, px]); seen.add(day); added++; prevPx = px; prevDay = day;
   }
   master.points.sort((a, b) => (a[0] < b[0] ? -1 : 1));
   return added;
@@ -67,8 +83,13 @@ export async function updateFromApi(env, master) {
   if (start > end) return 0; // already current
   for (const src of HISTORY_SOURCES) {
     if (src.requiresKey && !env[src.envKey]) continue;
-    try { return mergeIncremental(master, await src.timeseries(env, master.metal, start, end)); }
-    catch {}
+    try {
+      const added = mergeIncremental(master, await src.timeseries(env, master.metal, start, end));
+      // 0 added can mean a silent provider failure (HTTP 200 + empty/error body,
+      // e.g. quota exhausted) — fall through to the next source instead of
+      // declaring the day done.
+      if (added > 0) return added;
+    } catch {}
   }
   return 0;
 }

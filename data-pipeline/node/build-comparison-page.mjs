@@ -115,7 +115,11 @@ const buckets = [
 // ---- calendar-year "who won" table (years where all three have data) ----
 const years = [];
 for (let y = Number(btcStart.slice(0, 4)); y <= refDate.getUTCFullYear(); y++) {
-  const startK = nearestKey(goldM, `${y}-01`) && nearestKey(nasdaqM, `${y}-01`) && nearestKey(btcM, `${y}-01`) ? `${y}-01` : null;
+  // Calendar-year convention: prior-December close → December close. Using
+  // `${y}-01` here would take the END-of-January value (toMonthly keeps the
+  // last value per month), silently dropping January from every year's return.
+  const prevDec = `${y - 1}-12`;
+  const startK = nearestKey(goldM, prevDec) && nearestKey(nasdaqM, prevDec) && nearestKey(btcM, prevDec) ? prevDec : null;
   if (!startK) continue;
   const isCurrentYear = y === refDate.getUTCFullYear();
   const endK = isCurrentYear ? todayISO.slice(0, 7) : `${y}-12`;

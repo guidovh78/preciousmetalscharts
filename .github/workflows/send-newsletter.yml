@@ -63,8 +63,11 @@ jobs:
           curl --ssl-reqd -k --ftp-pasv --disable-epsv \
                --connect-timeout 20 --max-time 60 --retry 3 --retry-delay 8 --retry-all-errors \
                -u "$FTP_USER:$FTP_PASS" \
-               "ftp://$FTP_HOST/public_html/data/subscribers.json" -o subscribers.json || echo "[]" > subscribers.json
-          node -e "try{JSON.parse(require('fs').readFileSync('subscribers.json','utf8'))}catch(e){require('fs').writeFileSync('subscribers.json','[]')}"
+               "ftp://$FTP_HOST/public_html/data/subscribers.json" -o subscribers.json
+          # HARD-FAIL on download/parse problems. Never fall back to [] — a later
+          # upload of that empty list would silently wipe every subscriber.
+          node -e "const a=JSON.parse(require('fs').readFileSync('subscribers.json','utf8')); if(!Array.isArray(a)) throw new Error('not an array'); console.log(a.length+' subscribers loaded');"
+          md5sum subscribers.json | cut -d' ' -f1 > subs.md5.before
 
       - name: Send due editions
         env:
@@ -78,11 +81,18 @@ jobs:
 
       - name: Upload updated subscribers (FTPS)
         if: ${{ github.event.inputs.dry_run != 'true' }}
+        # Only overwrite the server copy if the send actually modified the list
+        # (lastSent stamps). Skipping otherwise shrinks the window in which a
+        # signup landing on the server between download and upload could be lost.
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USER: ${{ secrets.FTP_USER }}
           FTP_PASS: ${{ secrets.FTP_PASS }}
         run: |
+          if [ "$(md5sum subscribers.json | cut -d' ' -f1)" = "$(cat subs.md5.before)" ]; then
+            echo "subscribers.json unchanged by this run — skipping upload (protects concurrent signups)."
+            exit 0
+          fi
           curl --fail --ssl-reqd -k --ftp-pasv --disable-epsv --ftp-create-dirs \
                --connect-timeout 20 --max-time 60 --retry 3 --retry-delay 8 --retry-all-errors \
                -T subscribers.json -u "$FTP_USER:$FTP_PASS" \

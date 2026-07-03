@@ -130,6 +130,7 @@ function renderPage(m, year) {
   const Name = META[m].name, ys = String(year);
   const rose = s.change >= 0;
   const monthly = s.n <= 13; // coarse archive year → show month, not a precise day
+  const cur = year === new Date().getUTCFullYear(); // in-progress year → label everything YTD, never as a finished year
   const dFmt = (iso) => monthly ? new Date(iso + 'T00:00:00Z').toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : niceDate(iso);
   const on = monthly ? 'in' : 'on';
   const today = snap.metals[m]?.price ?? null;
@@ -139,15 +140,17 @@ function renderPage(m, year) {
   const ga = yearlyAvg.gold?.[ys], sa = yearlyAvg.silver?.[ys];
   const ratioYr = (ga && sa) ? ga / sa : null;
 
-  const descr = `${Name} averaged ${fmt0(s.avg)} per troy ounce in ${ys}, ranging from ${fmt0(s.lo[1])} to ${fmt0(s.hi[1])}. It opened at ${fmt0(s.open)} and ended at ${fmt0(s.close)} (${fmtP(s.change)}). See the full ${ys} ${m} price chart and how it compares to today.`;
+  const descr = cur
+    ? `So far in ${ys}, ${m} has averaged ${fmt0(s.avg)} per troy ounce, ranging from ${fmt0(s.lo[1])} to ${fmt0(s.hi[1])}. It opened the year at ${fmt0(s.open)} and currently trades near ${fmt0(s.close)} (${fmtP(s.change)} YTD). Updated as the year unfolds.`
+    : `${Name} averaged ${fmt0(s.avg)} per troy ounce in ${ys}, ranging from ${fmt0(s.lo[1])} to ${fmt0(s.hi[1])}. It opened at ${fmt0(s.open)} and ended at ${fmt0(s.close)} (${fmtP(s.change)}). See the full ${ys} ${m} price chart and how it compares to today.`;
 
   // front-loaded answer block (~50-70 words)
-  const answer = `In ${ys}, ${m} ${rose ? 'rose' : 'fell'} ${fmtP(s.change)}, opening the year around ${fmt0(s.open)} per troy ounce and ending near ${fmt0(s.close)}. It averaged ${fmt0(s.avg)}, with a high of ${fmt2(s.hi[1])} ${on} ${dFmt(s.hi[0])} and a low of ${fmt2(s.lo[1])} ${on} ${dFmt(s.lo[0])}.${today != null ? ` Today ${m} trades around ${fmt0(today)} — ${vsAvg >= 0 ? 'about ' + Math.abs(vsAvg).toFixed(0) + '% above' : 'about ' + Math.abs(vsAvg).toFixed(0) + '% below'} its ${ys} average.` : ''}`;
+  const answer = `${cur ? `So far in ${ys} (year to date), ${m} ${rose ? 'is up' : 'is down'} ${fmtP(s.change)}, opening the year around ${fmt0(s.open)} per troy ounce and currently trading near ${fmt0(s.close)}.` : `In ${ys}, ${m} ${rose ? 'rose' : 'fell'} ${fmtP(s.change)}, opening the year around ${fmt0(s.open)} per troy ounce and ending near ${fmt0(s.close)}.`} It averaged ${fmt0(s.avg)}, with a high of ${fmt2(s.hi[1])} ${on} ${dFmt(s.hi[0])} and a low of ${fmt2(s.lo[1])} ${on} ${dFmt(s.lo[0])}.${today != null ? ` Today ${m} trades around ${fmt0(today)} — ${vsAvg >= 0 ? 'about ' + Math.abs(vsAvg).toFixed(0) + '% above' : 'about ' + Math.abs(vsAvg).toFixed(0) + '% below'} its ${ys} average.` : ''}`;
 
   const statsTable = `<table class="yr-table"><tbody>
     <tr><th>Opening price (Jan ${ys})</th><td class="n">${fmt2(s.open)}</td></tr>
-    <tr><th>Closing price (Dec ${ys})</th><td class="n">${fmt2(s.close)}</td></tr>
-    <tr><th>Change over ${ys}</th><td class="n" style="color:${rose ? 'var(--up)' : 'var(--down)'}">${fmtP(s.change)}</td></tr>
+    <tr><th>${cur ? `Latest price (${ys}, in progress)` : `Closing price (Dec ${ys})`}</th><td class="n">${fmt2(s.close)}</td></tr>
+    <tr><th>${cur ? `Change so far in ${ys} (YTD)` : `Change over ${ys}`}</th><td class="n" style="color:${rose ? 'var(--up)' : 'var(--down)'}">${fmtP(s.change)}</td></tr>
     <tr><th>${ys} high</th><td class="n">${fmt2(s.hi[1])} <span style="color:var(--faint)">· ${dFmt(s.hi[0])}</span></td></tr>
     <tr><th>${ys} low</th><td class="n">${fmt2(s.lo[1])} <span style="color:var(--faint)">· ${dFmt(s.lo[0])}</span></td></tr>
     <tr><th>${ys} average</th><td class="n">${fmt2(s.avg)}</td></tr>
@@ -161,13 +164,13 @@ function renderPage(m, year) {
   const faqObj = {
     '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [
       { '@type': 'Question', name: `What was the highest ${m} price in ${ys}?`, acceptedAnswer: { '@type': 'Answer', text: `The highest ${m} spot price in ${ys} was about ${fmt2(s.hi[1])} per troy ounce, ${on} ${dFmt(s.hi[0])}. The low was about ${fmt2(s.lo[1])} ${on} ${dFmt(s.lo[0])}.` } },
-      { '@type': 'Question', name: `Did ${m} go up or down in ${ys}?`, acceptedAnswer: { '@type': 'Answer', text: `${Name} ${rose ? 'rose' : 'fell'} ${fmtP(s.change)} over ${ys}, opening near ${fmt0(s.open)} and ending near ${fmt0(s.close)} per troy ounce. It averaged ${fmt0(s.avg)} for the year.` } },
+      { '@type': 'Question', name: `Did ${m} go up or down in ${ys}?`, acceptedAnswer: { '@type': 'Answer', text: cur ? `So far in ${ys}, ${m} ${rose ? 'is up' : 'is down'} ${fmtP(s.change)} year to date, opening near ${fmt0(s.open)} and currently trading near ${fmt0(s.close)} per troy ounce. The year is still in progress; figures update daily.` : `${Name} ${rose ? 'rose' : 'fell'} ${fmtP(s.change)} over ${ys}, opening near ${fmt0(s.open)} and ending near ${fmt0(s.close)} per troy ounce. It averaged ${fmt0(s.avg)} for the year.` } },
       ...(worth != null ? [{ '@type': 'Question', name: `What would ${m} bought in ${ys} be worth today?`, acceptedAnswer: { '@type': 'Answer', text: `At the ${ys} average price, $1,000 of ${m} would be worth roughly ${fmt0(worth)} today at the spot price, before any premiums, fees or taxes.` } }] : []),
     ],
   };
   const datasetObj = {
     '@context': 'https://schema.org', '@type': 'Dataset', name: `${Name} price ${ys}`, description: `Spot price of ${m} per troy ounce in US dollars during ${ys}, from the preciousmetalscharts price archive (deep history from World Bank Commodity Price Data, CC BY 4.0).`,
-    temporalCoverage: `${ys}-01-01/${ys}-12-31`, license: 'https://creativecommons.org/licenses/by/4.0/', creditText: 'World Bank Commodity Price Data (Pink Sheet), CC BY 4.0', isAccessibleForFree: true,
+    temporalCoverage: cur ? `${ys}-01-01/..` : `${ys}-01-01/${ys}-12-31`, license: 'https://creativecommons.org/licenses/by/4.0/', creditText: 'World Bank Commodity Price Data (Pink Sheet), CC BY 4.0', isAccessibleForFree: true,
     variableMeasured: { '@type': 'PropertyValue', name: `${Name} spot price`, unitText: 'USD per troy ounce' }, creator: { '@id': `${SITE}/#org` }, url: `${SITE}/${m}-price-${ys}`,
   };
 
@@ -202,7 +205,7 @@ function renderPage(m, year) {
     <div class="sec-head"><span class="sec-num">02</span><h2>Common questions</h2></div>
     <div class="faq-grid">
       <article class="qa-card"><h3>What was the highest ${m} price in ${year}?</h3><p>The highest ${m} spot price in ${year} was about ${fmt2(s.hi[1])} per troy ounce, reached ${on} ${dFmt(s.hi[0])}. The year's low was about ${fmt2(s.lo[1])} ${on} ${dFmt(s.lo[0])}.</p></article>
-      <article class="qa-card"><h3>Did ${m} go up or down in ${year}?</h3><p>${Name} ${rose ? 'rose' : 'fell'} ${fmtP(s.change)} over ${year}, opening near ${fmt0(s.open)} and ending near ${fmt0(s.close)}. The average for the year was ${fmt0(s.avg)}.</p></article>
+      <article class="qa-card"><h3>Did ${m} go up or down in ${year}?</h3><p>${cur ? `So far in ${year}, ${m} ${rose ? 'is up' : 'is down'} ${fmtP(s.change)} year to date, opening near ${fmt0(s.open)} and currently near ${fmt0(s.close)}. The year is still in progress — this page updates as it unfolds.` : `${Name} ${rose ? 'rose' : 'fell'} ${fmtP(s.change)} over ${year}, opening near ${fmt0(s.open)} and ending near ${fmt0(s.close)}. The average for the year was ${fmt0(s.avg)}.`}</p></article>
       ${worth != null ? `<article class="qa-card"><h3>What would ${m} bought in ${year} be worth today?</h3><p>At the ${year} average price, $1,000 of ${m} would be worth roughly ${fmt0(worth)} today at spot — before premiums, fees and taxes. Try our <a href="/dca-calculator">DCA backtest</a> for a fuller picture.</p></article>` : ''}
     </div>
     <p class="faq-meta">Reviewed by the preciousmetalscharts editorial team · Updated ${niceDate(todayISO)} · Figures are spot in USD from our archive (deep history: World Bank Pink Sheet, CC BY 4.0). See our <a href="/methodology">methodology</a>.</p>

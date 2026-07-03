@@ -164,7 +164,7 @@ struct AdSlotView: View {
     // When no paid advertiser is active, show an inviting house newsletter promo
     // (a real, tappable element — cleaner for App Review than an empty placeholder).
     private var resolved: (house: Bool, sponsored: Bool, title: String, subtitle: String, url: String) {
-        if let a = ad, a.active == true, let title = a.title, !title.isEmpty, let url = a.url, !url.isEmpty {
+        if let a = ad, a.active == true, let title = a.title, !title.isEmpty, let url = a.url, URL(string: url)?.scheme == "https" {
             return (false, a.sponsored ?? true, title, a.subtitle ?? "", url)
         }
         return (true, false,
