@@ -1,5 +1,5 @@
 {
-  "iosAppLive": false,
-  "iosAppUrl": "https://apps.apple.com/app/id6785870607",
-  "_help": "When Apple approves the iOS app, set iosAppLive to true and re-upload this file. The 'Download on the App Store' button then appears on the site (no redeploy needed). iosAppUrl is the public App Store link — verify it opens the app once live."
+  "iosAppLive": true,
+  "iosAppUrl": "https://apps.apple.com/app/precious-metals-charts/id6785870607",
+  "_help": "The iOS app was approved by Apple 2026-07-06. iosAppLive:true makes the 'Download on the App Store' button appear on the homepage and /app page (server-controlled, no redeploy needed for future changes here)."
 }
